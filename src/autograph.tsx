@@ -8,12 +8,33 @@ export function AutographSuspense({ url, render } : {
 }){
     let schema = gqlFetchSuspense(url, introspectionQuery).data.__schema;
     let query = schema.types.find(k => k.name == 'Query')
-    let log = {}
-    pseudoRender(render(makeTracker(schema.types, query, log)))
-    let data = gqlFetchSuspense(url, generateGraphQL(log)).data
+    let accessLog = {}
+    pseudoRender(render(makeTracker(schema.types, query, accessLog)))
+    let data = gqlFetchSuspense(url, generateGraphQL(accessLog)).data
     return render(makeRetriever(schema.types, data))
 }
 
+export class Autograph2 extends React.Component<{
+    url: string, 
+    render: (Query) => JSX.Element
+}> {
+    render(){
+        try {
+            let { url, render } = this.props;
+            let schema = gqlFetchSuspense(url, introspectionQuery).data.__schema;
+            let query = schema.types.find(k => k.name == 'Query')
+            let accessLog = {}
+            pseudoRender(render(makeTracker(schema.types, query, accessLog)))
+            let data = gqlFetchSuspense(url, generateGraphQL(accessLog)).data
+            return render(makeRetriever(schema.types, data))
+        } catch (err) {
+            if(err instanceof Promise){
+                err.then(e => this.setState({ }))
+                return <div>Loading...</div>
+            }else throw err;
+        }
+    }
+}
 
 export default class Autograph extends React.Component<{
         url: string, 
@@ -60,11 +81,11 @@ export default class Autograph extends React.Component<{
 
         let schema = this.state.schema;
         let query = schema.types.find(k => k.name == 'Query')
-        let log = {}
-        pseudoRender(this.props.render(makeTracker(schema.types, query, log)))
+        let accessLog = {}
+        pseudoRender(this.props.render(makeTracker(schema.types, query, accessLog)))
 
 
-        let graphQL = generateGraphQL(log)
+        let graphQL = generateGraphQL(accessLog)
         if(this.state.lastGraphQL !== graphQL){
             if(!this.state.loadingData){
                 this.state.loadingData = true;
