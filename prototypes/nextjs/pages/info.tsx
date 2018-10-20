@@ -19,6 +19,19 @@ export default ({ Query, ctx }: { Query: GQL.Query, ctx }) => {
             <img src={pokemon.image} />
         </div>
 
+        <div>{pokemon.types.map(k => <li key={k}>{k}</li>)}</div>
+
+         <div>
+            <fieldset>
+            <legend>Evolutions:</legend>
+            {(pokemon.evolutions || []).map(k => <div key={k.id}>
+                <PokemonSummary pokemon={k} />
+            </div>)}
+            </fieldset>
+        </div>
+
+
+
     </div>
 }
 
