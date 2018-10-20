@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { introspectionQuery } from 'graphql'
+// import { introspectionQuery } from 'graphql'
 
 
 let succinctIntrospectionQuery = `
@@ -9,19 +9,7 @@ let succinctIntrospectionQuery = `
       queryType { name }
       mutationType { name }
       subscriptionType { name }
-      types {
-        ...FullType
-      }
-      directives {
-        name
-        description
-        args {
-          ...InputValue
-        }
-        onOperation
-        onFragment
-        onField
-      }
+      types { ...FullType }
     }
   }
 
@@ -32,54 +20,28 @@ let succinctIntrospectionQuery = `
     fields(includeDeprecated: true) {
       name
       description
-      args {
-        ...InputValue
-      }
-      type {
-        ...TypeRef
-      }
-      isDeprecated
-      deprecationReason
+      args { ...InputValue }
+      type { ...TypeRef }
     }
-    inputFields {
-      ...InputValue
-    }
-    interfaces {
-      ...TypeRef
-    }
+    inputFields { ...InputValue }
+    interfaces { ...TypeRef }
     enumValues(includeDeprecated: true) {
       name
       description
-      isDeprecated
-      deprecationReason
     }
-    possibleTypes {
-      ...TypeRef
-    }
+    possibleTypes { ...TypeRef }
   }
 
   fragment InputValue on __InputValue {
     name
     description
     type { ...TypeRef }
-    defaultValue
   }
 
   fragment TypeRef on __Type {
     kind
     name
-    ofType {
-      kind
-      name
-      ofType {
-        kind
-        name
-        ofType {
-          kind
-          name
-        }
-      }
-    }
+    ofType { kind, name, ofType { kind, name, ofType { kind, name } } }
   }
 `
 
@@ -171,8 +133,8 @@ export default class Autograph extends React.Component<{
                 this.state.loadingSchema = true;
                 gqlFetch(url, succinctIntrospectionQuery)
                     .then(result => {
-                        console.log(result.data.__schema)
-                        console.log(generateTypescript(result.data.__schema, url))
+                        // console.log(result.data.__schema)
+                        // console.log(generateTypescript(result.data.__schema, url))
                         this.setState({ schema: result.data.__schema, lastURL: url, loadingSchema: false })
                     })    
             }
@@ -183,8 +145,9 @@ export default class Autograph extends React.Component<{
         let query = schema.types.find(k => k.name == schema.queryType.name)
         let log = {}
         let tracker = makeTracker(schema.types, query, log)
-        console.log(tracker)
+        // console.log(tracker)
         pseudoRender(this.props.render(tracker))
+        // console.log(log)
 
 
         let graphQL = generateGraphQL(log)
@@ -204,11 +167,13 @@ export default class Autograph extends React.Component<{
 
 
 export function pseudoRender(element){
-    if(typeof element != 'object') return;
     if(Array.isArray(element)){ // render all children
         for(let el of element) pseudoRender(el);
         return
     }
+    // console.log(element, React.isValidElement(element))
+    if(!React.isValidElement(element)) return;
+    
     if(element.props.children)
         pseudoRender(element.props.children);
     if(typeof element.type === 'function'){
@@ -234,11 +199,11 @@ export function makeTracker(types, obj, query){
         if(type.kind == 'LIST') return [ subtrack(field, type.ofType, args) ];
         if(type.kind == 'OBJECT') return makeTracker(types, 
             types.find(k => k.name == type.name), 
-            query[key] = { });
+            query[key] || (query[key] = { }));
         query[key] = 1
         if(type.kind == 'ENUM') return type.enumValues[0];
         if(type.name == 'Int' || type.name == 'Float') return 42;
-        if(type.name == 'String') return 'Hi';
+        if(type.name == 'String') return '{' + field.name + '}';
         if(type.name == 'ID') return Math.random().toString(36).slice(3);
         console.log('unknown', type)
         return null
@@ -291,6 +256,8 @@ export function generateGraphQL(graph){
                 argpart + generateGraphQL(graph[key])) + '\n'
         }
     }
+    // this way we dont wind up with an empty block syntax error
+    if(Object.keys(graph).length == 0) s += '  __typename\n'; 
     s += '}'
     return s
 }
@@ -327,7 +294,7 @@ function gqlFetchSuspense(url, query){
 
 
 export function makeRetriever(data: any): any {
-    if(typeof data != 'object' || !data) return data;
+    if((typeof data != 'object') || !data) return data;
     if(Array.isArray(data)) return data.map(k => makeRetriever(k));
 
     let retriever : {[key: string]: any} = {}
@@ -336,7 +303,7 @@ export function makeRetriever(data: any): any {
         retriever[name] = (!hasArgs) ? 
             makeRetriever(data[key])
             : (args: {[key: string]: any}) => {
-                return data[encodeArguments(name, args)]
+                return makeRetriever(data[encodeArguments(name, args)])
             }
     }
     return retriever
