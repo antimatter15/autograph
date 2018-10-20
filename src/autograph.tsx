@@ -70,6 +70,18 @@ export function AutographSuspense({ url, render } : {
     return render(makeRetriever(data))
 }
 
+
+export function AutographHOC(url){
+    return function(Component){
+        return function(props){
+            return <Autograph url={url} render={Query => 
+                <Component {...props} Query={Query} />}/>    
+        }
+    }
+}
+
+
+// This is kinda janky for a number of reasons. TODO: fix this.
 export class Autograph2 extends React.Component<{
     url: string, 
     render: (Query) => JSX.Element,
@@ -229,12 +241,12 @@ export function decodeField(key): [string, null | any] {
 }
 
 export function encodeArguments(name: string, args: any): string {
-    return name + 'ZZZ' + JSON.stringify(args || {})
-        .replace(/[^\w]+|Z/g, '')
+    return name + '___' + JSON.stringify(args || {})
+        .replace(/[^\w]+/g, '')
 }
 
 export function decodeArguments(slug: string): [ string, boolean ] {
-    let parts = slug.split('ZZZ')
+    let parts = slug.split('___')
     return [ parts[0], parts.length > 1 ]
 }
 
