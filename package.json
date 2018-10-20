@@ -1,0 +1,19 @@
+{
+  "name": "autograph",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "parcel index.html"
+  },
+  "dependencies": {
+    "@types/graphql": "^14.0.3",
+    "@types/react": "^16.4.18",
+    "@types/react-dom": "^16.0.9",
+    "graphql": "^14.0.2",
+    "lodash": "^4.17.11",
+    "parcel-bundler": "^1.10.3",
+    "react": "^16.5.2",
+    "react-dom": "^16.5.2"
+  }
+}
