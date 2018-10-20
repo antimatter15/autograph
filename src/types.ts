@@ -1,6 +1,6 @@
 /** Query any Pokémon by number or name */
 export type Query = {
-    query?: Query
+    query: Query | null
 
     pokemons(args: { first: number }): Pokemon[] | null
 
@@ -14,89 +14,89 @@ export type Pokemon = {
     id: string
 
     /** The identifier of this Pokémon */
-    number?: string
+    number: string | null
 
     /** The name of this Pokémon */
-    name?: string
+    name: string | null
 
     /** The minimum and maximum weight of this Pokémon */
-    weight?: PokemonDimension
+    weight: PokemonDimension | null
 
     /** The minimum and maximum weight of this Pokémon */
-    height?: PokemonDimension
+    height: PokemonDimension | null
 
     /** The classification of this Pokémon */
-    classification?: string
+    classification: string | null
 
     /** The type(s) of this Pokémon */
-    types?: string[]
+    types: string[] | null
 
     /** The type(s) of Pokémons that this Pokémon is resistant to */
-    resistant?: string[]
+    resistant: string[] | null
 
     /** The attacks of this Pokémon */
-    attacks?: PokemonAttack
+    attacks: PokemonAttack | null
 
     /** The type(s) of Pokémons that this Pokémon weak to */
-    weaknesses?: string[]
+    weaknesses: string[] | null
 
-    fleeRate?: number
+    fleeRate: number | null
 
     /** The maximum CP of this Pokémon */
-    maxCP?: number
+    maxCP: number | null
 
     /** The evolutions of this Pokémon */
-    evolutions?: Pokemon[]
+    evolutions: Pokemon[] | null
 
     /** The evolution requirements of this Pokémon */
-    evolutionRequirements?: PokemonEvolutionRequirement
+    evolutionRequirements: PokemonEvolutionRequirement | null
 
     /** The maximum HP of this Pokémon */
-    maxHP?: number
+    maxHP: number | null
 
-    image?: string
+    image: string | null
 
 }
 
 /** Represents a Pokémon's dimensions */
 export type PokemonDimension = {
     /** The minimum value of this dimension */
-    minimum?: string
+    minimum: string | null
 
     /** The maximum value of this dimension */
-    maximum?: string
+    maximum: string | null
 
 }
 
 /** Represents a Pokémon's attack types */
 export type PokemonAttack = {
     /** The fast attacks of this Pokémon */
-    fast?: Attack[]
+    fast: Attack[] | null
 
     /** The special attacks of this Pokémon */
-    special?: Attack[]
+    special: Attack[] | null
 
 }
 
 /** Represents a Pokémon's attack types */
 export type Attack = {
     /** The name of this Pokémon attack */
-    name?: string
+    name: string | null
 
     /** The type of this Pokémon attack */
-    type?: string
+    type: string | null
 
     /** The damage of this Pokémon attack */
-    damage?: number
+    damage: number | null
 
 }
 
 /** Represents a Pokémon's requirement to evolve */
 export type PokemonEvolutionRequirement = {
     /** The amount of candy to evolve */
-    amount?: number
+    amount: number | null
 
     /** The name of the candy to evolve */
-    name?: string
+    name: string | null
 
 }

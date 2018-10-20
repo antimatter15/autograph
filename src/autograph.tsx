@@ -2,6 +2,18 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { introspectionQuery } from 'graphql'
 
+export function AutographSuspense({ url, render } : {
+    url: string, 
+    render: (Query) => JSX.Element
+}){
+    let schema = gqlFetchSuspense(url, introspectionQuery).data.__schema;
+    let query = schema.types.find(k => k.name == 'Query')
+    let log = {}
+    pseudoRender(render(makeTracker(schema.types, query, log)))
+    let data = gqlFetchSuspense(url, generateGraphQL(log)).data
+    return render(makeRetriever(schema.types, data))
+}
+
 
 export default class Autograph extends React.Component<{
         url: string, 
@@ -179,10 +191,24 @@ function gqlFetch(url, query){
     .then(resp => resp.json())
 }
 
+// TODO: make this code a bit more elegant
+let cachePromises = {},
+    cacheData = {}
+
+function gqlFetchSuspense(url, query){
+    let key = url + query;
+    if(cacheData[key]) return cacheData[key];
+    if(cachePromises[key]) throw cachePromises[key];
+    throw cachePromises[key] = gqlFetch(url, query).then(data => 
+        cacheData[key] = data)
+}
 
 function makeRetriever(types, data){
+    if(!data) return data;
+
     let retriever = {}
     let obj = types.find(k => k.name == data.__typename);
+    
     if(!obj) return data;
 
     for(let field of obj.fields){

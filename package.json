@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "parcel index.html"
+    "start": "parcel index.html",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@types/graphql": "^14.0.3",
@@ -15,5 +16,9 @@
     "parcel-bundler": "^1.10.3",
     "react": "^16.5.2",
     "react-dom": "^16.5.2"
+  },
+  "devDependencies": {
+    "patch-package": "^5.1.1",
+    "postinstall-postinstall": "^2.0.0"
   }
 }
