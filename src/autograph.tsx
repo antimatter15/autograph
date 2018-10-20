@@ -29,7 +29,7 @@ export function AutographSuspense({ url, render } : {
 export default class Autograph extends React.Component<{
     url: string, 
     render: (Query) => JSX.Element,
-    loading?: JSX.Element
+    loading: JSX.Element
 }> {
     render(){
         let { url, render, loading } = this.props;
@@ -50,7 +50,7 @@ export default class Autograph extends React.Component<{
 }
 
 
-function pseudoRender(element){
+export function pseudoRender(element){
     if(typeof element != 'object') return;
     if(Array.isArray(element)){ // render all children
         for(let el of element) pseudoRender(el);
@@ -72,11 +72,11 @@ function pseudoRender(element){
 }
 
 
-function makeTracker(types, obj, query){
+
+export function makeTracker(types, obj, query){
     let tracker = { __typename: obj.name }
     const subtrack = (field, type, args) => {
-        let key = field.args.length == 0 ? field.name : 
-            (field.name + '::' + JSON.stringify(args));
+        let key = encodeField(field, args);
         if(type.kind == 'NON_NULL') return subtrack(field, type.ofType, args);
         if(type.kind == 'LIST') return [ subtrack(field, type.ofType, args) ];
         if(type.kind == 'OBJECT')
@@ -96,29 +96,46 @@ function makeTracker(types, obj, query){
                 get: () => subtrack(field, field.type, {})
             })
         }else{
-            tracker[field.name] = (args) => subtrack(field, field.type, args)
+            tracker[field.name] = (args) => subtrack(field, field.type, args || {})
         }
     }
     return tracker
 }
 
+export function encodeField(field: { name: string, args: Array<any> }, args: null | any): string {
+    return JSON.stringify([ field.name, field.args.length == 0 ? null : (args || {}) ])
+}
 
+export function decodeField(key): [string, null | any] {
+    return JSON.parse(key)
+}
 
-function generateGraphQL(graph){
+export function encodeArguments(name: string, args: any): string {
+    return name + 'ZZZ' + JSON.stringify(args || {})
+        .replace(/[^\w]+|Z/g, '')
+}
+
+export function decodeArguments(slug: string): [ string, boolean ] {
+    let parts = slug.split('ZZZ')
+    return [ parts[0], parts.length > 1 ]
+}
+
+export function generateGraphQL(graph){
     if(graph === 1) return '';
     let s = '{\n'
     const indent = x => x.split('\n').map(k => '  ' + k).join('\n')
     for(let key in graph){
-        let parts = key.split('::')
-        if(parts.length == 1){
-            s += indent(key + ' ' + generateGraphQL(graph[key])) + '\n'
+        let [ name, args ] = decodeField(key);
+        if(args === null){
+            s += indent(name + ' ' + generateGraphQL(graph[key])) + '\n'
         }else{
-            let slug = parts[0] + 'ZZZ' + parts[1].replace(/[^\w]+/g, '_');
-            s += indent(slug + ': ' + parts[0] + '(' + 
-                Object.entries(JSON.parse(parts[1]))
+            let argpart = Object.keys(args).length > 0 ? ('(' + 
+                Object.entries(args)
                     .map(([key, value]) => key + ': ' + JSON.stringify(value))
                     .join(', ')
-            + ') ' + generateGraphQL(graph[key])) + '\n'
+            + ') ') : ' '
+            s += indent(encodeArguments(name, args) + ': ' + name + 
+                argpart + generateGraphQL(graph[key])) + '\n'
         }
     }
     s += '}'
@@ -162,13 +179,11 @@ export function makeRetriever(data: any): any {
 
     let retriever : {[key: string]: any} = {}
     for(let key in data){
-        let parts = key.split('ZZZ')
-        retriever[parts[0]] = (parts.length === 1) ? 
+        let [ name, hasArgs ] = decodeArguments(key)
+        retriever[name] = (!hasArgs) ? 
             makeRetriever(data[key])
             : (args: {[key: string]: any}) => {
-                let slug = parts[0] + 'ZZZ' + JSON.stringify(args)
-                .replace(/[^\w]+/g, '_');
-                return data[slug]
+                return data[encodeArguments(name, args)]
             }
     }
     return retriever

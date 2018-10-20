@@ -129,11 +129,13 @@ function generateGraphQL(graph){
         if(args === null){
             s += indent(name + ' ' + generateGraphQL(graph[key])) + '\n'
         }else{
-            s += indent(encodeArguments(name, args) + ': ' + name + '(' + 
+            let argpart = Object.keys(args).length > 0 ? ('(' + 
                 Object.entries(args)
                     .map(([key, value]) => key + ': ' + JSON.stringify(value))
                     .join(', ')
-            + ') ' + generateGraphQL(graph[key])) + '\n'
+            + ') ') : ' '
+            s += indent(encodeArguments(name, args) + ': ' + name + 
+                argpart + generateGraphQL(graph[key])) + '\n'
         }
     }
     s += '}'
