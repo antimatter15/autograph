@@ -1,106 +1,69 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
+import App, { Container } from 'next/app'
 import { introspectionQuery } from 'graphql'
+import 'isomorphic-fetch'
 
-export function AutographSuspense({ url, render } : {
-    url: string, 
-    render: (Query) => JSX.Element
-}){
-    let schema = gqlFetchSuspense(url, introspectionQuery).data.__schema;
-    let query = schema.types.find(k => k.name == 'Query')
-    let accessLog = {}
-    pseudoRender(render(makeTracker(schema.types, query, accessLog)))
-    let data = gqlFetchSuspense(url, generateGraphQL(accessLog)).data
-    return render(makeRetriever(schema.types, data))
-}
-
-export class Autograph2 extends React.Component<{
-    url: string, 
-    render: (Query) => JSX.Element
-}> {
-    render(){
-        try {
-            let { url, render } = this.props;
-            let schema = gqlFetchSuspense(url, introspectionQuery).data.__schema;
-            let query = schema.types.find(k => k.name == 'Query')
-            let accessLog = {}
-            pseudoRender(render(makeTracker(schema.types, query, accessLog)))
-            let data = gqlFetchSuspense(url, generateGraphQL(accessLog)).data
-            return render(makeRetriever(schema.types, data))
-        } catch (err) {
-            if(err instanceof Promise){
-                err.then(e => this.setState({ }))
-                return <div>Loading...</div>
-            }else throw err;
-        }
+export default class MyApp extends App {
+  static async getInitialProps({ Component, router, ctx }) {
+    let pageProps = {
+      gqlData: null,
+      gqlSchema: null,
+      ctx: {
+        pathname: ctx.pathname,
+        query: ctx.query
+      }
     }
-}
+    if (Component.getInitialProps) {
+      pageProps = await Component.getInitialProps(ctx)
+    }
+    
 
-export default class Autograph extends React.Component<{
-        url: string, 
-        render: (Query) => JSX.Element
-    }, {
-        schema
-        lastURL
-        lastGraphQL
-        loadingSchema
-        loadingData
-        data
-    }> {
+    if(!Component.prototype.render){
+      let url = 'https://graphql-pokemon.now.sh/graphql'
+      let renderFn = Component;
 
-    state = {
-        loadingSchema: false,
-        loadingData: false,
-        schema: null,
-        data: null,
-        lastURL: null,
-        lastGraphQL: null
+      let schema = (await gqlFetchMemo(url, introspectionQuery)).data.__schema;
+      let query = schema.types.find(k => k.name == 'Query')
+      
+
+      console.log('component', Component)
+
+      let accessLog = {}
+      let tracker = makeTracker(schema.types, query, accessLog);
+
+      console.log("tracker", tracker)
+      pseudoRender(renderFn({ ...pageProps, Query: tracker }))
+
+      console.log('access log', accessLog)
+      let gql = generateGraphQL(accessLog)
+
+      console.log('graphql', gql)
+
+      let data = (await gqlFetchMemo(url, gql)).data
+      console.log('gql result', data)
+      pageProps.gqlData = data;
+      pageProps.gqlSchema = schema;
+      
+    }
+    
+
+    return { pageProps }
+  }
+
+  render () {
+    const { Component, pageProps } = this.props
+
+    if(pageProps.gqlSchema && pageProps.gqlData){
+      pageProps.Query = makeRetriever(pageProps.gqlSchema.types, pageProps.gqlData)
     }
 
-    render(){
-        // if url changes, refetch schema
-        // do pseudo-rendering pass
-        // generate graphql
-        // if graphql changes, re-run query
-        // then render with concrete data
-
-        let url = this.props.url;
-
-        if(this.state.lastURL !== url){
-            if(!this.state.loadingSchema){
-                this.state.loadingSchema = true;
-                gqlFetch(url, introspectionQuery)
-                    .then(result => {
-                        console.log(generateTypescript(result.data.__schema))
-                        this.setState({ schema: result.data.__schema, lastURL: url, loadingSchema: false })
-                    })    
-            }
-            return <div>Loading schema...</div>
-        }
-
-
-        let schema = this.state.schema;
-        let query = schema.types.find(k => k.name == 'Query')
-        let accessLog = {}
-        pseudoRender(this.props.render(makeTracker(schema.types, query, accessLog)))
-
-
-        let graphQL = generateGraphQL(accessLog)
-        if(this.state.lastGraphQL !== graphQL){
-            if(!this.state.loadingData){
-                this.state.loadingData = true;
-                console.log(graphQL)
-                gqlFetch(url, graphQL)
-                    .then(result => this.setState({ data: result.data, lastGraphQL: graphQL, loadingData: false }))
-            }
-            
-            return <div>Loading data...</div>
-        }
-        
-        return this.props.render(makeRetriever(this.state.schema.types, this.state.data))
-    }
+    return (
+      <Container>
+        <Component {...pageProps} />
+      </Container>
+    )
+  }
 }
-
 
 
 function pseudoRender(element){
@@ -212,8 +175,15 @@ function gqlFetch(url, query){
     .then(resp => resp.json())
 }
 
+
 let cachePromises = {},
     cacheData = {}
+
+function gqlFetchMemo(url, query){
+  let key = url + query;
+  if(cachePromises[key]) return cachePromises[key];
+  return cachePromises[key] = gqlFetch(url, query)
+}
 
 function gqlFetchSuspense(url, query){
     let key = url + query;
