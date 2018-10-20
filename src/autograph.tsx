@@ -146,7 +146,7 @@ export default class Autograph extends React.Component<{
                 gqlFetch(url, succinctIntrospectionQuery)
                     .then(result => {
                         // console.log(result.data.__schema)
-                        // console.log(generateTypescript(result.data.__schema, url))
+                        console.log(generateTypescript(result.data.__schema, url))
                         this.setState({ schema: result.data.__schema, lastURL: url, loadingSchema: false })
                     })    
             }
@@ -217,7 +217,7 @@ export function makeTracker(types, obj, query){
         if(type.name == 'Int' || type.name == 'Float') return 42;
         if(type.name == 'String') return '{' + field.name + '}';
         if(type.name == 'ID') return Math.random().toString(36).slice(3);
-        console.log('unknown', type)
+        // console.log('unknown', type)
         return null
     }
     for(let field of obj.fields){
@@ -254,15 +254,25 @@ export function generateGraphQL(graph){
     if(graph === 1) return '';
     let s = '{\n'
     const indent = x => x.split('\n').map(k => '  ' + k).join('\n')
+    
+    const encodeValue = obj =>
+        (typeof obj === 'object') ? 
+            (Array.isArray(obj) ? 
+                ('[' + obj.map(encodeValue).join(', ') + ']'):
+                ('{' + encodeKV(obj) + '}') ) : 
+            JSON.stringify(obj)
+    
+    const encodeKV = obj => Object.entries(obj)
+        .map(([key, value]) => key + ': ' + encodeValue(value))
+        .join(', ')
+
     for(let key in graph){
         let [ name, args ] = decodeField(key);
         if(args === null){
             s += indent(name + ' ' + generateGraphQL(graph[key])) + '\n'
         }else{
             let argpart = Object.keys(args).length > 0 ? ('(' + 
-                Object.entries(args)
-                    .map(([key, value]) => key + ': ' + JSON.stringify(value))
-                    .join(', ')
+                encodeKV(args)
             + ') ') : ' '
             s += indent(encodeArguments(name, args) + ': ' + name + 
                 argpart + generateGraphQL(graph[key])) + '\n'
@@ -337,15 +347,19 @@ export function generateTypescript(schema, url = null){
 
     const printTypeCore = type => {
         let suffix = ''
-        if(type.kind == 'LIST'){
+        while(type.kind == 'LIST'){
             type = type.ofType
-            suffix = '[]'
+            suffix += '[]'
         }
         if(type.kind == 'NON_NULL'){
             type = type.ofType
         }
         if(type.kind == 'SCALAR'){
-            return (SCALAR_MAP[type.name] || 'any') + suffix;
+            if(SCALAR_MAP[type.name]){
+                return (SCALAR_MAP[type.name] || 'any') + suffix;
+            }else{
+                return type.name + suffix;
+            }
         }else if(type.kind == 'OBJECT' || type.kind == 'ENUM' || 
             type.kind == 'INTERFACE' || type.kind == 'UNION' || 
             type.kind == 'INPUT_OBJECT'){
@@ -385,7 +399,9 @@ export function generateTypescript(schema, url = null){
             ts += "/** " + type.description + " */\n";
 
         if(type.kind === 'SCALAR'){
-
+            if(!SCALAR_MAP[type.name]){
+                ts += 'export type ' + type.name + ' = any\n\n'
+            }
         }else if(type.kind === 'UNION'){
             ts += 'export type ' + type.name + ' = ' + 
                 type.possibleTypes.map(k => printTypeCore(k)).join(' | ') + '\n\n'
