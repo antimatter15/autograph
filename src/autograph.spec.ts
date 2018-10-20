@@ -1,4 +1,8 @@
-import { encodeField, decodeField, encodeArguments, decodeArguments } from "./autograph";
+import { encodeField, decodeField } from "./autograph";
+import { encodeArguments, decodeArguments } from './autograph'
+import { makeTracker } from './autograph'
+import pokeschema from './pokeschema.json'
+
 
 test("encodeField/decodeField", () => {
   let fieldWithArgs = {
@@ -61,5 +65,16 @@ test("encodeArguments/decodeArguments", () => {
 });
 
 
+test('makeTracker', () => {
+  let types = pokeschema.data.__schema.types;
 
+  let query = {}
+  let tracker = makeTracker(types, types.find(k => k.name == 'Query'), query) as any;
+  expect(Object.keys(tracker)).toEqual([ '__typename', 'pokemons', 'pokemon' ])
+  tracker.pokemon({ name: 'pikachu' }).id
+  expect(query).toEqual({})
+
+
+  // console.log(query)
+})
 

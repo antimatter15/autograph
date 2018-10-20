@@ -50,7 +50,7 @@ export default class Autograph extends React.Component<{
 }
 
 
-function pseudoRender(element){
+export function pseudoRender(element){
     if(typeof element != 'object') return;
     if(Array.isArray(element)){ // render all children
         for(let el of element) pseudoRender(el);
@@ -73,7 +73,7 @@ function pseudoRender(element){
 
 
 
-function makeTracker(types, obj, query){
+export function makeTracker(types, obj, query){
     let tracker = { __typename: obj.name }
     const subtrack = (field, type, args) => {
         let key = encodeField(field, args);
@@ -102,25 +102,25 @@ function makeTracker(types, obj, query){
     return tracker
 }
 
-function encodeField(field: { name: string, args: Array<any> }, args: null | any): string {
-    return JSON.stringify([ field.name, field.args.length == 0 ? null : args ])
+export function encodeField(field: { name: string, args: Array<any> }, args: null | any): string {
+    return JSON.stringify([ field.name, field.args.length == 0 ? null : (args || {}) ])
 }
 
-function decodeField(key): [string, null | any] {
+export function decodeField(key): [string, null | any] {
     return JSON.parse(key)
 }
 
-function encodeArguments(name: string, args: any): string {
-    return name + 'ZZZ' + JSON.stringify(args)
+export function encodeArguments(name: string, args: any): string {
+    return name + 'ZZZ' + JSON.stringify(args || {})
         .replace(/[^\w]+|Z/g, '')
 }
 
-function decodeArguments(slug: string): [ string, boolean ] {
+export function decodeArguments(slug: string): [ string, boolean ] {
     let parts = slug.split('ZZZ')
     return [ parts[0], parts.length > 1 ]
 }
 
-function generateGraphQL(graph){
+export function generateGraphQL(graph){
     if(graph === 1) return '';
     let s = '{\n'
     const indent = x => x.split('\n').map(k => '  ' + k).join('\n')

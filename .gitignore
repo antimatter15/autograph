@@ -1,4 +1,5 @@
 .cache
+coverage
 .DS_Store
 dist
 node_modules
