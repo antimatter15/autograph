@@ -42,7 +42,6 @@ export default class MyApp extends App {
       let data = (await gqlFetchMemo(url, gql)).data
       console.log('gql result', data)
       pageProps.gqlData = data;
-      pageProps.gqlSchema = schema;
       
     }
     
@@ -53,8 +52,8 @@ export default class MyApp extends App {
   render () {
     const { Component, pageProps } = this.props
 
-    if(pageProps.gqlSchema && pageProps.gqlData){
-      pageProps.Query = makeRetriever(pageProps.gqlSchema.types, pageProps.gqlData)
+    if(pageProps.gqlData){
+      pageProps.Query = makeRetriever(pageProps.gqlData)
     }
 
     return (
@@ -149,7 +148,8 @@ function generateGraphQL(graph){
         if(parts.length == 1){
             s += indent(key + ' ' + generateGraphQL(graph[key])) + '\n'
         }else{
-            let slug = '_' + key.replace(/[^\w]+/g, '_')
+            let slug = parts[0] + 'ZZZ' + parts[1].replace(/[^\w]+/g, '_');
+
             s += indent(slug + ': ' + parts[0] + '(' + 
                 Object.entries(JSON.parse(parts[1]))
                     .map(([key, value]) => key + ': ' + JSON.stringify(value))
@@ -193,24 +193,45 @@ function gqlFetchSuspense(url, query){
         cacheData[key] = data)
 }
 
-function makeRetriever(types, data){
-    if(!data) return data;
+// function makeRetriever(types, data){
+//     if(!data) return data;
 
-    let retriever = {}
-    let obj = types.find(k => k.name == data.__typename);
+//     let retriever = {}
+//     let obj = types.find(k => k.name == data.__typename);
     
-    if(!obj) return data;
+//     if(!obj) return data;
 
-    for(let field of obj.fields){
-        if(field.args.length > 0){
-            retriever[field.name] = (args) => {
-                let key = field.name + '::' + JSON.stringify(args);
-                let slug = '_' + key.replace(/[^\w]+/g, '_')
-                return makeRetriever(types, data[slug])
-            }
-        }else if(field.name in data){
-            retriever[field.name] = makeRetriever(types, data[field.name])
+//     for(let field of obj.fields){
+//         if(field.args.length > 0){
+//             retriever[field.name] = (args) => {
+//                 let key = field.name + '::' + JSON.stringify(args);
+//                 let slug = '_' + key.replace(/[^\w]+/g, '_')
+//                 return makeRetriever(types, data[slug])
+//             }
+//         }else if(field.name in data){
+//             retriever[field.name] = makeRetriever(types, data[field.name])
+//         }
+//     }
+//     return retriever
+// }
+
+
+function makeRetriever(data: any): any {
+    if(typeof data != 'object' || !data) return data;
+    if(Array.isArray(data)) return data.map(k => makeRetriever(k));
+
+    let retriever : {[key: string]: any} = {}
+    for(let key in data){
+      let parts = key.split('ZZZ')
+      if(parts.length === 1){
+        retriever[key] = makeRetriever(data[key])
+      }else{
+        retriever[parts[0]] = (args: {[key: string]: any}) => {
+          let slug = parts[0] + 'ZZZ' + JSON.stringify(args)
+            .replace(/[^\w]+/g, '_');
+          return data[slug]
         }
+      }
     }
     return retriever
 }
