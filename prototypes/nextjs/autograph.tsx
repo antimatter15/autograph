@@ -26,13 +26,14 @@ export function AutographSuspense({ url, render } : {
     return render(makeRetriever(data))
 }
 
-export class Autograph2 extends React.Component<{
+export default class Autograph extends React.Component<{
     url: string, 
-    render: (Query) => JSX.Element
+    render: (Query) => JSX.Element,
+    loading: JSX.Element
 }> {
     render(){
+        let { url, render, loading } = this.props;
         try {
-            let { url, render } = this.props;
             let schema = gqlFetchSuspense(url, introspectionQuery).data.__schema;
             let query = schema.types.find(k => k.name == 'Query')
             let accessLog = {}
@@ -42,90 +43,21 @@ export class Autograph2 extends React.Component<{
         } catch (err) {
             if(err instanceof Promise){
                 err.then(e => this.setState({ }))
-                return <div>Loading...</div>
+                return loading || <div>Loading...</div>
             }else throw err;
         }
     }
 }
 
-export default class Autograph extends React.Component<{
-        url: string, 
-        render: (Query) => JSX.Element
-    }, {
-        schema
-        lastURL
-        lastGraphQL
-        loadingSchema
-        loadingData
-        data
-    }> {
-
-    state = {
-        loadingSchema: false,
-        loadingData: false,
-        schema: null,
-        data: null,
-        lastURL: null,
-        lastGraphQL: null
-    }
-
-    render(){
-        // if url changes, refetch schema
-        // do pseudo-rendering pass
-        // generate graphql
-        // if graphql changes, re-run query
-        // then render with concrete data
-
-        let url = this.props.url;
-
-        if(this.state.lastURL !== url){
-            if(!this.state.loadingSchema){
-                this.state.loadingSchema = true;
-                gqlFetch(url, introspectionQuery)
-                    .then(result => {
-                        console.log(generateTypescript(result.data.__schema))
-                        this.setState({ schema: result.data.__schema, lastURL: url, loadingSchema: false })
-                    })    
-            }
-            return <div>Loading schema...</div>
-        }
-
-
-        let schema = this.state.schema;
-        let query = schema.types.find(k => k.name == 'Query')
-        let accessLog = {}
-        pseudoRender(this.props.render(makeTracker(schema.types, query, accessLog)))
-
-
-        let graphQL = generateGraphQL(accessLog)
-        if(this.state.lastGraphQL !== graphQL){
-            if(!this.state.loadingData){
-                this.state.loadingData = true;
-                console.log(graphQL)
-                gqlFetch(url, graphQL)
-                    .then(result => this.setState({ data: result.data, lastGraphQL: graphQL, loadingData: false }))
-            }
-            
-            return <div>Loading data...</div>
-        }
-        
-        return this.props.render(makeRetriever(this.state.data))
-    }
-}
-
-
 
 function pseudoRender(element){
-    // dont bother if its not an object
     if(typeof element != 'object') return;
-    if(Array.isArray(element)){
-        // render all children
+    if(Array.isArray(element)){ // render all children
         for(let el of element) pseudoRender(el);
         return
     }
-    if(element.props.children){
-        pseudoRender(element.props.children)
-    }
+    if(element.props.children)
+        pseudoRender(element.props.children);
     if(typeof element.type === 'function'){
         if(element.type.prototype.render){
             // stateful react components
@@ -141,36 +73,23 @@ function pseudoRender(element){
 
 
 function makeTracker(types, obj, query){
-    let tracker = {
-        __typename: obj.name
-    }
-
+    let tracker = { __typename: obj.name }
     const subtrack = (field, type, args) => {
         let key = field.args.length == 0 ? field.name : 
             (field.name + '::' + JSON.stringify(args));
-
-        if(type.kind == 'NON_NULL')
-            return subtrack(field, type.ofType, args);
-
-        if(type.kind == 'LIST')
-            return [ subtrack(field, type.ofType, args) ];
-
+        if(type.kind == 'NON_NULL') return subtrack(field, type.ofType, args);
+        if(type.kind == 'LIST') return [ subtrack(field, type.ofType, args) ];
         if(type.kind == 'OBJECT')
             return makeTracker(types, 
                 types.find(k => k.name == type.name), 
                 query[key] = { });
-
         query[key] = 1
         if(type.name == 'Int' || type.name == 'Float') return 42;
         if(type.name == 'String') return 'Hi';
         if(type.name == 'ID') return Math.random().toString(36).slice(3);
-        
         console.log('unknown', type)
-
         return null
     }
-
-
     for(let field of obj.fields){
         if(field.args.length === 0){
             Object.defineProperty(tracker, field.name, {
@@ -180,11 +99,8 @@ function makeTracker(types, obj, query){
             tracker[field.name] = (args) => subtrack(field, field.type, args)
         }
     }
-
     return tracker
 }
-
-
 
 
 
