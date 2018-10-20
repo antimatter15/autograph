@@ -3,12 +3,94 @@ import ReactDOM from 'react-dom'
 import { introspectionQuery } from 'graphql'
 
 
+let succinctIntrospectionQuery = `
+  query IntrospectionQuery {
+    __schema {
+      queryType { name }
+      mutationType { name }
+      subscriptionType { name }
+      types {
+        ...FullType
+      }
+      directives {
+        name
+        description
+        args {
+          ...InputValue
+        }
+        onOperation
+        onFragment
+        onField
+      }
+    }
+  }
+
+  fragment FullType on __Type {
+    kind
+    name
+    description
+    fields(includeDeprecated: true) {
+      name
+      description
+      args {
+        ...InputValue
+      }
+      type {
+        ...TypeRef
+      }
+      isDeprecated
+      deprecationReason
+    }
+    inputFields {
+      ...InputValue
+    }
+    interfaces {
+      ...TypeRef
+    }
+    enumValues(includeDeprecated: true) {
+      name
+      description
+      isDeprecated
+      deprecationReason
+    }
+    possibleTypes {
+      ...TypeRef
+    }
+  }
+
+  fragment InputValue on __InputValue {
+    name
+    description
+    type { ...TypeRef }
+    defaultValue
+  }
+
+  fragment TypeRef on __Type {
+    kind
+    name
+    ofType {
+      kind
+      name
+      ofType {
+        kind
+        name
+        ofType {
+          kind
+          name
+        }
+      }
+    }
+  }
+`
+
+
+
 export async function autographData({ url, render } : {
     url: string, 
     render: (Query) => JSX.Element
 }) {
-    let schema = (await gqlFetchMemo(url, introspectionQuery)).data.__schema;
-    let query = schema.types.find(k => k.name == 'Query')
+    let schema = (await gqlFetchMemo(url, succinctIntrospectionQuery)).data.__schema;
+    let query = schema.types.find(k => k.name == schema.queryType.name)
     let accessLog = {}
     pseudoRender(render(makeTracker(schema.types, query, accessLog)))
     return (await gqlFetchMemo(url, generateGraphQL(accessLog))).data
@@ -18,34 +100,105 @@ export function AutographSuspense({ url, render } : {
     url: string, 
     render: (Query) => JSX.Element
 }){
-    let schema = gqlFetchSuspense(url, introspectionQuery).data.__schema;
-    let query = schema.types.find(k => k.name == 'Query')
+    let schema = gqlFetchSuspense(url, succinctIntrospectionQuery).data.__schema;
+    let query = schema.types.find(k => k.name == schema.queryType.name)
     let accessLog = {}
     pseudoRender(render(makeTracker(schema.types, query, accessLog)))
     let data = gqlFetchSuspense(url, generateGraphQL(accessLog)).data
     return render(makeRetriever(data))
 }
 
-export default class Autograph extends React.Component<{
+export class Autograph2 extends React.Component<{
     url: string, 
     render: (Query) => JSX.Element,
     loading?: JSX.Element
 }> {
     render(){
         let { url, render, loading } = this.props;
+        let data;
         try {
-            let schema = gqlFetchSuspense(url, introspectionQuery).data.__schema;
-            let query = schema.types.find(k => k.name == 'Query')
+            let schema = gqlFetchSuspense(url, succinctIntrospectionQuery).data.__schema;
+            console.log(schema)
+            // console.log(generateTypescript(schema, url))
+            let query = schema.types.find(k => k.name == schema.queryType.name)
             let accessLog = {}
             pseudoRender(render(makeTracker(schema.types, query, accessLog)))
-            let data = gqlFetchSuspense(url, generateGraphQL(accessLog)).data
-            return render(makeRetriever(data))
+            data = gqlFetchSuspense(url, generateGraphQL(accessLog)).data
         } catch (err) {
             if(err instanceof Promise){
                 err.then(e => this.setState({ }))
                 return loading || <div>Loading...</div>
             }else throw err;
         }
+        return render(makeRetriever(data))
+    }
+}
+
+
+
+export default class Autograph extends React.Component<{
+        url: string, 
+        render: (Query) => JSX.Element
+    }, {
+        schema
+        lastURL
+        lastGraphQL
+        loadingSchema
+        loadingData
+        data
+    }> {
+
+    state = {
+        loadingSchema: false,
+        loadingData: false,
+        schema: null,
+        data: null,
+        lastURL: null,
+        lastGraphQL: null
+    }
+
+    render(){
+        // if url changes, refetch schema
+        // do pseudo-rendering pass
+        // generate graphql
+        // if graphql changes, re-run query
+        // then render with concrete data
+
+        let url = this.props.url;
+
+        if(this.state.lastURL !== url){
+            if(!this.state.loadingSchema){
+                this.state.loadingSchema = true;
+                gqlFetch(url, succinctIntrospectionQuery)
+                    .then(result => {
+                        console.log(result.data.__schema)
+                        console.log(generateTypescript(result.data.__schema, url))
+                        this.setState({ schema: result.data.__schema, lastURL: url, loadingSchema: false })
+                    })    
+            }
+            return <div>Loading schema...</div>
+        }
+
+        let schema = this.state.schema;
+        let query = schema.types.find(k => k.name == schema.queryType.name)
+        let log = {}
+        let tracker = makeTracker(schema.types, query, log)
+        console.log(tracker)
+        pseudoRender(this.props.render(tracker))
+
+
+        let graphQL = generateGraphQL(log)
+        if(this.state.lastGraphQL !== graphQL){
+            if(!this.state.loadingData){
+                this.state.loadingData = true;
+                console.log(graphQL)
+                gqlFetch(url, graphQL)
+                    .then(result => this.setState({ data: result.data, lastGraphQL: graphQL, loadingData: false }))
+            }
+            
+            return <div>Loading data...</div>
+        }
+        return this.props.render(makeRetriever(this.state.data))
     }
 }
 
@@ -79,11 +232,11 @@ export function makeTracker(types, obj, query){
         let key = encodeField(field, args);
         if(type.kind == 'NON_NULL') return subtrack(field, type.ofType, args);
         if(type.kind == 'LIST') return [ subtrack(field, type.ofType, args) ];
-        if(type.kind == 'OBJECT')
-            return makeTracker(types, 
-                types.find(k => k.name == type.name), 
-                query[key] = { });
+        if(type.kind == 'OBJECT') return makeTracker(types, 
+            types.find(k => k.name == type.name), 
+            query[key] = { });
         query[key] = 1
+        if(type.kind == 'ENUM') return type.enumValues[0];
         if(type.name == 'Int' || type.name == 'Float') return 42;
         if(type.name == 'String') return 'Hi';
         if(type.name == 'ID') return Math.random().toString(36).slice(3);
@@ -190,8 +343,11 @@ export function makeRetriever(data: any): any {
 }
 
 
-export function generateTypescript(schema){
+export function generateTypescript(schema, url = null){
     let ts = ''
+    if(url){
+        ts += 'export const url = ' + JSON.stringify(url) + '\n\n'
+    }
     const SCALAR_MAP = {
         'String': 'string',
         'Int': 'number',
@@ -206,11 +362,17 @@ export function generateTypescript(schema){
             type = type.ofType
             suffix = '[]'
         }
+        if(type.kind == 'NON_NULL'){
+            type = type.ofType
+        }
         if(type.kind == 'SCALAR'){
-            return SCALAR_MAP[type.name] + suffix;
-        }else if(type.kind == 'OBJECT'){
+            return (SCALAR_MAP[type.name] || 'any') + suffix;
+        }else if(type.kind == 'OBJECT' || type.kind == 'ENUM' || 
+            type.kind == 'INTERFACE' || type.kind == 'UNION' || 
+            type.kind == 'INPUT_OBJECT'){
             return type.name + suffix
         }else{
+            debugger
             console.warn(type)
         }
     }
@@ -238,8 +400,20 @@ export function generateTypescript(schema){
     }
     
     for(let type of schema.types){
-        if(type.kind === 'OBJECT' && type.name[0] != '_'){
-            ts += "/** " + type.description + " */\n"
+        if(type.name[0] == '_') continue;
+        
+        if(type.description) 
+            ts += "/** " + type.description + " */\n";
+
+        if(type.kind === 'SCALAR'){
+
+        }else if(type.kind === 'UNION'){
+            ts += 'export type ' + type.name + ' = ' + 
+                type.possibleTypes.map(k => printTypeCore(k)).join(' | ') + '\n\n'
+        }else if(type.kind === 'ENUM'){
+            ts += 'export type ' + type.name + ' = ' + 
+                type.enumValues.map(k => JSON.stringify(k.name)).join(' | ') + '\n\n'
+        }else if(type.kind === 'OBJECT' || type.kind === 'INTERFACE'){
             ts += 'export type ' + type.name + ' = {\n'
             for(let field of type.fields){
                 if(field.description) 
@@ -258,6 +432,17 @@ export function generateTypescript(schema){
             }
             ts += '}\n\n'
             
+        }else if(type.kind === 'INPUT_OBJECT'){
+            ts += 'export type ' + type.name + ' = {\n'
+            for(let field of type.inputFields){
+                if(field.description) 
+                    ts += "    /** " + field.description + " */\n"
+                ts += '    ' + field.name + printType(field.type) + '\n'
+                ts += '\n'
+            }
+            ts += '}\n\n'
+        }else{
+            console.warn('Unknown Type', type)
         }
     }
     return ts
