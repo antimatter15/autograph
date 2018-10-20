@@ -2,11 +2,11 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 import * as GQL from './types'
-import Autograph, { Autograph2 } from './autograph'
+import Autograph from './autograph'
 
     
 function App(){
-    return <Autograph2
+    return <Autograph
         url="https://graphql-pokemon.now.sh/graphql"
         render={(Query: GQL.Query) => <Demo Query={Query} />} />
 }

@@ -29,7 +29,7 @@ export function AutographSuspense({ url, render } : {
 export default class Autograph extends React.Component<{
     url: string, 
     render: (Query) => JSX.Element,
-    loading: JSX.Element
+    loading?: JSX.Element
 }> {
     render(){
         let { url, render, loading } = this.props;
