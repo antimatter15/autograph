@@ -82,19 +82,17 @@ interface GQLSchemaType {
     ofType: GQLSchemaType
 }
 
-export async function autographData({ url, render } : {
-    url: string, 
-    render: (Query: GQLQuery) => JSX.Element
-}) {
+export async function autographData(url: string, render: (Query: GQLQuery) => JSX.Element) {
     let schema: GQLSchema = (await gqlFetchMemo(url, succinctIntrospectionQuery)).data.__schema;
     let accessLog = {}
     pseudoRender(render(makeTracker(schema.types, getQueryRoot(schema), accessLog)))
     return (await gqlFetchMemo(url, generateGraphQL(accessLog))).data
 }
 
-export function AutographSuspense({ url, render } : {
+
+export function AutographSuspense({ url, children: render } : {
     url: string, 
-    render: (Query: GQLQuery) => JSX.Element
+    children: (Query: GQLQuery) => JSX.Element
 }){
     let schema: GQLSchema = gqlFetchSuspense(url, succinctIntrospectionQuery).data.__schema;
     let accessLog = {}
@@ -108,19 +106,45 @@ export function AutographSuspense({ url, render } : {
 export function AutographHOC(url: string){
     return function(Component: React.ComponentType<{ Query: GQLQuery }>){
         return function(props: GenericObject){
-            return <Autograph url={url} render={Query => 
-                <Component {...props} Query={Query} />}/>    
+            return <Autograph url={url}>{
+                Query => <Component {...props} Query={Query} />
+            }</Autograph>
         }
     }
 }
 
 
+//  export const AutographHOC2 = (url: string) => (WrappedComponent: React.ComponentType<{
+//         Query: GQLQuery, 
+//         [key: string]: any
+//     }>) => class extends React.Component<{ 
+//         Query: GQLQuery,
+//         [key: string]: any
+//     }> {
+//      render(){
+//         return <Autograph url={url} render={Query => 
+//             <WrappedComponent {...this.props} Query={Query} />}/>    
+//      }
+//  }
+
+
+
+// export const AutographHOC2 = (url: string) => 
+//     (WrappedComponent: React.ComponentType) => 
+//     class AutographedComponent extends React.Component {
+//         render(){
+//             return <Autograph url={url}>{
+//                 Query => <WrappedComponent {...this.props} Query={Query} />
+//             }</Autograph>
+//         }
+//     }
+
 export default class Autograph extends React.Component<{
     url: string,
-    render: (Query: GQLQuery) => JSX.Element,
+    children: (Query: GQLQuery) => JSX.Element,
 }> {
     render(){
-        let { url, render } = this.props;
+        let { url, children: renderFn } = this.props;
         let schemaRequest, dataRequest;
         if(!( schemaRequest = superfetch(url, succinctIntrospectionQuery, schema => {
             if(schema.data && schema.data.__schema) console.log(generateTypescript(schema.data.__schema, url))
@@ -130,11 +154,11 @@ export default class Autograph extends React.Component<{
         if(schemaRequest.errors) return <div>Schema Error: {JSON.stringify(schemaRequest.errors)}</div>
         let schema: GQLSchema = schemaRequest.data.__schema;
         let accessLog = {}
-        pseudoRender(render(makeTracker(schema.types, getQueryRoot(schema), accessLog)))
+        pseudoRender(renderFn(makeTracker(schema.types, getQueryRoot(schema), accessLog)))
         if(!( dataRequest = superfetch(url, generateGraphQL(accessLog), data => this.setState({}))))
             return <div>loading data...</div>;
         if(dataRequest.errors) return <div>Data Error: {JSON.stringify(dataRequest.errors)}</div>
-        return render(makeRetriever(dataRequest.data))
+        return renderFn(makeRetriever(dataRequest.data))
     }
 }
 
