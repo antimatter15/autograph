@@ -4514,6 +4514,8 @@ export type VehiclepilotsPerson = {
 
 }
 
+export type _ModelMutationType = "CREATED" | "UPDATED" | "DELETED"
+
 /** System model for Assets */
 export type Asset = {
     createdAt: DateTime
@@ -7329,4 +7331,10 @@ export type VehicleFilter = {
 }
 
 export type VehicleOrderBy = "cargoCapacity_ASC" | "cargoCapacity_DESC" | "class_ASC" | "class_DESC" | "consumables_ASC" | "consumables_DESC" | "costInCredits_ASC" | "costInCredits_DESC" | "createdAt_ASC" | "createdAt_DESC" | "crew_ASC" | "crew_DESC" | "id_ASC" | "id_DESC" | "isPublished_ASC" | "isPublished_DESC" | "length_ASC" | "length_DESC" | "maxAtmospheringSpeed_ASC" | "maxAtmospheringSpeed_DESC" | "model_ASC" | "model_DESC" | "name_ASC" | "name_DESC" | "passengers_ASC" | "passengers_DESC" | "updatedAt_ASC" | "updatedAt_DESC"
+
+/** Meta information about the query. */
+export type _QueryMeta = {
+    count: number
+
+}
 

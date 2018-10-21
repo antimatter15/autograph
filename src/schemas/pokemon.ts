@@ -1,8 +1,8 @@
 export const url = "https://graphql-pokemon.now.sh/graphql"
 
 /** Query any Pokémon by number or name */
-export type Query = {
-    query?: Query
+export type GQLQuery = {
+    query?: GQLQuery
 
     pokemons(args: { first: number }): Pokemon[] | null
 

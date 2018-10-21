@@ -45,6 +45,8 @@ let succinctIntrospectionQuery = `
 
 type GenericObject = { [key: string]: any }
 
+type GQLQuery = { [key: string]: any }
+
 interface GQLSchema {
     queryType: { name: string }
     types: Array<GQLSchemaRootType>
@@ -55,34 +57,34 @@ interface GQLSchemaRootType  {
     name: string
     description?: string
     fields: Array<GQLSchemaField>
-    possibleTypes: Array<GQLTypeRef>
+    possibleTypes: Array<GQLSchemaType>
     enumValues: Array<{name: string}>
-    inputFields: Array<GQLInputValue>
+    inputFields: Array<GQLSchemaInput>
 }
 
 interface GQLSchemaField {
     name: string
     description?: string
-    args: Array<GQLInputValue>
-    type: GQLTypeRef
+    args: Array<GQLSchemaInput>
+    type: GQLSchemaType
 }
 
-interface GQLInputValue {
+interface GQLSchemaInput {
     name: string
     description: string
-    type: GQLTypeRef
+    type: GQLSchemaType
 }
 
-interface GQLTypeRef {
+interface GQLSchemaType {
     kind: string
     name: string
     enumValues: Array<any>
-    ofType: GQLTypeRef
+    ofType: GQLSchemaType
 }
 
 export async function autographData({ url, render } : {
     url: string, 
-    render: (Query: GenericObject) => JSX.Element
+    render: (Query: GQLQuery) => JSX.Element
 }) {
     let schema: GQLSchema = (await gqlFetchMemo(url, succinctIntrospectionQuery)).data.__schema;
     let accessLog = {}
@@ -92,7 +94,7 @@ export async function autographData({ url, render } : {
 
 export function AutographSuspense({ url, render } : {
     url: string, 
-    render: (Query: GenericObject) => JSX.Element
+    render: (Query: GQLQuery) => JSX.Element
 }){
     let schema: GQLSchema = gqlFetchSuspense(url, succinctIntrospectionQuery).data.__schema;
     let accessLog = {}
@@ -104,7 +106,7 @@ export function AutographSuspense({ url, render } : {
 
 
 export function AutographHOC(url: string){
-    return function(Component: React.ComponentType<{ Query: GenericObject }>){
+    return function(Component: React.ComponentType<{ Query: GQLQuery }>){
         return function(props: GenericObject){
             return <Autograph url={url} render={Query => 
                 <Component {...props} Query={Query} />}/>    
@@ -115,7 +117,7 @@ export function AutographHOC(url: string){
 
 export default class Autograph extends React.Component<{
     url: string,
-    render: (Query: GenericObject) => JSX.Element,
+    render: (Query: GQLQuery) => JSX.Element,
 }> {
     render(){
         let { url, render } = this.props;
@@ -170,7 +172,7 @@ export function pseudoRender(element: JSX.Element){
 
 export function makeTracker(types: Array<GQLSchemaRootType>, obj: GQLSchemaRootType, query: GenericObject){
     let tracker = { __typename: obj.name }
-    const subtrack = (field: GQLSchemaField, type: GQLTypeRef, args: GenericObject): any => {
+    const subtrack = (field: GQLSchemaField, type: GQLSchemaType, args: GenericObject): any => {
         let key = encodeField(field, args);
         if(type.kind == 'NON_NULL') return subtrack(field, type.ofType, args);
         if(type.kind == 'LIST') return [ subtrack(field, type.ofType, args) ];
@@ -328,7 +330,7 @@ export function generateTypescript(schema: GQLSchema, url: string | null = null)
         'ID': 'string'
     }
 
-    const printTypeCore = (type: GQLTypeRef): string => {
+    const printTypeCore = (type: GQLSchemaType): string => {
         let suffix = ''
         while(type.kind == 'LIST'){
             type = type.ofType
@@ -352,7 +354,7 @@ export function generateTypescript(schema: GQLSchema, url: string | null = null)
     }
 
 
-    const printType = (type: GQLTypeRef): string => {
+    const printType = (type: GQLSchemaType): string => {
         let prefix = '?: '
         if(type.kind == 'NON_NULL'){
             type = type.ofType
@@ -361,7 +363,7 @@ export function generateTypescript(schema: GQLSchema, url: string | null = null)
         return prefix + printTypeCore(type)
     }
 
-    const printFunctionType = (type: GQLTypeRef): string => {
+    const printFunctionType = (type: GQLSchemaType): string => {
         let suffix = ' | null'
         if(type.kind == 'NON_NULL'){
             type = type.ofType
@@ -369,9 +371,11 @@ export function generateTypescript(schema: GQLSchema, url: string | null = null)
         }
         return ': ' + printTypeCore(type) + suffix
     }
+
+    const BUILTIN_TYPES = ["__Directive", "__DirectiveLocation", "__EnumValue", "__Field", "__InputValue", "__Schema", "__Type", "__TypeKind"]
     
     for(let type of schema.types){
-        if(type.name[0] == '_') continue;
+        if(BUILTIN_TYPES.indexOf(type.name) != -1) continue;
         
         if(type.description && !(type.kind === 'SCALAR' && type.name in BUILTIN_SCALAR_MAP)) 
             ts += "/** " + type.description + " */\n";

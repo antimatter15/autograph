@@ -27,6 +27,8 @@ function App({ Query } : { Query: GQL.Query }){
 }
 
 
-const AutographApp = AutographHOC(GQL.url)(App)
+// const AutographApp = AutographHOC('https://api.graphcms.com/simple/v1/swapi')(App)
+// ReactDOM.render(<AutographApp />, document.getElementById('root'))
 
-ReactDOM.render(<AutographApp />, document.getElementById('root'))
+ReactDOM.render(<Autograph url={GQL.url} render={Query => 
+    <App Query={Query as GQL.Query} />} />, document.getElementById('root'))
