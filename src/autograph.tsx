@@ -84,10 +84,8 @@ export async function autographData({ url, render } : {
     render: (Query: GenericObject) => JSX.Element
 }) {
     let schema: GQLSchema = (await gqlFetchMemo(url, succinctIntrospectionQuery)).data.__schema;
-    let query = schema.types.find(k => k.name == schema.queryType.name)
-    if(!query) throw new Error(`Unable to find root query type "${schema.queryType.name}" in schema`);
     let accessLog = {}
-    pseudoRender(render(makeTracker(schema.types, query, accessLog)))
+    pseudoRender(render(makeTracker(schema.types, getQueryRoot(schema), accessLog)))
     return (await gqlFetchMemo(url, generateGraphQL(accessLog))).data
 }
 
@@ -96,13 +94,12 @@ export function AutographSuspense({ url, render } : {
     render: (Query: GenericObject) => JSX.Element
 }){
     let schema: GQLSchema = gqlFetchSuspense(url, succinctIntrospectionQuery).data.__schema;
-    let query = schema.types.find(k => k.name == schema.queryType.name)
-    if(!query) throw new Error(`Unable to find root query type "${schema.queryType.name}" in schema`);
     let accessLog = {}
-    pseudoRender(render(makeTracker(schema.types, query, accessLog)))
+    pseudoRender(render(makeTracker(schema.types, getQueryRoot(schema), accessLog)))
     let data = gqlFetchSuspense(url, generateGraphQL(accessLog)).data
     return render(makeRetriever(data))
 }
+
 
 
 export function AutographHOC(url: string){
@@ -128,10 +125,8 @@ export class Autograph2 extends React.Component<{
             let schema: GQLSchema = gqlFetchSuspense(url, succinctIntrospectionQuery).data.__schema;
             console.log(schema)
             // console.log(generateTypescript(schema, url))
-            let query = schema.types.find(k => k.name == schema.queryType.name)
-            if(!query) throw new Error(`Unable to find root query type "${schema.queryType.name}" in schema`);
             let accessLog = {}
-            pseudoRender(render(makeTracker(schema.types, query, accessLog)))
+            pseudoRender(render(makeTracker(schema.types, getQueryRoot(schema), accessLog)))
             data = gqlFetchSuspense(url, generateGraphQL(accessLog)).data
         } catch (err) {
             if(err instanceof Promise){
@@ -191,10 +186,8 @@ export default class Autograph extends React.Component<{
         }
 
         let schema: GQLSchema = this.state.schema;
-        let query = schema.types.find(k => k.name == schema.queryType.name)
-        if(!query) throw new Error(`Unable to find root query type "${schema.queryType.name}" in schema`);
         let log = {}
-        let tracker = makeTracker(schema.types, query, log)
+        let tracker = makeTracker(schema.types, getQueryRoot(schema), log)
         // console.log(tracker)
         pseudoRender(this.props.render(tracker))
         // console.log(log)
@@ -226,6 +219,13 @@ export default class Autograph extends React.Component<{
         }
         return this.props.render(makeRetriever(this.state.data))
     }
+}
+
+
+function getQueryRoot(schema: GQLSchema){
+    let query = schema.types.find(k => k.name == schema.queryType.name)
+    if(!query) throw new Error(`Unable to find root query type "${schema.queryType.name}" in schema`);
+    return query
 }
 
 
