@@ -112,113 +112,44 @@ export function AutographHOC(url: string){
 }
 
 
-// This is kinda janky for a number of reasons. TODO: fix this.
-export class Autograph2 extends React.Component<{
-    url: string, 
+export default class Autograph extends React.Component<{
+    url: string,
     render: (Query: GenericObject) => JSX.Element,
     loading?: JSX.Element
 }> {
     render(){
         let { url, render, loading } = this.props;
-        let data;
-        try {
-            let schema: GQLSchema = gqlFetchSuspense(url, succinctIntrospectionQuery).data.__schema;
-            console.log(schema)
-            // console.log(generateTypescript(schema, url))
-            let accessLog = {}
-            pseudoRender(render(makeTracker(schema.types, getQueryRoot(schema), accessLog)))
-            data = gqlFetchSuspense(url, generateGraphQL(accessLog)).data
-        } catch (err) {
-            if(err instanceof Promise){
-                err.then(e => this.setState({ }))
-                return loading || <div>Loading...</div>
-            }else throw err;
-        }
-        return render(makeRetriever(data))
+        
+        let schemaRequest, dataRequest;
+        if(!( schemaRequest = superfetch(url, succinctIntrospectionQuery, () => this.setState({})) )) 
+            return <div>loading schema...</div>;
+        if(schemaRequest.errors) return <div>Schema Error: {JSON.stringify(schemaRequest.errors)}</div>
+        let schema = schemaRequest.data.__schema;
+
+        let accessLog = {}
+        pseudoRender(render(makeTracker(schema.types, getQueryRoot(schema), accessLog)))
+
+        if(!( dataRequest = superfetch(url, generateGraphQL(accessLog), () => this.setState({}))))
+            return <div>loading data...</div>;
+
+        if(dataRequest.errors) return <div>Data Error: {JSON.stringify(dataRequest.errors)}</div>
+
+        return render(makeRetriever(dataRequest.data))
     }
 }
 
-
-
-export default class Autograph extends React.Component<{
-        url: string, 
-        render: (Query: GenericObject) => JSX.Element
-    }, {
-        schema?: GQLSchema 
-        lastURL?: string
-        lastGraphQL?: string
-        loadingSchema?: boolean
-        loadingData?: boolean
-        data?: any
-        errors: Array<any> | null
-    }> {
-
-    state = {
-        errors: null,
-        loadingSchema: false,
-        loadingData: false,
-        schema: undefined,
-        data: undefined,
-        lastURL: undefined,
-        lastGraphQL: undefined
+let superfetchCache = {}
+function superfetch(url: string, query: string, callback: (data: any) => void): any {
+    let key = url + query;
+    let entry = superfetchCache[key]
+    if(entry) return superfetchCache[key].data;
+    superfetchCache[key] = {
+        promise: gqlFetch(url, query)
+            .catch(err => callback(superfetchCache[key].data = { errors: [err] }) )
+            .then(data => callback(superfetchCache[key].data = data) ),
+        data: null
     }
-
-    render(){
-        // if url changes, refetch schema
-        // do pseudo-rendering pass
-        // generate graphql
-        // if graphql changes, re-run query
-        // then render with concrete data
-
-        let url = this.props.url;
-
-        if(this.state.lastURL !== url){
-            if(!this.state.loadingSchema){
-                this.state.loadingSchema = true;
-                gqlFetch(url, succinctIntrospectionQuery)
-                    .then(result => {
-                        // console.log(result.data.__schema)
-                        console.log(generateTypescript(result.data.__schema, url))
-                        this.setState({ schema: result.data.__schema, lastURL: url, loadingSchema: false })
-                    })    
-            }
-            return <div>Loading schema...</div>
-        }
-
-        let schema: GQLSchema = this.state.schema;
-        let log = {}
-        let tracker = makeTracker(schema.types, getQueryRoot(schema), log)
-        // console.log(tracker)
-        pseudoRender(this.props.render(tracker))
-        // console.log(log)
-
-
-        let graphQL = generateGraphQL(log)
-        if(this.state.lastGraphQL !== graphQL){
-            if(!this.state.loadingData){
-                this.state.loadingData = true;
-                console.log(graphQL)
-                gqlFetch(url, graphQL)
-                    .then(result => {
-                        if(result.errors){
-                            this.setState({ errors: result.errors, lastGraphQL: graphQL, loadingData: false })    
-                        }else{
-                            this.setState({ errors: null, data: result.data, lastGraphQL: graphQL, loadingData: false })    
-                        }
-                    })
-            }
-            
-            return <div>Loading data...</div>
-        }
-        if(this.state.errors){
-            return <pre>{this.state.errors.map(error => <div>
-                <div><b>{error.message}</b></div>
-                <div>{JSON.stringify(error.locations)}</div>
-                <div>{error.stack}</div>
-            </div>)}</pre>
-        }
-        return this.props.render(makeRetriever(this.state.data))
-    }
+    return null
 }
 
 
@@ -234,7 +165,6 @@ export function pseudoRender(element: JSX.Element){
         for(let el of element) pseudoRender(el);
         return
     }
-    // console.log(element, React.isValidElement(element))
     if(!React.isValidElement(element)) return;
     
     if((element.props as GenericObject).children)
@@ -261,9 +191,9 @@ export function makeTracker(types: Array<GQLSchemaRootType>, obj: GQLSchemaRootT
         if(type.kind == 'NON_NULL') return subtrack(field, type.ofType, args);
         if(type.kind == 'LIST') return [ subtrack(field, type.ofType, args) ];
         if(type.kind == 'OBJECT'){
-            let subobj = types.find(k => k.name == type.name)
-            if(!subobj) throw new Error(`Unable to find type "${type.name}" in schema.`);
-            return makeTracker(types, subobj, query[key] || (query[key] = { }));
+            let sub = types.find(k => k.name == type.name)
+            if(!sub) throw new Error(`Unable to find type "${type.name}" in schema.`);
+            return makeTracker(types, sub, query[key] || (query[key] = { }));
         }
         query[key] = 1
         if(type.kind == 'ENUM') return type.enumValues[0];
@@ -352,6 +282,7 @@ function gqlFetch(url: string, query: string){
     .then(resp => resp.json())
 }
 
+
 let cachePromises = {}
 function gqlFetchMemo(url: string, query: string){
     let key = url + query;
@@ -391,7 +322,7 @@ export function generateTypescript(schema: GQLSchema, url: string | null = null)
     if(url){
         ts += 'export const url = ' + JSON.stringify(url) + '\n\n'
     }
-    const SCALAR_MAP = {
+    const BUILTIN_SCALAR_MAP = {
         'String': 'string',
         'Int': 'number',
         'Float': 'number',
@@ -409,8 +340,8 @@ export function generateTypescript(schema: GQLSchema, url: string | null = null)
             type = type.ofType
         }
         if(type.kind == 'SCALAR'){
-            if(SCALAR_MAP[type.name]){
-                return (SCALAR_MAP[type.name] || 'any') + suffix;
+            if(BUILTIN_SCALAR_MAP[type.name]){
+                return BUILTIN_SCALAR_MAP[type.name] + suffix;
             }else{
                 return type.name + suffix;
             }
@@ -444,11 +375,11 @@ export function generateTypescript(schema: GQLSchema, url: string | null = null)
     for(let type of schema.types){
         if(type.name[0] == '_') continue;
         
-        if(type.description && !(type.kind === 'SCALAR' && type.name in SCALAR_MAP)) 
+        if(type.description && !(type.kind === 'SCALAR' && type.name in BUILTIN_SCALAR_MAP)) 
             ts += "/** " + type.description + " */\n";
 
         if(type.kind === 'SCALAR'){
-            if(!SCALAR_MAP[type.name]){
+            if(!BUILTIN_SCALAR_MAP[type.name]){
                 ts += 'export type ' + type.name + ' = any\n\n'
             }
         }else if(type.kind === 'UNION'){
