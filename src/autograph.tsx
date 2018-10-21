@@ -42,6 +42,7 @@ let succinctIntrospectionQuery = `
   }
 `
 
+
 type GenericObject = { [key: string]: any }
 
 interface GQLSchema {
@@ -115,41 +116,24 @@ export function AutographHOC(url: string){
 export default class Autograph extends React.Component<{
     url: string,
     render: (Query: GenericObject) => JSX.Element,
-    loading?: JSX.Element
 }> {
     render(){
-        let { url, render, loading } = this.props;
-        
+        let { url, render } = this.props;
         let schemaRequest, dataRequest;
-        if(!( schemaRequest = superfetch(url, succinctIntrospectionQuery, () => this.setState({})) )) 
+        if(!( schemaRequest = superfetch(url, succinctIntrospectionQuery, schema => {
+            if(schema.data && schema.data.__schema) console.log(generateTypescript(schema.data.__schema, url))
+            this.setState({})
+        }) )) 
             return <div>loading schema...</div>;
         if(schemaRequest.errors) return <div>Schema Error: {JSON.stringify(schemaRequest.errors)}</div>
-        let schema = schemaRequest.data.__schema;
-
+        let schema: GQLSchema = schemaRequest.data.__schema;
         let accessLog = {}
         pseudoRender(render(makeTracker(schema.types, getQueryRoot(schema), accessLog)))
-
-        if(!( dataRequest = superfetch(url, generateGraphQL(accessLog), () => this.setState({}))))
+        if(!( dataRequest = superfetch(url, generateGraphQL(accessLog), data => this.setState({}))))
             return <div>loading data...</div>;
-
         if(dataRequest.errors) return <div>Data Error: {JSON.stringify(dataRequest.errors)}</div>
-
         return render(makeRetriever(dataRequest.data))
     }
-}
-
-let superfetchCache = {}
-function superfetch(url: string, query: string, callback: (data: any) => void): any {
-    let key = url + query;
-    let entry = superfetchCache[key]
-    if(entry) return superfetchCache[key].data;
-    superfetchCache[key] = {
-        promise: gqlFetch(url, query)
-            .catch(err => callback(superfetchCache[key].data = { errors: [err] }) )
-            .then(data => callback(superfetchCache[key].data = data) ),
-        data: null
-    }
-    return null
 }
 
 
@@ -268,6 +252,20 @@ export function generateGraphQL(graph: AccessLog){
     return s
 }
 
+
+let superfetchCache = {}
+function superfetch(url: string, query: string, callback: (data: any) => void): any {
+    let key = url + query;
+    let entry = superfetchCache[key]
+    if(entry) return superfetchCache[key].data;
+    superfetchCache[key] = {
+        promise: gqlFetch(url, query)
+            .catch(err => callback(superfetchCache[key].data = { errors: [err] }) )
+            .then(data => callback(superfetchCache[key].data = data) ),
+        data: null
+    }
+    return null
+}
 
 
 function gqlFetch(url: string, query: string){
