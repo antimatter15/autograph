@@ -1,7 +1,4 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-// import { introspectionQuery } from 'graphql'
-
+import * as React from "react";
 
 let succinctIntrospectionQuery = `
   query IntrospectionQuery {
@@ -45,14 +42,50 @@ let succinctIntrospectionQuery = `
   }
 `
 
+type GenericObject = { [key: string]: any }
 
+interface GQLSchema {
+    queryType: { name: string }
+    types: Array<GQLSchemaRootType>
+}
+
+interface GQLSchemaRootType  {
+    kind: string
+    name: string
+    description?: string
+    fields: Array<GQLSchemaField>
+    possibleTypes: Array<GQLTypeRef>
+    enumValues: Array<{name: string}>
+    inputFields: Array<GQLInputValue>
+}
+
+interface GQLSchemaField {
+    name: string
+    description?: string
+    args: Array<GQLInputValue>
+    type: GQLTypeRef
+}
+
+interface GQLInputValue {
+    name: string
+    description: string
+    type: GQLTypeRef
+}
+
+interface GQLTypeRef {
+    kind: string
+    name: string
+    enumValues: Array<any>
+    ofType: GQLTypeRef
+}
 
 export async function autographData({ url, render } : {
     url: string, 
-    render: (Query) => JSX.Element
+    render: (Query: GenericObject) => JSX.Element
 }) {
-    let schema = (await gqlFetchMemo(url, succinctIntrospectionQuery)).data.__schema;
+    let schema: GQLSchema = (await gqlFetchMemo(url, succinctIntrospectionQuery)).data.__schema;
     let query = schema.types.find(k => k.name == schema.queryType.name)
+    if(!query) throw new Error(`Unable to find root query type "${schema.queryType.name}" in schema`);
     let accessLog = {}
     pseudoRender(render(makeTracker(schema.types, query, accessLog)))
     return (await gqlFetchMemo(url, generateGraphQL(accessLog))).data
@@ -60,10 +93,11 @@ export async function autographData({ url, render } : {
 
 export function AutographSuspense({ url, render } : {
     url: string, 
-    render: (Query) => JSX.Element
+    render: (Query: GenericObject) => JSX.Element
 }){
-    let schema = gqlFetchSuspense(url, succinctIntrospectionQuery).data.__schema;
+    let schema: GQLSchema = gqlFetchSuspense(url, succinctIntrospectionQuery).data.__schema;
     let query = schema.types.find(k => k.name == schema.queryType.name)
+    if(!query) throw new Error(`Unable to find root query type "${schema.queryType.name}" in schema`);
     let accessLog = {}
     pseudoRender(render(makeTracker(schema.types, query, accessLog)))
     let data = gqlFetchSuspense(url, generateGraphQL(accessLog)).data
@@ -71,9 +105,9 @@ export function AutographSuspense({ url, render } : {
 }
 
 
-export function AutographHOC(url){
-    return function(Component){
-        return function(props){
+export function AutographHOC(url: string){
+    return function(Component: React.ComponentType<{ Query: GenericObject }>){
+        return function(props: GenericObject){
             return <Autograph url={url} render={Query => 
                 <Component {...props} Query={Query} />}/>    
         }
@@ -84,17 +118,18 @@ export function AutographHOC(url){
 // This is kinda janky for a number of reasons. TODO: fix this.
 export class Autograph2 extends React.Component<{
     url: string, 
-    render: (Query) => JSX.Element,
+    render: (Query: GenericObject) => JSX.Element,
     loading?: JSX.Element
 }> {
     render(){
         let { url, render, loading } = this.props;
         let data;
         try {
-            let schema = gqlFetchSuspense(url, succinctIntrospectionQuery).data.__schema;
+            let schema: GQLSchema = gqlFetchSuspense(url, succinctIntrospectionQuery).data.__schema;
             console.log(schema)
             // console.log(generateTypescript(schema, url))
             let query = schema.types.find(k => k.name == schema.queryType.name)
+            if(!query) throw new Error(`Unable to find root query type "${schema.queryType.name}" in schema`);
             let accessLog = {}
             pseudoRender(render(makeTracker(schema.types, query, accessLog)))
             data = gqlFetchSuspense(url, generateGraphQL(accessLog)).data
@@ -112,23 +147,25 @@ export class Autograph2 extends React.Component<{
 
 export default class Autograph extends React.Component<{
         url: string, 
-        render: (Query) => JSX.Element
+        render: (Query: GenericObject) => JSX.Element
     }, {
-        schema
-        lastURL
-        lastGraphQL
-        loadingSchema
-        loadingData
-        data
+        schema?: GQLSchema 
+        lastURL?: string
+        lastGraphQL?: string
+        loadingSchema?: boolean
+        loadingData?: boolean
+        data?: any
+        errors: Array<any> | null
     }> {
 
     state = {
+        errors: null,
         loadingSchema: false,
         loadingData: false,
-        schema: null,
-        data: null,
-        lastURL: null,
-        lastGraphQL: null
+        schema: undefined,
+        data: undefined,
+        lastURL: undefined,
+        lastGraphQL: undefined
     }
 
     render(){
@@ -153,8 +190,9 @@ export default class Autograph extends React.Component<{
             return <div>Loading schema...</div>
         }
 
-        let schema = this.state.schema;
+        let schema: GQLSchema = this.state.schema;
         let query = schema.types.find(k => k.name == schema.queryType.name)
+        if(!query) throw new Error(`Unable to find root query type "${schema.queryType.name}" in schema`);
         let log = {}
         let tracker = makeTracker(schema.types, query, log)
         // console.log(tracker)
@@ -168,17 +206,30 @@ export default class Autograph extends React.Component<{
                 this.state.loadingData = true;
                 console.log(graphQL)
                 gqlFetch(url, graphQL)
-                    .then(result => this.setState({ data: result.data, lastGraphQL: graphQL, loadingData: false }))
+                    .then(result => {
+                        if(result.errors){
+                            this.setState({ errors: result.errors, lastGraphQL: graphQL, loadingData: false })    
+                        }else{
+                            this.setState({ errors: null, data: result.data, lastGraphQL: graphQL, loadingData: false })    
+                        }
+                    })
             }
             
             return <div>Loading data...</div>
+        }
+        if(this.state.errors){
+            return <pre>{this.state.errors.map(error => <div>
+                <div><b>{error.message}</b></div>
+                <div>{JSON.stringify(error.locations)}</div>
+                <div>{error.stack}</div>
+            </div>)}</pre>
         }
         return this.props.render(makeRetriever(this.state.data))
     }
 }
 
 
-export function pseudoRender(element){
+export function pseudoRender(element: JSX.Element){
     if(Array.isArray(element)){ // render all children
         for(let el of element) pseudoRender(el);
         return
@@ -186,8 +237,8 @@ export function pseudoRender(element){
     // console.log(element, React.isValidElement(element))
     if(!React.isValidElement(element)) return;
     
-    if(element.props.children)
-        pseudoRender(element.props.children);
+    if((element.props as GenericObject).children)
+        pseudoRender((element.props as GenericObject).children);
     if(typeof element.type === 'function'){
         if(element.type.prototype.render){
             // stateful react components
@@ -196,28 +247,29 @@ export function pseudoRender(element){
             el.render()
         }else{
             // stateless functional react components
-            pseudoRender(element.type(element.props))    
+            pseudoRender((element.type as (props: GenericObject) => JSX.Element)(element.props))    
         }
     }
 }
 
 
 
-export function makeTracker(types, obj, query){
+export function makeTracker(types: Array<GQLSchemaRootType>, obj: GQLSchemaRootType, query: GenericObject){
     let tracker = { __typename: obj.name }
-    const subtrack = (field, type, args) => {
+    const subtrack = (field: GQLSchemaField, type: GQLTypeRef, args: GenericObject): any => {
         let key = encodeField(field, args);
         if(type.kind == 'NON_NULL') return subtrack(field, type.ofType, args);
         if(type.kind == 'LIST') return [ subtrack(field, type.ofType, args) ];
-        if(type.kind == 'OBJECT') return makeTracker(types, 
-            types.find(k => k.name == type.name), 
-            query[key] || (query[key] = { }));
+        if(type.kind == 'OBJECT'){
+            let subobj = types.find(k => k.name == type.name)
+            if(!subobj) throw new Error(`Unable to find type "${type.name}" in schema.`);
+            return makeTracker(types, subobj, query[key] || (query[key] = { }));
+        }
         query[key] = 1
         if(type.kind == 'ENUM') return type.enumValues[0];
         if(type.name == 'Int' || type.name == 'Float') return 42;
         if(type.name == 'String') return '{' + field.name + '}';
         if(type.name == 'ID') return Math.random().toString(36).slice(3);
-        // console.log('unknown', type)
         return null
     }
     for(let field of obj.fields){
@@ -226,7 +278,7 @@ export function makeTracker(types, obj, query){
                 get: () => subtrack(field, field.type, {})
             })
         }else{
-            tracker[field.name] = (args) => subtrack(field, field.type, args || {})
+            tracker[field.name] = (args: GenericObject) => subtrack(field, field.type, args || {})
         }
     }
     return tracker
@@ -236,7 +288,7 @@ export function encodeField(field: { name: string, args: Array<any> }, args: nul
     return JSON.stringify([ field.name, field.args.length == 0 ? null : (args || {}) ])
 }
 
-export function decodeField(key): [string, null | any] {
+export function decodeField(key: string): [string, null | any] {
     return JSON.parse(key)
 }
 
@@ -250,20 +302,22 @@ export function decodeArguments(slug: string): [ string, boolean ] {
     return [ parts[0], parts.length > 1 ]
 }
 
-export function generateGraphQL(graph){
+type AccessLog = { [key: string]: AccessLog } | 1
+
+export function generateGraphQL(graph: AccessLog){
     if(graph === 1) return '';
     let s = '{\n'
-    const indent = x => x.split('\n').map(k => '  ' + k).join('\n')
+    const indent = (x: string) => x.split('\n').map(k => '  ' + k).join('\n')
     
-    const encodeValue = obj =>
+    const encodeValue = (obj: any): string =>
         (typeof obj === 'object') ? 
             (Array.isArray(obj) ? 
                 ('[' + obj.map(encodeValue).join(', ') + ']'):
                 ('{' + encodeKV(obj) + '}') ) : 
             JSON.stringify(obj)
     
-    const encodeKV = obj => Object.entries(obj)
-        .map(([key, value]) => key + ': ' + encodeValue(value))
+    const encodeKV = (obj: GenericObject): string => Object.keys(obj)
+        .map(key => key + ': ' + encodeValue(obj[key]))
         .join(', ')
 
     for(let key in graph){
@@ -286,7 +340,7 @@ export function generateGraphQL(graph){
 
 
 
-function gqlFetch(url, query){
+function gqlFetch(url: string, query: string){
     return fetch(url, {
         method: 'POST',
         headers: {
@@ -299,7 +353,7 @@ function gqlFetch(url, query){
 }
 
 let cachePromises = {}
-function gqlFetchMemo(url, query){
+function gqlFetchMemo(url: string, query: string){
     let key = url + query;
     if(cachePromises[key]) return cachePromises[key];
     return cachePromises[key] = gqlFetch(url, query)
@@ -307,11 +361,11 @@ function gqlFetchMemo(url, query){
 
 
 let cacheData = {}
-function gqlFetchSuspense(url, query){
+function gqlFetchSuspense(url: string, query: string){
     let key = url + query;
     if(cacheData[key]) return cacheData[key];
     throw gqlFetchMemo(url, query)
-        .then(data => cacheData[key] = data)
+        .then((data: any) => cacheData[key] = data)
 }
 
 
@@ -332,7 +386,7 @@ export function makeRetriever(data: any): any {
 }
 
 
-export function generateTypescript(schema, url = null){
+export function generateTypescript(schema: GQLSchema, url: string | null = null){
     let ts = ''
     if(url){
         ts += 'export const url = ' + JSON.stringify(url) + '\n\n'
@@ -345,7 +399,7 @@ export function generateTypescript(schema, url = null){
         'ID': 'string'
     }
 
-    const printTypeCore = type => {
+    const printTypeCore = (type: GQLTypeRef): string => {
         let suffix = ''
         while(type.kind == 'LIST'){
             type = type.ofType
@@ -364,38 +418,33 @@ export function generateTypescript(schema, url = null){
             type.kind == 'INTERFACE' || type.kind == 'UNION' || 
             type.kind == 'INPUT_OBJECT'){
             return type.name + suffix
-        }else{
-            debugger
-            console.warn(type)
         }
+        throw new Error(`Unable to handle type "${type.kind}" named "${type.name}"`)
     }
 
 
-    const printType = type => {
+    const printType = (type: GQLTypeRef): string => {
         let prefix = '?: '
-        let suffix = ''
         if(type.kind == 'NON_NULL'){
             type = type.ofType
             prefix = ': '
         }
-
         return prefix + printTypeCore(type)
     }
 
-    const printFunctionType = type => {
+    const printFunctionType = (type: GQLTypeRef): string => {
         let suffix = ' | null'
         if(type.kind == 'NON_NULL'){
             type = type.ofType
             suffix = ''
         }
-
         return ': ' + printTypeCore(type) + suffix
     }
     
     for(let type of schema.types){
         if(type.name[0] == '_') continue;
         
-        if(type.description) 
+        if(type.description && !(type.kind === 'SCALAR' && type.name in SCALAR_MAP)) 
             ts += "/** " + type.description + " */\n";
 
         if(type.kind === 'SCALAR'){
