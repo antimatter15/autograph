@@ -13,6 +13,7 @@
     "@types/react": "^16.4.18",
     "@types/react-dom": "^16.0.9",
     "graphql": "^14.0.2",
+    "graphql-tools": "^4.0.2",
     "jest": "^23.6.0",
     "lodash": "^4.17.11",
     "parcel-bundler": "^1.10.3",

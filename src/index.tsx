@@ -1,8 +1,8 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
 
 import * as GQL from './schemas/ethereum'
-import Autograph, { AutographHOC } from './autograph'
+import Autograph from './autograph'
 
 
     
@@ -28,5 +28,5 @@ function App({ Query } : { Query: GQL.Query }){
 
 
 ReactDOM.render(<Autograph url={GQL.url}>{
-    (Query: GQL.Query) => <App Query={Query} />
+    Query => <App Query={Query} />
 }</Autograph>, document.getElementById('root'))

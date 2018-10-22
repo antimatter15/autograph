@@ -44,3 +44,10 @@ function App(){
         url={GQL.url}
         render={(Query: GQL.Query) => <div></div>} />
 }
+
+// children as render prop
+function App(){
+    return <Autograph url="https://graphql-pokemon.now.sh/graphql">{
+        (Query: GQL.Query) => <Demo Query={Query} />
+    }</Autograph>
+}

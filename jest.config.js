@@ -1,6 +1,6 @@
 module.exports = {
   "roots": [
-    "<rootDir>/src"
+    "<rootDir>/autograph2"
   ],
   "transform": {
     "^.+\\.tsx?$": "ts-jest"

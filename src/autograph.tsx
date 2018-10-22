@@ -45,7 +45,8 @@ let succinctIntrospectionQuery = `
 
 type GenericObject = { [key: string]: any }
 
-type GQLQuery = { [key: string]: any }
+// type GQLQuery = { [key: string]: any }
+type GQLQuery = any
 
 interface GQLSchema {
     queryType: { name: string }
@@ -102,8 +103,7 @@ export function AutographSuspense({ url, children: render } : {
 }
 
 
-
-export function AutographHOC(url: string){
+export function withAutograph(url: string){
     return function(Component: React.ComponentType<{ Query: GQLQuery }>){
         return function(props: GenericObject){
             return <Autograph url={url}>{
@@ -112,32 +112,6 @@ export function AutographHOC(url: string){
         }
     }
 }
-
-
-//  export const AutographHOC2 = (url: string) => (WrappedComponent: React.ComponentType<{
-//         Query: GQLQuery, 
-//         [key: string]: any
-//     }>) => class extends React.Component<{ 
-//         Query: GQLQuery,
-//         [key: string]: any
-//     }> {
-//      render(){
-//         return <Autograph url={url} render={Query => 
-//             <WrappedComponent {...this.props} Query={Query} />}/>    
-//      }
-//  }
-
-
-
-// export const AutographHOC2 = (url: string) => 
-//     (WrappedComponent: React.ComponentType) => 
-//     class AutographedComponent extends React.Component {
-//         render(){
-//             return <Autograph url={url}>{
-//                 Query => <WrappedComponent {...this.props} Query={Query} />
-//             }</Autograph>
-//         }
-//     }
 
 export default class Autograph extends React.Component<{
     url: string,
@@ -352,6 +326,10 @@ export function generateTypescript(schema: GQLSchema, url: string | null = null)
         'Float': 'number',
         'Boolean': 'boolean',
         'ID': 'string'
+    }
+
+    if(schema.queryType.name !== 'Query'){
+        ts += 'export type Query = ' + schema.queryType.name + '\n\n';
     }
 
     const printTypeCore = (type: GQLSchemaType): string => {
