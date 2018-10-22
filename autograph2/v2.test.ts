@@ -1,5 +1,5 @@
 import { schemaToTypescript, parseGraphQL, runGraphQL } from './schema2typescript'
-import {  makeAccessLogger, getQueryRoot, accessLogToGraphQL, makeRetriever } from './schema2typescript'
+import {  makeAccessLogger, getQueryRoot, getMutationRoot, accessLogToGraphQL, makeRetriever } from './schema2typescript'
 // import { encodeField, decodeField, encodeArguments, decodeArguments } from './schema2typescript'
 
 
@@ -530,8 +530,56 @@ describe('Different data types', () => {
         expect(ret.allMyFrienemies).toEqual([{"__typename": "Enemy"}, {"__typename": "Friend"}])
     })
 
+    test('Input Type Basic', async () => {
+        let gqlSchema = `
+            type Query {
+                hello(input: ReviewInput!): String
+            }
+            
+            input ReviewInput {
+                commentary: String
+            }
+        `
+        let schema = await parseGraphQL(gqlSchema)
+        expect(schemaToTypescript(schema)).toMatchToken(`
+            export type Query = {
+                hello?(args: { input: ReviewInput }): string
+            }
+
+            export type ReviewInput = {
+                commentary?: string
+            }
+        `)
+
+        let log = {}
+        let tracker = makeAccessLogger(schema, getQueryRoot(schema), log)
+        expect(tracker.hello({ input: { commentary: 'merp' } })).toBe('Autograph {hello}')
+
+        let query = accessLogToGraphQL(log)
+        expect(query).toMatchToken(`
+            {
+              hello___inputcommentarymerp: hello(input: {commentary: "merp"})
+            }
+        `)
+
+        let data = await runGraphQL(gqlSchema, query, {
+            Query: {
+                hello(parent: any, args: any){
+                    return args.input.commentary
+                }
+            },
+        })
+        expect(data).toEqual({"hello___inputcommentarymerp": "merp"})
+
+
+        let ret = makeRetriever(data)
+        expect(ret.hello({ input: { commentary: 'merp' } })).toEqual("merp")
+    })
+
+
+
     test('Input Type', async () => {
-        let schema = await parseGraphQL(`
+        let gqlSchema = `
             type Query {
                 hello: String
             }
@@ -549,7 +597,9 @@ describe('Different data types', () => {
             input SomethingElse {
                 stripes: Int
             }
-        `)
+        `
+        
+        let schema = await parseGraphQL(gqlSchema)
 
         expect(schemaToTypescript(schema)).toMatchToken(`
             export type Query = {
@@ -575,6 +625,7 @@ describe('Different data types', () => {
             }
         `)
     })
+
 
 
     test('Enums', async () => {
@@ -648,10 +699,8 @@ test('Custom query type', async () => {
             hello_world_message?: string
         }
     `)
-
-
-
 })
+
 
 
 test('Basic method query', async () => {
@@ -913,8 +962,163 @@ test('Basic method query with object arguments', async () => {
 })
 
 
+describe('Mutations', () => {
+    test('Custom mutation type', async () => {
+        let schema = await parseGraphQL(`
+            schema {
+                mutation: CustomMutationAPI
+                query: CustomQueryAPI
+            }
+            type CustomMutationAPI {
+                merp(blah: String): String
+            }
+            type CustomQueryAPI {
+                hello_world_message: String
+            }
+        `)
+
+        expect(schemaToTypescript(schema)).toMatchToken(`
+            type Query = CustomQueryAPI
+            type Mutation = CustomMutationAPI
+
+            export type CustomQueryAPI = {
+                hello_world_message?: string
+            }
+
+            export type CustomMutationAPI = {
+                merp?(args: { blah?: string }): string
+            }
+        `)
+    })
+
+    test('Input & Output Type', async () => {
+        let gqlSchema = `
+            type Query {
+                GetReview: Review
+            }
+
+            type Mutation {
+                UpdateReview(input: ReviewInput!): Review
+            }
+
+            type Review {
+                commentary: String
+                author: String
+            }
+            
+            input ReviewInput {
+                commentary: String
+                author: String
+            }
+        `
+
+        let schema = await parseGraphQL(gqlSchema)
+
+        expect(schemaToTypescript(schema)).toMatchToken(`
+            export type Query = {
+                GetReview?: Review
+            }
+
+            export type Review = {
+                commentary?: string
+                author?: string
+            }
+
+            export type Mutation = {
+                UpdateReview?(args: { input: ReviewInput }): Review
+            }
+
+            export type ReviewInput = {
+                commentary?: string
+                author?: string
+            }
+        `)
+
+        let log = {}
+        let tracker = makeAccessLogger(schema, getMutationRoot(schema), log)
+        expect(tracker.UpdateReview({ input: { commentary: 'nimby yimby', author: 'hank george' } }).author)
+            .toEqual("Autograph {author}")
+
+        let query = accessLogToGraphQL(log, { operationType: 'mutation' })
+        expect(query).toMatchToken(`
+            mutation {
+              UpdateReview___inputcommentarynimbyyimbyauthorhankgeorge: UpdateReview(input: {commentary: "nimby yimby", author: "hank george"}) {
+                author
+              }
+            }
+        `)
 
 
+        let data = await runGraphQL(gqlSchema, query, {
+            Mutation: {
+                UpdateReview(parent: any, args: { input: any }){
+                    return args.input
+                }
+            }
+        })
+        expect(data).toEqual({"UpdateReview___inputcommentarynimbyyimbyauthorhankgeorge": {"author": "hank george"}})
+
+
+        let ret = makeRetriever(data)
+        expect(ret.UpdateReview({ })).toBeUndefined()
+        expect(ret.UpdateReview({ input: { commentary: 'nimby yimby', author: 'hank george' } }).author).toEqual('hank george')
+        expect(ret.UpdateReview({ input: { commentary: 'nimby yimby', author: 'hank george' } }).commentary).toBeUndefined()
+    })
+
+    test('Basic mutations', async () => {
+        let gqlSchema = `
+            type Query {
+                echo(messages: [String]!): String!
+            }
+
+            type Mutation {
+                updateBio(bio: String!): String!
+            }
+        `
+        let schema = await parseGraphQL(gqlSchema)
+
+        expect(schemaToTypescript(schema)).toMatchToken(`
+            export type Query = {
+                echo(args: { messages: string[] }): string
+            }
+
+            export type Mutation = {
+                updateBio(args: { bio: string }): string
+            }
+        `)
+
+        let log = {}
+        let tracker = makeAccessLogger(schema, getMutationRoot(schema), log)
+        expect(tracker.updateBio({ bio: 'what is the meaning of life' })).toBe('Autograph {updateBio}')
+
+        let query = accessLogToGraphQL(log, {
+            operationType: 'mutation'
+        })
+        expect(query).toMatchToken(`
+            mutation {
+              updateBio___biowhatisthemeaningoflife: updateBio(bio: "what is the meaning of life")
+            }
+        `)
+
+
+        let data = await runGraphQL(gqlSchema, query, {
+            Mutation: {
+                updateBio(parent: any, args: { bio: string }){
+                    return args.bio + ' and stuff'
+                }
+            }
+        })
+        expect(data).toEqual({"updateBio___biowhatisthemeaningoflife": "what is the meaning of life and stuff"})
+
+
+        let ret = makeRetriever(data)
+        expect(ret.updateBio()).toBeUndefined()
+        expect(ret.updateBio({ bio: 'what is the meaning of life' })).toEqual("what is the meaning of life and stuff")
+    })
+
+
+
+})
 
 // async function main(){
     

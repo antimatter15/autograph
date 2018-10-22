@@ -1,13 +1,13 @@
 import { parse } from 'graphql'
 import { graphql, buildASTSchema } from 'graphql'
 import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
-import { addResolveFunctionsToSchema } from 'graphql-tools';
 
 
 let succinctIntrospectionQuery = `
   query IntrospectionQuery {
     __schema {
       queryType { name }
+      mutationType { name }
       types { ...FullType }
     }
   }
@@ -46,6 +46,7 @@ let succinctIntrospectionQuery = `
 
 type GQLSchema = {
     queryType: { name: string }
+    mutationType: { name: string }
     types: GQLTypeDef[]
 }
 
@@ -115,8 +116,11 @@ export async function runGraphQL(schemaSource: string, query: string, resolvers 
     // })
 
     addMockFunctionsToSchema({ schema, preserveResolvers: true });
+    let result = await graphql(schema, query)
 
-    return (await graphql(schema, query)).data
+    if(result.errors) throw result.errors[0];
+    
+    return result.data
 }
 
 
@@ -148,6 +152,10 @@ export function schemaToTypescript(schema: GQLSchema): string {
 
     if(schema.queryType.name != 'Query'){
         ts += 'type Query = ' + schema.queryType.name + '\n\n' 
+    }
+
+    if(schema.mutationType && schema.mutationType.name != 'Mutation'){
+        ts += 'type Mutation = ' + schema.mutationType.name + '\n\n' 
     }
 
     const BUILTIN_TYPES = [
@@ -246,6 +254,13 @@ export function getQueryRoot(schema: GQLSchema){
     return query
 }
 
+export function getMutationRoot(schema: GQLSchema){
+    if(!schema.mutationType) throw new Error('Schema does not define a mutation type');
+    let query = schema.types.find(k => k.name == schema.mutationType.name)
+    if(!query) throw new Error(`Unable to find root mutation type "${schema.mutationType.name}" in schema`);
+    return query
+}
+
 
 function hashArguments(args: any): string {
     return JSON.stringify(args || {}).replace(/[^\w]+/g, '')
@@ -331,13 +346,16 @@ export function makeAccessLogger(schema: GQLSchema, obj: GQLTypeDef, log: Access
     return logger
 }
 
+type GraphQLGeneratorOptions = {
+    operationType?: 'query' | 'mutation' | 'subscription'
+}
 
-export function accessLogToGraphQL(log: AccessLog, prefix = ''): string {
-    if(log === 1) return '';
+const DefaultGraphQLGeneratorOptions: GraphQLGeneratorOptions = {
+    operationType: 'query'
+}
 
-    let gql = ''
-    gql += '{\n'
-
+export function accessLogToGraphQL(log: AccessLog, options: GraphQLGeneratorOptions = DefaultGraphQLGeneratorOptions): string {
+    options = Object.assign({}, DefaultGraphQLGeneratorOptions, options)
 
     const encodeValue = (obj: any): string =>
         (typeof obj === 'object') ? 
@@ -352,26 +370,40 @@ export function accessLogToGraphQL(log: AccessLog, prefix = ''): string {
 
     const indent = (x: string) => x.split('\n').map(k => '  ' + k).join('\n')
 
-    for(let key of Object.keys(log)) {
-        let info = JSON.parse(key)
-        if(info.type == 'NAV'){
-            if(info.hasArgs){
-                gql += indent(prefix + info.name + '___' + hashArguments(info.args) + ': ' + info.name + 
-                    (Object.keys(info.args).length > 0 ? ('(' + encodeKV(info.args) + ')') : '') + ' ' + accessLogToGraphQL(log[key]))  + '\n'
-            }else{
-                gql += indent((prefix ? (prefix + info.name + ': ') : '') + info.name + ' ' + accessLogToGraphQL(log[key])) + '\n'
-            }
-        }else if(info.type == 'AS'){
-            gql += indent('... on ' + info.name + ' ' + accessLogToGraphQL(log[key], '__AS_' + info.name + '___')) + '\n'
-        }else throw new Error(`Encountered unexpected navigation type "${info.type}"`)
+    const convertRecursive = (log: AccessLog, prefix = ''): string => {
+        if(log === 1) return '';
+
+        let gql = ''
+        gql += '{\n'
+        for(let key of Object.keys(log)) {
+            let info = JSON.parse(key)
+            if(info.type == 'NAV'){
+                if(info.hasArgs){
+                    gql += indent(prefix + info.name + '___' + hashArguments(info.args) + ': ' + info.name + 
+                        (Object.keys(info.args).length > 0 ? ('(' + encodeKV(info.args) + ')') : '') + ' ' + convertRecursive(log[key]))  + '\n'
+                }else{
+                    gql += indent((prefix ? (prefix + info.name + ': ') : '') + info.name + ' ' + convertRecursive(log[key])) + '\n'
+                }
+            }else if(info.type == 'AS'){
+                gql += indent('... on ' + info.name + ' ' + convertRecursive(log[key], '__AS_' + info.name + '___')) + '\n'
+            }else throw new Error(`Encountered unexpected navigation type "${info.type}"`)
+        }
+
+        if(Object.keys(log).length == 0){
+            gql += indent((prefix ? (prefix + '__typename: ') : '') + '__typename') + '\n'
+        }
+
+        gql += '}'
+        return gql;
     }
 
-    if(Object.keys(log).length == 0){
-        gql += indent((prefix ? (prefix + '__typename: ') : '') + '__typename') + '\n'
+    if(options.operationType == 'query'){
+        return convertRecursive(log, '')
+    }else if(options.operationType == 'mutation'){
+        return 'mutation ' + convertRecursive(log, '')
+    }else{
+        throw new Error(`Unsupported operation type "${options.operationType}"`)
     }
-
-    gql += '}'
-    return gql;
 }
 
 
