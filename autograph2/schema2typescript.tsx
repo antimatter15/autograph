@@ -1,7 +1,7 @@
 import { parse } from 'graphql'
 import { graphql, buildASTSchema } from 'graphql'
 import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
-
+import 'isomorphic-fetch'
 
 let succinctIntrospectionQuery = `
   query IntrospectionQuery {
@@ -119,10 +119,99 @@ export async function runGraphQL(schemaSource: string, query: string, resolvers 
     let result = await graphql(schema, query)
 
     if(result.errors) throw result.errors[0];
-    
+
     return result.data
 }
 
+
+
+type GQLClient = (query: string) => Promise<any>
+
+
+async function runGQL(url: string | GQLClient, query: string): Promise<any> {
+    if(typeof url == 'string'){
+        return await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({query: query})
+        })
+        .then(resp => resp.json())    
+        .then(data => data.data)
+    }else{
+        return await url(query)
+    }
+}
+
+
+export function CreateMutation<MutationType>(url: string | GQLClient) {
+    return async function Mutation<Result>(render: ((mutation: MutationType) => Result)): Promise<Result> {
+        let schema: GQLSchema = (await runGQL(url, succinctIntrospectionQuery)).__schema
+        let accessLog = {}
+        traverseTree(render(makeAccessLogger(schema, getMutationRoot(schema), accessLog) as MutationType))
+        let gql = accessLogToGraphQL(accessLog, { operationType: 'mutation' })
+        return render(makeRetriever(await runGQL(url, gql)))
+    }
+}
+
+export function CreateQuery<QueryType>(url: string | GQLClient) {
+    return async function Query<Result>(render: ((query: QueryType) => Result)): Promise<Result> {
+        let schema: GQLSchema = (await runGQL(url, succinctIntrospectionQuery)).__schema
+        let accessLog = {}
+        traverseTree(render(makeAccessLogger(schema, getQueryRoot(schema), accessLog) as QueryType))
+        let gql = accessLogToGraphQL(accessLog)
+        return render(makeRetriever(await runGQL(url, gql)))
+    }
+}
+
+
+import * as React from 'react'
+
+function traverseTree(element: any): void {
+    if(Array.isArray(element)){ // render all children
+        for(let el of element) traverseTree(el);
+        return
+    }
+    if(!React.isValidElement(element)){
+        if(typeof element == 'object'){
+            for(let key in element){
+                traverseTree(element[key])
+            }
+        }
+        return
+    }
+    if((element.props as GenericObject).children)
+        traverseTree((element.props as GenericObject).children);
+    if(typeof element.type === 'function'){
+        if(element.type.prototype.render){
+            // stateful react components
+            let clone = React.cloneElement(element)
+            let el = new (clone.type as any)(clone.props)
+            el.render()
+        }else{
+            // stateless functional react components
+            traverseTree((element.type as (props: GenericObject) => JSX.Element)(element.props))    
+        }
+    }
+}
+// type Blah = {
+//     merp: 42
+// }
+// let Mutation = CreateMutation<Blah>('merp')
+// Mutation(m => <div>{m.merp}</div>)
+
+// let Mutation = CreateMutation<GQL.Mutation>('url')
+// await Mutation(Mutation => <div />)
+
+
+// export async function autographData(url: string, render: (Query: GQLQuery) => JSX.Element) {
+//     let schema: GQLSchema = (await gqlFetchMemo(url, succinctIntrospectionQuery)).data.__schema;
+//     let accessLog = {}
+//     pseudoRender(render(makeTracker(schema.types, getQueryRoot(schema), accessLog)))
+//     return (await gqlFetchMemo(url, generateGraphQL(accessLog))).data
+// }
 
 
 
