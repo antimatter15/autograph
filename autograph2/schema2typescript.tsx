@@ -128,7 +128,7 @@ export async function runGraphQL(schemaSource: string, query: string, resolvers 
 
 
 type GQLClient = (query: string) => Promise<{ data?: any, errors?: any[] }>
-
+type QueryType = GenericObject
 
 async function runGQL(url: string | GQLClient, query: string): Promise<{ data?: any, errors?: any[] }> {
     if(typeof url == 'string'){
@@ -146,29 +146,37 @@ async function runGQL(url: string | GQLClient, query: string): Promise<{ data?: 
     }
 }
 
+// This function fetches the schema from the given graphql endpoint,
+// passes a synthetic access logger do a single dry run with the render
+// function, generates the corresponding graphql query, executes the
+// query and returns the results as plain JSON. 
+
+// This function is useful for server side rendering (SSR) applications
+// which may require a pure JSON-serializable response. 
+
+export async function getDataFromTree<QueryType, Result>(
+    url: string | GQLClient, 
+    operationType: OperationTypes, 
+    render: ((query: QueryType) => Result)
+): Promise<GenericObject> {
+    let schema: GQLSchema = (await runGQL(url, succinctIntrospectionQuery)).data.__schema
+    let accessLog = {}
+    traverseTree(render(makeAccessLogger(schema, getQueryRoot(schema, operationType), accessLog) as QueryType))
+    let gql = accessLogToGraphQL(accessLog, { operationType: operationType })
+    return (await runGQL(url, gql)).data
+}
 
 export function CreateMutation<MutationType>(url: string | GQLClient) {
     return async function Mutation<Result>(render: ((mutation: MutationType) => Result)): Promise<Result> {
-        let schema: GQLSchema = (await runGQL(url, succinctIntrospectionQuery)).data.__schema
-        let accessLog = {}
-        traverseTree(render(makeAccessLogger(schema, getMutationRoot(schema), accessLog) as MutationType))
-        let gql = accessLogToGraphQL(accessLog, { operationType: 'mutation' })
-        return render(makeRetriever((await runGQL(url, gql)).data))
+        return render(makeRetriever(await getDataFromTree(url, 'mutation', render)))
     }
 }
 
 export function CreateQuery<QueryType>(url: string | GQLClient) {
     return async function Query<Result>(render: ((query: QueryType) => Result)): Promise<Result> {
-        let schema: GQLSchema = (await runGQL(url, succinctIntrospectionQuery)).data.__schema
-        let accessLog = {}
-        traverseTree(render(makeAccessLogger(schema, getQueryRoot(schema), accessLog) as QueryType))
-        let gql = accessLogToGraphQL(accessLog)
-        return render(makeRetriever((await runGQL(url, gql)).data))
+        return render(makeRetriever(await getDataFromTree(url, 'query', render)))
     }
 }
-
-
-type QueryType = GenericObject
 
 export function withAutograph(url: string){
     return function(Component: React.ComponentType<{ Query: QueryType }>){
@@ -276,6 +284,7 @@ function GQLType2TS(type: GQLType): string {
 
 
 export function schemaToTypescript(schema: GQLSchema): string {
+    const INDENT = '    ' // 4 spaces
     let ts = ''
 
     if(schema.queryType.name != 'Query'){
@@ -287,10 +296,10 @@ export function schemaToTypescript(schema: GQLSchema): string {
     }
 
     ts += 'type GQLType = {\n'
-    ts += "    /** This field is defined when Autograph is executing a dry run */\n"
-    ts += '    ' + '__dryRun?: boolean\n'
-    ts += "    /** The name of the object type */\n"
-    ts += '    ' + '__typename: string\n'
+    ts += INDENT + "/** This field is defined when Autograph is executing a dry run */\n"
+    ts += INDENT + '__dryRun?: boolean\n'
+    ts += INDENT + "/** The name of the object type */\n"
+    ts += INDENT + '__typename: string\n'
     ts += '}\n\n'
 
     const BUILTIN_TYPES = [
@@ -303,25 +312,22 @@ export function schemaToTypescript(schema: GQLSchema): string {
         'Float': 'number',
         'ID': 'string'
     }
+
     for(let type of schema.types){
         if(BUILTIN_TYPES.indexOf(type.name) != -1) continue;
-        
-
         if(type.kind == 'OBJECT'){
             if(type.description) 
                 ts += "/** " + type.description + " */\n";
-
-
             ts += 'export type ' + type.name + ' = GQLType & {\n'
             for(let field of type.fields){
                 if(field.description) 
-                    ts += "    /** " + field.description + " */\n"
+                    ts += INDENT + "/** " + field.description + " */\n"
                 if(field.args.length > 0){
-                    ts += '    ' + field.name + (IsGQLTypeNullable(field.type) ? '?' : '') + '(args: { ' + 
+                    ts += INDENT + field.name + (IsGQLTypeNullable(field.type) ? '?' : '') + '(args: { ' + 
                         field.args.map(arg => arg.name + (IsGQLTypeNullable(arg.type) ? '?: ' : ': ') + GQLType2TS(arg.type)).join(', ') + 
                         ' }): ' + GQLType2TS(field.type) + '\n'
                 }else{
-                    ts += '    ' + field.name +  (IsGQLTypeNullable(field.type) ? '?: ' : ': ') + GQLType2TS(field.type) + '\n'
+                    ts += INDENT + field.name +  (IsGQLTypeNullable(field.type) ? '?: ' : ': ') + GQLType2TS(field.type) + '\n'
                 }
             }
             ts += '}\n\n'
@@ -334,8 +340,8 @@ export function schemaToTypescript(schema: GQLSchema): string {
             
             for(let field of type.fields){
                 if(field.description) 
-                    ts += "    /** " + field.description + " */\n"
-                ts += '    ' + field.name +  (IsGQLTypeNullable(field.type) ? '?: ' : ': ') + GQLType2TS(field.type) + '\n'
+                    ts += INDENT + "/** " + field.description + " */\n"
+                ts += INDENT + field.name +  (IsGQLTypeNullable(field.type) ? '?: ' : ': ') + GQLType2TS(field.type) + '\n'
             }
 
             // This way, for instance if we have Droid, Human implementing Character
@@ -344,8 +350,8 @@ export function schemaToTypescript(schema: GQLSchema): string {
             for(let obj of schema.types){
                 if(obj.kind != 'OBJECT') continue;
                 if(!obj.interfaces.some(interf => interf.name == type.name)) continue;
-                ts += "    /** Use `as" + obj.name + "` to access fields on the underlying concrete type. */\n"
-                ts += '    as' + obj.name + ': ' + obj.name + '\n'
+                ts += INDENT + "/** Use `as" + obj.name + "` to access fields on the underlying concrete type. */\n"
+                ts += INDENT + 'as' + obj.name + ': ' + obj.name + '\n'
             }
             ts += '}\n\n'
         }else if(type.kind == 'SCALAR'){
@@ -373,8 +379,8 @@ export function schemaToTypescript(schema: GQLSchema): string {
             ts += 'export type ' + type.name + ' = {\n'
             for(let field of type.inputFields){
                 if(field.description) 
-                    ts += "    /** " + field.description + " */\n"
-                ts += '    ' + field.name +  (IsGQLTypeNullable(field.type) ? '?: ' : ': ') + GQLType2TS(field.type) + '\n'
+                    ts += INDENT + "/** " + field.description + " */\n"
+                ts += INDENT + field.name +  (IsGQLTypeNullable(field.type) ? '?: ' : ': ') + GQLType2TS(field.type) + '\n'
             }
             ts += '}\n\n'
         }else{
@@ -384,16 +390,18 @@ export function schemaToTypescript(schema: GQLSchema): string {
     return ts
 }
 
-export function getQueryRoot(schema: GQLSchema){
-    let query = schema.types.find(k => k.name == schema.queryType.name)
-    if(!query) throw new Error(`Unable to find root query type "${schema.queryType.name}" in schema`);
-    return query
-}
+type OperationTypes = 'query' | 'mutation'
 
-export function getMutationRoot(schema: GQLSchema){
-    if(!schema.mutationType) throw new Error('Schema does not define a mutation type');
-    let query = schema.types.find(k => k.name == schema.mutationType.name)
-    if(!query) throw new Error(`Unable to find root mutation type "${schema.mutationType.name}" in schema`);
+export function getQueryRoot(schema: GQLSchema, operationType: OperationTypes = 'query'){
+    let name: string;
+    if(operationType == 'query'){
+        name = schema.queryType.name
+    }else if(operationType == 'mutation'){
+        if(!schema.mutationType) throw new Error('Schema does not define a mutation type');
+        name = schema.mutationType.name
+    }else throw new Error(`Unsupported operation type "${operationType}" expected "mutation" or "query".`)
+    let query = schema.types.find(k => k.name == name)
+    if(!query) throw new Error(`Unable to find root ${operationType} type "${name}" in schema`);
     return query
 }
 

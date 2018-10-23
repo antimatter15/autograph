@@ -7,7 +7,6 @@ import {
 import {
   makeAccessLogger,
   getQueryRoot,
-  getMutationRoot,
   accessLogToGraphQL,
   makeRetriever
 } from "./schema2typescript";
@@ -1289,7 +1288,7 @@ export type ReviewInput = {
 `);
 
     let log = {};
-    let tracker = makeAccessLogger(schema, getMutationRoot(schema), log);
+    let tracker = makeAccessLogger(schema, getQueryRoot(schema, 'mutation'), log);
     expect(
       tracker.UpdateReview({
         input: { commentary: "nimby yimby", author: "hank george" }
@@ -1360,7 +1359,7 @@ export type Mutation = GQLType & {
 `);
 
     let log = {};
-    let tracker = makeAccessLogger(schema, getMutationRoot(schema), log);
+    let tracker = makeAccessLogger(schema, getQueryRoot(schema, 'mutation'), log);
     expect(tracker.updateBio({ bio: "what is the meaning of life" })).toBe(
       "Autograph {updateBio}"
     );
