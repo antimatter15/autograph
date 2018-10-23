@@ -1,5 +1,54 @@
 # autograph
 
+Using GraphQL is often quite repetitive and repetitive. You have to declare your schemas, implement your resolvers, write your queries, and destructure the results of your queries. You end up writing the same thing in different forms several times, each time using slightly different syntax. Here's what it looks like to use Apollo to request stuff. 
+
+    <Query
+        query={gql`
+        {
+            rates(currency: "USD") {
+                currency
+                rate
+            }
+        }
+        `}
+    >
+        {({ loading, error, data }) => {
+            if (loading) return <p>Loading...</p>;
+            if (error) return <p>Error :(</p>;
+
+            return data.rates.map(({ currency, rate }) => (
+                <div key={currency}>
+                    <p>{`${currency}: ${rate}`}</p>
+                </div>
+            ));
+        }}
+    </Query>
+
+
+Here's the same code in Autograph
+
+    <Autograph>{
+        Query => Query.rates({ currency: "USD" }).map(({ currency, rate }) => 
+            <div key={currency}>
+                <p>{currency}: {rate}</p>
+            </div>
+        )
+    }</Autograph>
+
+
+    <Autograph>{
+        Query => {
+            if(Query.__error) return <p>Error</p>;
+            if(Query.__loading) return <p>Loading</p>;
+            
+            return Query.rates({ currency: "USD" }).map(({ currency, rate }) => 
+                <div key={currency}>
+                    <p>{currency}: {rate}</p>
+                </div>
+            )
+        }
+    }</Autograph>
+
 
 Probably the slickest way to get started with Autograph is with the React API. To use that, you simply wrap your application with an `<Autograph>` component, which passes along a `Query` handle. Just use that `Query` handle as if it was a JSON blob that contained all of your data (fields with arguments turn into simple function calls).
 

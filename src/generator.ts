@@ -42,6 +42,8 @@ export function accessLogToGraphQL(log: AccessLog, options: GraphQLGeneratorOpti
                 }
             }else if(info.type == 'AS'){
                 gql += indent('... on ' + info.name + ' ' + convertRecursive(log[key], '__AS_' + info.name + '___')) + '\n'
+            }else if(info.type == 'FEAT'){
+                // ignore these
             }else throw new Error(`Encountered unexpected navigation type "${info.type}"`)
         }
 

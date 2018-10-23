@@ -36,6 +36,7 @@ export function convertGQLSchemaToTypescript(schema: GQLSchema): string {
             if(type.description) 
                 ts += "/** " + type.description + " */\n";
             ts += 'export type ' + type.name + ' = GQLType & {\n'
+            
             for(let field of type.fields){
                 if(field.description) 
                     ts += INDENT + "/** " + field.description + " */\n"
@@ -46,6 +47,14 @@ export function convertGQLSchemaToTypescript(schema: GQLSchema): string {
                 }else{
                     ts += INDENT + field.name +  (IsGQLTypeNullable(field.type) ? '?: ' : ': ') + GQLType2TS(field.type) + '\n'
                 }
+            }
+
+            if(type.name == schema.queryType.name){
+                ts += '\n'
+                ts += INDENT + "/** Check this to determine whether the query is loading */\n"
+                ts += INDENT + '__loading?: boolean\n'
+                ts += INDENT + "/** Check this to display error messages */\n"
+                ts += INDENT + '__error?: any\n'
             }
             ts += '}\n\n'
 

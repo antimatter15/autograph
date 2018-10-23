@@ -1,17 +1,28 @@
 import * as React from 'react'
 
-import { GQLClient, QueryType, runGQL, introspectionQuery, GQLSchema, getQueryRoot, GenericObject } from "./schema";
+import { GQLEndpoint, QueryType, runGQL, introspectionQuery, GQLSchema, getQueryRoot, GenericObject } from "./schema";
 import { makeAccessLogger } from "./logger";
 import { accessLogToGraphQL } from "./generator";
 import { makeRetriever } from "./retriever";
 import { traverseTree } from './traverse';
 
-export class Autograph extends React.Component<{
-    url: string | GQLClient
+
+type AutographProps = {
+    url?: GQLEndpoint
     children: (Query: QueryType) => JSX.Element
     suspense?: boolean
     loading?: JSX.Element
-}> {
+}
+// const { Provider, Consumer } = React.createContext<any>(null);
+
+// export function AutographProvider({ url, children }: { url: GQLEndpoint, children: JSX.Element }) {
+//     return <Provider value={url}>{children}</Provider>
+// }
+// export function Autograph(props: AutographProps){
+//     return <Consumer>{value => <AutographCore {...props} url={value || props.url} />}</Consumer>
+// }
+
+export class Autograph extends React.Component<AutographProps> {
     cache : { [key: string]: { result: any, promise: Promise<any>} } = {}
 
     // synchronously resolve a GQL query if it exists in the cache
@@ -20,6 +31,9 @@ export class Autograph extends React.Component<{
     // that resolves when the fetching is completed
 
     syncGQL(query: string){
+        if(!this.props.url) 
+            throw new Error(`A GraphQL endpoint must be specified either as a prop (url), with a context provider (using AutographProvider), or with global configuration.`);
+
         let key = JSON.stringify([this.props.url, query])
         if(this.cache[key]){
             if(this.props.suspense) throw this.cache[key].promise;
@@ -53,7 +67,7 @@ export class Autograph extends React.Component<{
 }
 
 
-export function withAutograph(url: string | GQLClient){
+export function withAutograph(url: GQLEndpoint){
     return function(Component: React.ComponentType<{ Query: QueryType }>){
         return function(props: GenericObject){
             return <Autograph url={url}>{

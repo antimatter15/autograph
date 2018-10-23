@@ -12,18 +12,22 @@ export function makeAccessLogger(schema: GQLSchema, obj: GQLTypeDef, log: Access
         value: true
     })
 
-    Object.defineProperty(logger, '__typename', {
-        enumerable: false,
-        get: () => {
-            log[JSON.stringify({
-                type: 'NAV',
-                name: '__typename',
-                hasArgs: false,
-                args: {}
-            })] = 1
-            return obj.name
-        }
-    })
+    const definePseudofield = (key: string, obj: GenericObject, value: any) => 
+        Object.defineProperty(logger, key, {
+            enumerable: false,
+            get: () => {
+                log[JSON.stringify(obj)] = 1
+                return value
+            }
+        })
+
+    definePseudofield('__typename', { type: 'NAV', name: '__typename', hasArgs: false, args: {} }, obj.name)
+    
+    // we only define __loading and __error on the query type
+    if(schema.queryType.name == obj.name){
+        definePseudofield('__loading', { type: 'FEAT', name: '__loading' }, false)
+        definePseudofield('__error', { type: 'FEAT', name: '__error' }, null)
+    }
 
     const navigate = (field: GQLField, type: GQLType, args: GenericObject): any => {
         if(type.kind == 'NON_NULL') return navigate(field, type.ofType as GQLType, args);
