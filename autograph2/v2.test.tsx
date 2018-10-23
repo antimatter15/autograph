@@ -224,6 +224,76 @@ export type Int = number
     expect(ret.numberOfFriends).toEqual(150);
   });
 
+  test("GQL Types", async () => {
+    let gqlSchema = `
+            type Query {
+                GetReview: Review!
+            }
+
+            type Review {
+                author: String
+                wasPositive: Boolean
+                body: String
+            }
+        `;
+    let schema = await parseGraphQL(gqlSchema);
+
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
+
+export type Query = GQLType & {
+    GetReview: Review
+}
+
+export type Review = GQLType & {
+    author?: string
+    wasPositive?: boolean
+    body?: string
+}
+
+"
+`);
+
+    let log = {};
+    let tracker = makeAccessLogger(schema, getQueryRoot(schema), log);
+    expect(tracker.GetReview.__typename).toBe("Review");
+    expect(tracker.GetReview.author).toBe("Autograph {author}");
+
+    let query = accessLogToGraphQL(log);
+    expect(query).toMatchInlineSnapshot(`
+"{
+  GetReview {
+    __typename 
+    author 
+  }
+}"
+`);
+
+    let data = await runGraphQL(gqlSchema, query, {
+      Query: {
+        GetReview() {
+          return {
+            author: "Rodger Qbert",
+            wasPositive: true,
+            body: "this was a good thing"
+          };
+        }
+      }
+    });
+    expect(data.data).toEqual({
+      GetReview: { __typename: "Review", author: "Rodger Qbert" }
+    });
+
+    let ret = makeRetriever(data.data);
+    expect(ret.GetReview.__typename).toEqual("Review");
+    expect(ret.GetReview.author).toEqual("Rodger Qbert");
+  });
+
   test("GQL Float", async () => {
     let gqlSchema = `
             type Query {
@@ -486,7 +556,7 @@ export type ReviewInput = {
     let query = accessLogToGraphQL(log);
     expect(query).toMatchInlineSnapshot(`
 "{
-  hello___inputcommentarymerp: hello(input: {commentary: \\"merp\\"}) 
+  hello___y4wueg: hello(input: {commentary: \\"merp\\"}) 
 }"
 `);
 
@@ -497,7 +567,7 @@ export type ReviewInput = {
         }
       }
     });
-    expect(data.data).toEqual({ hello___inputcommentarymerp: "merp" });
+    expect(data.data).toEqual({ hello___y4wueg: "merp" });
 
     let ret = makeRetriever(data.data);
     expect(ret.hello({ input: { commentary: "merp" } })).toEqual("merp");
@@ -681,6 +751,10 @@ export interface Character extends GQLType {
     friends?: Character[]
     /** where this character appears in */
     appearsIn: Episode[]
+    /** Use \`asHuman\` to access fields on the underlying concrete type. */
+    asHuman: Human
+    /** Use \`asDroid\` to access fields on the underlying concrete type. */
+    asDroid: Droid
 }
 
 /** The \`ID\` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as \`\\"4\\"\`) or integer (such as \`4\`) input value will be accepted as an ID. */
@@ -700,10 +774,6 @@ export type Human = GQLType & {
     totalCredits?: Int
 }
 
-interface Character {
-    asHuman: Human
-}
-
 /** The \`Int\` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.  */
 export type Int = number
 
@@ -713,10 +783,6 @@ export type Droid = GQLType & {
     friends?: Character[]
     appearsIn: Episode[]
     primaryFunction?: string
-}
-
-interface Character {
-    asDroid: Droid
 }
 
 "
@@ -865,7 +931,7 @@ export type Query = GQLType & {
     let query = accessLogToGraphQL(log);
     expect(query).toMatchInlineSnapshot(`
 "{
-  echo___messageswhatstuff: echo(messages: [\\"what\\", \\"stuff\\"]) 
+  echo___6f2s9n: echo(messages: [\\"what\\", \\"stuff\\"]) 
 }"
 `);
 
@@ -876,9 +942,7 @@ export type Query = GQLType & {
         }
       }
     });
-    expect(data.data).toEqual({
-      echo___messageswhatstuff: "stuff"
-    });
+    expect(data.data).toEqual({"echo___6f2s9n": "stuff"});
 
     let ret = makeRetriever(data.data);
     expect(ret.echo()).toBeUndefined();
@@ -924,8 +988,8 @@ export type JSON = any
     let query = accessLogToGraphQL(log);
     expect(query).toMatchInlineSnapshot(`
 "{
-  echo___datawhatstuff: echo(data: [\\"what\\", \\"stuff\\"]) 
-  echo___datasup42: echo(data: {sup: 42}) 
+  echo___9gls4d: echo(data: [\\"what\\", \\"stuff\\"]) 
+  echo___g2ffpz: echo(data: {sup: 42}) 
 }"
 `);
 
@@ -936,10 +1000,7 @@ export type JSON = any
         }
       }
     });
-    expect(data.data).toEqual({
-      echo___datasup42: { sup: 42 },
-      echo___datawhatstuff: ["what", "stuff"]
-    });
+    expect(data.data).toEqual( {"echo___9gls4d": ["what", "stuff"], "echo___g2ffpz": {"sup": 42}});
 
     let ret = makeRetriever(data.data);
     expect(ret.echo()).toBeUndefined();
@@ -979,16 +1040,13 @@ export type Query = GQLType & {
     let query = accessLogToGraphQL(log);
     expect(query).toMatchInlineSnapshot(`
 "{
-  echo___messageblah: echo(message: \\"blah\\") 
-  echo___: echo 
+  echo___71kyez: echo(message: \\"blah\\") 
+  echo___3horh: echo 
 }"
 `);
 
     let data = await runGraphQL(gqlSchema, query);
-    expect(data.data).toEqual({
-      echo___: "Hello World",
-      echo___messageblah: "Hello World"
-    });
+    expect(data.data).toEqual({"echo___3horh": "Hello World", "echo___71kyez": "Hello World"});
 
     let ret = makeRetriever(data.data);
     expect(ret.echo()).toEqual("Hello World");
@@ -1241,7 +1299,7 @@ export type ReviewInput = {
     let query = accessLogToGraphQL(log, { operationType: "mutation" });
     expect(query).toMatchInlineSnapshot(`
 "mutation {
-  UpdateReview___inputcommentarynimbyyimbyauthorhankgeorge: UpdateReview(input: {commentary: \\"nimby yimby\\", author: \\"hank george\\"}) {
+  UpdateReview___w0n16f: UpdateReview(input: {commentary: \\"nimby yimby\\", author: \\"hank george\\"}) {
     author 
   }
 }"
@@ -1254,11 +1312,7 @@ export type ReviewInput = {
         }
       }
     });
-    expect(data.data).toEqual({
-      UpdateReview___inputcommentarynimbyyimbyauthorhankgeorge: {
-        author: "hank george"
-      }
-    });
+    expect(data.data).toEqual({"UpdateReview___w0n16f": {"author": "hank george"}});
 
     let ret = makeRetriever(data.data);
     expect(ret.UpdateReview({})).toBeUndefined();
@@ -1316,7 +1370,7 @@ export type Mutation = GQLType & {
     });
     expect(query).toMatchInlineSnapshot(`
 "mutation {
-  updateBio___biowhatisthemeaningoflife: updateBio(bio: \\"what is the meaning of life\\") 
+  updateBio___im9gla: updateBio(bio: \\"what is the meaning of life\\") 
 }"
 `);
 
@@ -1327,16 +1381,28 @@ export type Mutation = GQLType & {
         }
       }
     });
-    expect(data.data).toEqual({
-      updateBio___biowhatisthemeaningoflife:
-        "what is the meaning of life and stuff"
-    });
+    expect(data.data).toEqual({"updateBio___im9gla": "what is the meaning of life and stuff"});
 
     let ret = makeRetriever(data.data);
     expect(ret.updateBio()).toBeUndefined();
     expect(ret.updateBio({ bio: "what is the meaning of life" })).toEqual(
       "what is the meaning of life and stuff"
     );
+  });
+
+  test("Throw error when attempting to run mutation without defined mutations", async () => {
+    let gqlSchema = `
+        type Query {
+            echo(messages: [String]!): String!
+        }
+    `;
+
+    const gqlClient = (query: string) => runGraphQL(gqlSchema, query, {});
+
+    const DoMutation = CreateMutation(gqlClient);
+    await expect(
+      DoMutation(Mutation => console.log(Mutation))
+    ).rejects.toThrow();
   });
 });
 
@@ -1391,11 +1457,18 @@ describe("High level query interface", () => {
             echo(messages: [String]!): String!
         }
     `;
-    type EchoQuery = {
+
+    type GQLType = {
       /** This field is defined when Autograph is executing a dry run */
       __dryRun?: boolean;
+      /** The name of the object type */
+      __typename: string;
+    };
+
+    type EchoQuery = GQLType & {
       echo(args: { messages: string[] }): string;
     };
+
     const gqlClient = (query: string) =>
       runGraphQL(gqlSchema, query, {
         Query: {

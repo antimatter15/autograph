@@ -326,16 +326,6 @@ export function schemaToTypescript(schema: GQLSchema): string {
             }
             ts += '}\n\n'
 
-            // This way, for instance if we have Droid, Human implementing Character
-            // and a query hero() which returns type Character, we can then call
-            // hero.asDroid.primaryFunction and compile that into an inline fragment
-
-            for(let interf of type.interfaces){
-                ts += 'interface ' + interf.name + ' {\n'
-                ts += '    as' + type.name + ': ' + type.name + '\n'
-                ts += '}\n\n'
-            }
-
         }else if(type.kind == 'INTERFACE'){
             if(type.description) 
                 ts += "/** " + type.description + " */\n";
@@ -346,6 +336,16 @@ export function schemaToTypescript(schema: GQLSchema): string {
                 if(field.description) 
                     ts += "    /** " + field.description + " */\n"
                 ts += '    ' + field.name +  (IsGQLTypeNullable(field.type) ? '?: ' : ': ') + GQLType2TS(field.type) + '\n'
+            }
+
+            // This way, for instance if we have Droid, Human implementing Character
+            // and a query hero() which returns type Character, we can then call
+            // hero.asDroid.primaryFunction and compile that into an inline fragment
+            for(let obj of schema.types){
+                if(obj.kind != 'OBJECT') continue;
+                if(!obj.interfaces.some(interf => interf.name == type.name)) continue;
+                ts += "    /** Use `as" + obj.name + "` to access fields on the underlying concrete type. */\n"
+                ts += '    as' + obj.name + ': ' + obj.name + '\n'
             }
             ts += '}\n\n'
         }else if(type.kind == 'SCALAR'){
@@ -403,20 +403,38 @@ export function skipIf(cond: any, func: Function) {
 }
 
 function hashArguments(args: any): string {
-    return JSON.stringify(args || {}).replace(/[^\w]+/g, '')
+    // This is a simple implementation of Dan Bernstein's djb2 non-cryptographic hash algorithm
+    // which should suffice to keep adjacent gql queries with different arguments from colliding
+    let json = JSON.stringify(args || {})
+    for(var i = 0, hash = 5381; i < json.length; i++)
+        hash = (((hash << 5) + hash) + json.charCodeAt(i)) | 0;
+    return Math.abs(hash).toString(36);
 }
 
 type AccessLog = { [key: string]: AccessLog } | 1
 type GenericObject = { [key: string]: any }
 
 export function makeAccessLogger(schema: GQLSchema, obj: GQLTypeDef, log: AccessLog){
-    let logger: GenericObject = { __typename: obj.name }
+    let logger: GenericObject = { }
     
     // allow functions to distinguish between the dry run and the real execution
     // for instance to specifically gate side effects
     Object.defineProperty(logger, '__dryRun', {
         enumerable: false,
         value: true
+    })
+
+    Object.defineProperty(logger, '__typename', {
+        enumerable: false,
+        get: () => {
+            log[JSON.stringify({
+                type: 'NAV',
+                name: '__typename',
+                hasArgs: false,
+                args: {}
+            })] = 1
+            return obj.name
+        }
     })
 
     const navigate = (field: GQLField, type: GQLType, args: GenericObject): any => {
@@ -440,7 +458,6 @@ export function makeAccessLogger(schema: GQLSchema, obj: GQLTypeDef, log: Access
             if(!sub) throw new Error(`Unable to find type "${type.name}" in schema.`);
             return makeAccessLogger(schema, sub, log[key] || (log[key] = { }));
         }
-
 
         log[key] = 1
         
