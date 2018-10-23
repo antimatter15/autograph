@@ -54,6 +54,15 @@ mutate('URL', Mutation => <RenderMessage message={Mutation.updateMessage({
         }
     })} />)
 
+let mutate = Autograph.CreateMutation<GQL.Mutation>(URL)
+
+// mutate(Mutation => <RenderMessage message={Mutation.updateMessage({
+//     id: 'my id',
+//     input: {
+//         content: 'ateasfd',
+//         author: 'asdfwe'
+//     }
+// })} />)
 
 
 

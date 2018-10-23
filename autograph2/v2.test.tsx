@@ -11,43 +11,43 @@ import {
   accessLogToGraphQL,
   makeRetriever
 } from "./schema2typescript";
-import { CreateQuery, CreateMutation } from "./schema2typescript";
+import { CreateQuery, CreateMutation, skipIf } from "./schema2typescript";
 // import { encodeField, decodeField, encodeArguments, decodeArguments } from './schema2typescript'
 
-expect.extend({
-  toMatchToken(received, reference) {
-    const splitByTokens = (s: string) => (" " + s + " ").split(/\s+/g);
-    let tokens1 = splitByTokens(received),
-      tokens2 = splitByTokens(reference);
+// expect.extend({
+//   toMatchTokens(received, reference) {
+//     const splitByTokens = (s: string) => (" " + s + " ").split(/\s+/g);
+//     let tokens1 = splitByTokens(received),
+//       tokens2 = splitByTokens(reference);
 
-    for (let i = 0; i < Math.max(tokens1.length, tokens2.length); i++) {
-      let testTok = tokens1[i],
-        refTok = tokens2[i];
+//     for (let i = 0; i < Math.max(tokens1.length, tokens2.length); i++) {
+//       let testTok = tokens1[i],
+//         refTok = tokens2[i];
 
-      if (testTok !== refTok) {
-        return {
-          message: () =>
-            `Expected "${refTok}" instead of "${testTok}" at index ${i}.\n\nExpected:\n${reference}\n\nFound:\n${received}\n`,
-          pass: false
-        };
-      }
-    }
+//       if (testTok !== refTok) {
+//         return {
+//           message: () =>
+//             `Expected "${refTok}" instead of "${testTok}" at index ${i}.\n\nExpected:\n${reference}\n\nFound:\n${received}\n`,
+//           pass: false
+//         };
+//       }
+//     }
 
-    return {
-      message: () => ``,
-      pass: true
-    };
-  }
-});
+//     return {
+//       message: () => ``,
+//       pass: true
+//     };
+//   }
+// });
 
-declare global {
-  namespace jest {
-    // tslint:disable-next-line:interface-name
-    interface Matchers<R> {
-      toMatchToken(reference: string): R;
-    }
-  }
-}
+// declare global {
+//   namespace jest {
+//     // tslint:disable-next-line:interface-name
+//     interface Matchers<R> {
+//       toMatchTokens(reference: string): R;
+//     }
+//   }
+// }
 
 describe("Different data types", () => {
   test("GQL String", async () => {
@@ -57,11 +57,20 @@ describe("Different data types", () => {
             }
         `);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                echo?(args: { message?: string }): string
-            }
-        `);
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
+
+export type Query = GQLType & {
+    echo?(args: { message?: string }): string
+}
+
+"
+`);
   });
 
   test("GQL Boolean", async () => {
@@ -72,22 +81,31 @@ describe("Different data types", () => {
         `;
     let schema = await parseGraphQL(gqlSchema);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                wasSuspendedFromSchool?: boolean
-            }
-        `);
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
+
+export type Query = GQLType & {
+    wasSuspendedFromSchool?: boolean
+}
+
+"
+`);
 
     let log = {};
     let tracker = makeAccessLogger(schema, getQueryRoot(schema), log);
     expect(tracker.wasSuspendedFromSchool).toEqual(true);
 
     let query = accessLogToGraphQL(log);
-    expect(query).toMatchToken(`
-            {
-              wasSuspendedFromSchool
-            }
-        `);
+    expect(query).toMatchInlineSnapshot(`
+"{
+  wasSuspendedFromSchool 
+}"
+`);
 
     let data = await runGraphQL(gqlSchema, query, {
       Query: {
@@ -96,9 +114,9 @@ describe("Different data types", () => {
         }
       }
     });
-    expect(data).toEqual({ wasSuspendedFromSchool: false });
+    expect(data.data).toEqual({ wasSuspendedFromSchool: false });
 
-    let ret = makeRetriever(data);
+    let ret = makeRetriever(data.data);
     expect(ret.wasSuspendedFromSchool).toEqual(false);
   });
 
@@ -113,24 +131,33 @@ describe("Different data types", () => {
 
     let schema = await parseGraphQL(gqlSchema);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                myNewICO?: Zombocoin
-            }
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
 
-            export type Zombocoin = any
-        `);
+export type Query = GQLType & {
+    myNewICO?: Zombocoin
+}
+
+export type Zombocoin = any
+
+"
+`);
 
     let log = {};
     let tracker = makeAccessLogger(schema, getQueryRoot(schema), log);
     expect(tracker.myNewICO).toEqual({ __gqlScalarName: "Zombocoin" });
 
     let query = accessLogToGraphQL(log);
-    expect(query).toMatchToken(`
-            {
-              myNewICO
-            }
-        `);
+    expect(query).toMatchInlineSnapshot(`
+"{
+  myNewICO 
+}"
+`);
 
     let data = await runGraphQL(gqlSchema, query, {
       Query: {
@@ -141,9 +168,9 @@ describe("Different data types", () => {
         }
       }
     });
-    expect(data).toEqual({ myNewICO: { test: 123 } });
+    expect(data.data).toEqual({ myNewICO: { test: 123 } });
 
-    let ret = makeRetriever(data);
+    let ret = makeRetriever(data.data);
     expect(ret.myNewICO).toEqual({ test: 123 });
   });
 
@@ -155,25 +182,34 @@ describe("Different data types", () => {
         `;
     let schema = await parseGraphQL(gqlSchema);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                numberOfFriends?: Int
-            }
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
 
-            /** The \`Int\` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.  */
-            export type Int = number
-        `);
+export type Query = GQLType & {
+    numberOfFriends?: Int
+}
+
+/** The \`Int\` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.  */
+export type Int = number
+
+"
+`);
 
     let log = {};
     let tracker = makeAccessLogger(schema, getQueryRoot(schema), log);
     expect(tracker.numberOfFriends).toBe(42);
 
     let query = accessLogToGraphQL(log);
-    expect(query).toMatchToken(`
-            {
-              numberOfFriends
-            }
-        `);
+    expect(query).toMatchInlineSnapshot(`
+"{
+  numberOfFriends 
+}"
+`);
 
     let data = await runGraphQL(gqlSchema, query, {
       Query: {
@@ -182,9 +218,9 @@ describe("Different data types", () => {
         }
       }
     });
-    expect(data).toEqual({ numberOfFriends: 150 });
+    expect(data.data).toEqual({ numberOfFriends: 150 });
 
-    let ret = makeRetriever(data);
+    let ret = makeRetriever(data.data);
     expect(ret.numberOfFriends).toEqual(150);
   });
 
@@ -196,25 +232,34 @@ describe("Different data types", () => {
         `;
     let schema = await parseGraphQL(gqlSchema);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                radiansInADegree?: Float
-            }
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
 
-            /** The \`Float\` scalar type represents signed double-precision fractional values as specified by [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point).  */
-            export type Float = number
-        `);
+export type Query = GQLType & {
+    radiansInADegree?: Float
+}
+
+/** The \`Float\` scalar type represents signed double-precision fractional values as specified by [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point).  */
+export type Float = number
+
+"
+`);
 
     let log = {};
     let tracker = makeAccessLogger(schema, getQueryRoot(schema), log);
     expect(tracker.radiansInADegree).toBe(17.76);
 
     let query = accessLogToGraphQL(log);
-    expect(query).toMatchToken(`
-            {
-              radiansInADegree
-            }
-        `);
+    expect(query).toMatchInlineSnapshot(`
+"{
+  radiansInADegree 
+}"
+`);
 
     let data = await runGraphQL(gqlSchema, query, {
       Query: {
@@ -223,9 +268,9 @@ describe("Different data types", () => {
         }
       }
     });
-    expect(data).toEqual({ radiansInADegree: 13.217 });
+    expect(data.data).toEqual({ radiansInADegree: 13.217 });
 
-    let ret = makeRetriever(data);
+    let ret = makeRetriever(data.data);
     expect(ret.radiansInADegree).toEqual(13.217);
   });
 
@@ -237,32 +282,41 @@ describe("Different data types", () => {
         `;
     let schema = await parseGraphQL(gqlSchema);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                myUniqueIdentifier?: ID
-            }
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
 
-            /** The \`ID\` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as \`"4"\`) or integer (such as \`4\`) input value will be accepted as an ID. */
-            export type ID = string
-        `);
+export type Query = GQLType & {
+    myUniqueIdentifier?: ID
+}
+
+/** The \`ID\` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as \`\\"4\\"\`) or integer (such as \`4\`) input value will be accepted as an ID. */
+export type ID = string
+
+"
+`);
 
     let log = {};
     let tracker = makeAccessLogger(schema, getQueryRoot(schema), log);
     expect(tracker.myUniqueIdentifier.startsWith("Autograph ID")).toBeTruthy();
 
     let query = accessLogToGraphQL(log);
-    expect(query).toMatchToken(`
-            {
-              myUniqueIdentifier
-            }
-        `);
+    expect(query).toMatchInlineSnapshot(`
+"{
+  myUniqueIdentifier 
+}"
+`);
 
     let data = await runGraphQL(gqlSchema, query);
-    expect((data as any).myUniqueIdentifier.length).toBe(
+    expect((data.data as any).myUniqueIdentifier.length).toBe(
       "5e8ac981-0b2f-4937-9b6e-2c5e777d8de9".length
     );
 
-    let ret = makeRetriever(data);
+    let ret = makeRetriever(data.data);
     expect(ret.myUniqueIdentifier.length).toEqual(
       "5e8ac981-0b2f-4937-9b6e-2c5e777d8de9".length
     );
@@ -276,27 +330,36 @@ describe("Different data types", () => {
         `;
     let schema = await parseGraphQL(gqlSchema);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                allMyFriends?: string[]
-            }
-        `);
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
+
+export type Query = GQLType & {
+    allMyFriends?: string[]
+}
+
+"
+`);
 
     let log = {};
     let tracker = makeAccessLogger(schema, getQueryRoot(schema), log);
     expect(tracker.allMyFriends.length).toBe(1);
 
     let query = accessLogToGraphQL(log);
-    expect(query).toMatchToken(`
-            {
-              allMyFriends
-            }
-        `);
+    expect(query).toMatchInlineSnapshot(`
+"{
+  allMyFriends 
+}"
+`);
 
     let data = await runGraphQL(gqlSchema, query);
-    expect(data).toEqual({ allMyFriends: ["Hello World", "Hello World"] });
+    expect(data.data).toEqual({ allMyFriends: ["Hello World", "Hello World"] });
 
-    let ret = makeRetriever(data);
+    let ret = makeRetriever(data.data);
     expect(ret.allMyFriends).toEqual(["Hello World", "Hello World"]);
   });
 
@@ -320,40 +383,49 @@ describe("Different data types", () => {
         `;
     let schema = await parseGraphQL(gqlSchema);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                allMyFrienemies?: Frienemies[]
-            }
-            
-            /** what if we made a workers union for people who have to deal with me */
-            export type Frienemies = Friend | Enemy
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
 
-            export type Friend = {
-                friendliness?: Int
-            }
+export type Query = GQLType & {
+    allMyFrienemies?: Frienemies[]
+}
 
-            /** The \`Int\` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.  */
-            export type Int = number
+/** what if we made a workers union for people who have to deal with me */
+export type Frienemies = Friend | Enemy
 
-            export type Enemy = {
-                hatred?: Int
-            }
+export type Friend = GQLType & {
+    friendliness?: Int
+}
 
-            export type Builtins = Enemy
-        `);
+/** The \`Int\` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.  */
+export type Int = number
+
+export type Enemy = GQLType & {
+    hatred?: Int
+}
+
+export type Builtins = Enemy
+
+"
+`);
 
     let log = {};
     let tracker = makeAccessLogger(schema, getQueryRoot(schema), log);
     expect(tracker.allMyFrienemies.length).toBe(1);
 
     let query = accessLogToGraphQL(log);
-    expect(query).toMatchToken(`
-            {
-              allMyFrienemies {
-                  __typename
-              }
-            }
-        `);
+    expect(query).toMatchInlineSnapshot(`
+"{
+  allMyFrienemies {
+    __typename
+  }
+}"
+`);
 
     let data = await runGraphQL(gqlSchema, query, {
       Query: {
@@ -364,11 +436,11 @@ describe("Different data types", () => {
       Frienemies: { __resolveType() {} },
       Builtins: { __resolveType() {} }
     });
-    expect(data).toEqual({
+    expect(data.data).toEqual({
       allMyFrienemies: [{ __typename: "Enemy" }, { __typename: "Friend" }]
     });
 
-    let ret = makeRetriever(data);
+    let ret = makeRetriever(data.data);
     expect(ret.allMyFrienemies).toEqual([
       { __typename: "Enemy" },
       { __typename: "Friend" }
@@ -386,15 +458,24 @@ describe("Different data types", () => {
             }
         `;
     let schema = await parseGraphQL(gqlSchema);
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                hello?(args: { input: ReviewInput }): string
-            }
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
 
-            export type ReviewInput = {
-                commentary?: string
-            }
-        `);
+export type Query = GQLType & {
+    hello?(args: { input: ReviewInput }): string
+}
+
+export type ReviewInput = {
+    commentary?: string
+}
+
+"
+`);
 
     let log = {};
     let tracker = makeAccessLogger(schema, getQueryRoot(schema), log);
@@ -403,11 +484,11 @@ describe("Different data types", () => {
     );
 
     let query = accessLogToGraphQL(log);
-    expect(query).toMatchToken(`
-            {
-              hello___inputcommentarymerp: hello(input: {commentary: "merp"})
-            }
-        `);
+    expect(query).toMatchInlineSnapshot(`
+"{
+  hello___inputcommentarymerp: hello(input: {commentary: \\"merp\\"}) 
+}"
+`);
 
     let data = await runGraphQL(gqlSchema, query, {
       Query: {
@@ -416,9 +497,9 @@ describe("Different data types", () => {
         }
       }
     });
-    expect(data).toEqual({ hello___inputcommentarymerp: "merp" });
+    expect(data.data).toEqual({ hello___inputcommentarymerp: "merp" });
 
-    let ret = makeRetriever(data);
+    let ret = makeRetriever(data.data);
     expect(ret.hello({ input: { commentary: "merp" } })).toEqual("merp");
   });
 
@@ -445,29 +526,38 @@ describe("Different data types", () => {
 
     let schema = await parseGraphQL(gqlSchema);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                hello?: string
-            }
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
 
-            export type Mutation = {
-                UpdateReview?(args: { input: ReviewInput }): string
-            }
+export type Query = GQLType & {
+    hello?: string
+}
 
-            /** I reviewed this input */
-            export type ReviewInput = {
-                stars: Int
-                /** my commentary on comment stuff */
-                commentary?: string
-            }
+export type Mutation = GQLType & {
+    UpdateReview?(args: { input: ReviewInput }): string
+}
 
-            /** The \`Int\` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.  */
-            export type Int = number
+/** I reviewed this input */
+export type ReviewInput = {
+    stars: Int
+    /** my commentary on comment stuff */
+    commentary?: string
+}
 
-            export type SomethingElse = {
-                stripes?: Int
-            }
-        `);
+/** The \`Int\` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.  */
+export type Int = number
+
+export type SomethingElse = {
+    stripes?: Int
+}
+
+"
+`);
   });
 
   test("Enums", async () => {
@@ -485,25 +575,34 @@ describe("Different data types", () => {
         `;
     let schema = await parseGraphQL(gqlSchema);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                favoriteMovie: Episode
-            }
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
 
-            /** these are the only three movies */
-            export type Episode = "NEWHOPE" | "EMPIRE" | "JEDI"
-        `);
+export type Query = GQLType & {
+    favoriteMovie: Episode
+}
+
+/** these are the only three movies */
+export type Episode = \\"NEWHOPE\\" | \\"EMPIRE\\" | \\"JEDI\\"
+
+"
+`);
 
     let log = {};
     let tracker = makeAccessLogger(schema, getQueryRoot(schema), log);
     expect(tracker.favoriteMovie).toBe("NEWHOPE");
 
     let query = accessLogToGraphQL(log);
-    expect(query).toMatchToken(`
-            {
-              favoriteMovie
-            }
-        `);
+    expect(query).toMatchInlineSnapshot(`
+"{
+  favoriteMovie 
+}"
+`);
 
     let data = await runGraphQL(gqlSchema, query, {
       Query: {
@@ -512,9 +611,9 @@ describe("Different data types", () => {
         }
       }
     });
-    expect(data).toEqual({ favoriteMovie: "JEDI" });
+    expect(data.data).toEqual({ favoriteMovie: "JEDI" });
 
-    let ret = makeRetriever(data);
+    let ret = makeRetriever(data.data);
     expect(ret.favoriteMovie).toEqual("JEDI");
   });
 
@@ -563,56 +662,65 @@ describe("Different data types", () => {
         `;
     let schema = await parseGraphQL(gqlSchema);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                hero?: Character
-            }
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
 
-            /** to be or not to be */
-            export interface Character {
-                id: ID
-                name: string
-                friends?: Character[]
-                /** where this character appears in */
-                appearsIn: Episode[]
-            }
+export type Query = GQLType & {
+    hero?: Character
+}
 
-            /** The \`ID\` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as \`"4"\`) or integer (such as \`4\`) input value will be accepted as an ID. */
-            export type ID = string
+/** to be or not to be */
+export interface Character extends GQLType {
+    id: ID
+    name: string
+    friends?: Character[]
+    /** where this character appears in */
+    appearsIn: Episode[]
+}
 
-            export type Episode = "NEWHOPE" | "EMPIRE" | "JEDI"
+/** The \`ID\` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as \`\\"4\\"\`) or integer (such as \`4\`) input value will be accepted as an ID. */
+export type ID = string
 
-            export interface Winterface {
-                name?: string
-            }
+export type Episode = \\"NEWHOPE\\" | \\"EMPIRE\\" | \\"JEDI\\"
 
-            export type Human = {
-                id: ID
-                name: string
-                friends?: Character[]
-                appearsIn: Episode[]
-                totalCredits?: Int
-            }
+export interface Winterface extends GQLType {
+    name?: string
+}
 
-            interface Character {
-                asHuman: Human
-            }
+export type Human = GQLType & {
+    id: ID
+    name: string
+    friends?: Character[]
+    appearsIn: Episode[]
+    totalCredits?: Int
+}
 
-            /** The \`Int\` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.  */
-            export type Int = number
+interface Character {
+    asHuman: Human
+}
 
-            export type Droid = {
-                id: ID
-                name: string
-                friends?: Character[]
-                appearsIn: Episode[]
-                primaryFunction?: string
-            }
+/** The \`Int\` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.  */
+export type Int = number
 
-            interface Character {
-                asDroid: Droid
-            }
-        `);
+export type Droid = GQLType & {
+    id: ID
+    name: string
+    friends?: Character[]
+    appearsIn: Episode[]
+    primaryFunction?: string
+}
+
+interface Character {
+    asDroid: Droid
+}
+
+"
+`);
 
     let log = {};
     let tracker = makeAccessLogger(schema, getQueryRoot(schema), log);
@@ -626,19 +734,19 @@ describe("Different data types", () => {
     // expect(tracker.hero.asHuman.friends.length).toBe(1)
 
     let query = accessLogToGraphQL(log);
-    expect(query).toMatchToken(`
-            {
-              hero {
-                name
-                ... on Droid {
-                  __AS_Droid___primaryFunction: primaryFunction
-                }
-                ... on Human {
-                  __AS_Human_____typename: __typename
-                }
-              }
-            }
-        `);
+    expect(query).toMatchInlineSnapshot(`
+"{
+  hero {
+    name 
+    ... on Droid {
+      __AS_Droid___primaryFunction: primaryFunction 
+    }
+    ... on Human {
+      __AS_Human_____typename: __typename
+    }
+  }
+}"
+`);
 
     let data = await runGraphQL(gqlSchema, query, {
       Query: {
@@ -660,11 +768,11 @@ describe("Different data types", () => {
       }
     });
 
-    expect(data).toEqual({
+    expect(data.data).toEqual({
       hero: { __AS_Droid___primaryFunction: "Robot", name: "Merpsican" }
     });
 
-    let ret = makeRetriever(data);
+    let ret = makeRetriever(data.data);
     expect(ret.hero.primaryFunction).toBeUndefined();
     expect(ret.hero.asDroid.primaryFunction).toEqual("Robot");
 
@@ -684,13 +792,22 @@ describe("basic queries", () => {
             }
         `);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            type Query = CustomQueryAPI
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type Query = CustomQueryAPI
 
-            export type CustomQueryAPI = {
-                hello_world_message?: string
-            }
-        `);
+type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
+
+export type CustomQueryAPI = GQLType & {
+    hello_world_message?: string
+}
+
+"
+`);
   });
 
   test("Basic method query with required arguments", async () => {
@@ -700,11 +817,20 @@ describe("basic queries", () => {
             }
         `);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                echo(args: { message: string }): string
-            }
-        `);
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
+
+export type Query = GQLType & {
+    echo(args: { message: string }): string
+}
+
+"
+`);
   });
 
   test("Basic method query with array arguments", async () => {
@@ -715,11 +841,20 @@ describe("basic queries", () => {
         `;
     let schema = await parseGraphQL(gqlSchema);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                echo(args: { messages: string[] }): string
-            }
-        `);
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
+
+export type Query = GQLType & {
+    echo(args: { messages: string[] }): string
+}
+
+"
+`);
 
     let log = {};
     let tracker = makeAccessLogger(schema, getQueryRoot(schema), log);
@@ -728,11 +863,11 @@ describe("basic queries", () => {
     );
 
     let query = accessLogToGraphQL(log);
-    expect(query).toMatchToken(`
-            {
-              echo___messageswhatstuff: echo(messages: ["what", "stuff"])
-            }
-        `);
+    expect(query).toMatchInlineSnapshot(`
+"{
+  echo___messageswhatstuff: echo(messages: [\\"what\\", \\"stuff\\"]) 
+}"
+`);
 
     let data = await runGraphQL(gqlSchema, query, {
       Query: {
@@ -741,11 +876,11 @@ describe("basic queries", () => {
         }
       }
     });
-    expect(data).toEqual({
+    expect(data.data).toEqual({
       echo___messageswhatstuff: "stuff"
     });
 
-    let ret = makeRetriever(data);
+    let ret = makeRetriever(data.data);
     expect(ret.echo()).toBeUndefined();
     expect(ret.echo({ messages: ["what", "stuff"] })).toEqual("stuff");
   });
@@ -760,13 +895,22 @@ describe("basic queries", () => {
         `;
     let schema = await parseGraphQL(gqlSchema);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                echo?(args: { data?: JSON }): JSON
-            }
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
 
-            export type JSON = any
-        `);
+export type Query = GQLType & {
+    echo?(args: { data?: JSON }): JSON
+}
+
+export type JSON = any
+
+"
+`);
 
     let log = {};
     let tracker = makeAccessLogger(schema, getQueryRoot(schema), log);
@@ -778,12 +922,12 @@ describe("basic queries", () => {
     });
 
     let query = accessLogToGraphQL(log);
-    expect(query).toMatchToken(`
-            {
-              echo___datawhatstuff: echo(data: ["what", "stuff"])
-              echo___datasup42: echo(data: {sup: 42})
-            }
-        `);
+    expect(query).toMatchInlineSnapshot(`
+"{
+  echo___datawhatstuff: echo(data: [\\"what\\", \\"stuff\\"]) 
+  echo___datasup42: echo(data: {sup: 42}) 
+}"
+`);
 
     let data = await runGraphQL(gqlSchema, query, {
       Query: {
@@ -792,12 +936,12 @@ describe("basic queries", () => {
         }
       }
     });
-    expect(data).toEqual({
+    expect(data.data).toEqual({
       echo___datasup42: { sup: 42 },
       echo___datawhatstuff: ["what", "stuff"]
     });
 
-    let ret = makeRetriever(data);
+    let ret = makeRetriever(data.data);
     expect(ret.echo()).toBeUndefined();
     expect(ret.echo({ data: ["what", "stuff"] })).toEqual(["what", "stuff"]);
 
@@ -812,11 +956,20 @@ describe("basic queries", () => {
         `;
     let schema = await parseGraphQL(gqlSchema);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                echo?(args: { message?: string }): string
-            }
-        `);
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
+
+export type Query = GQLType & {
+    echo?(args: { message?: string }): string
+}
+
+"
+`);
 
     let log = {};
     let tracker = makeAccessLogger(schema, getQueryRoot(schema), log);
@@ -824,20 +977,20 @@ describe("basic queries", () => {
     expect(tracker.echo()).toBe("Autograph {echo}");
 
     let query = accessLogToGraphQL(log);
-    expect(query).toMatchToken(`
-            {
-              echo___messageblah: echo(message: "blah")
-              echo___: echo
-            }
-        `);
+    expect(query).toMatchInlineSnapshot(`
+"{
+  echo___messageblah: echo(message: \\"blah\\") 
+  echo___: echo 
+}"
+`);
 
     let data = await runGraphQL(gqlSchema, query);
-    expect(data).toEqual({
+    expect(data.data).toEqual({
       echo___: "Hello World",
       echo___messageblah: "Hello World"
     });
 
-    let ret = makeRetriever(data);
+    let ret = makeRetriever(data.data);
     expect(ret.echo()).toEqual("Hello World");
     expect(ret.echo({ message: "blah" })).toEqual("Hello World");
     expect(ret.echo({ message: "blarp" })).toBeUndefined();
@@ -851,11 +1004,20 @@ describe("basic queries", () => {
         `;
     let schema = await parseGraphQL(gqlSchema);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                hello_world_message?: string
-            }
-        `);
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
+
+export type Query = GQLType & {
+    hello_world_message?: string
+}
+
+"
+`);
 
     let log = {};
     let tracker = makeAccessLogger(schema, getQueryRoot(schema), log);
@@ -863,12 +1025,13 @@ describe("basic queries", () => {
     expect(tracker.not_defined_thing).toBeUndefined();
 
     let query = accessLogToGraphQL(log);
-    expect(query).toMatchToken(`
-            {
-              hello_world_message
-            }
-        `);
-    expect(await runGraphQL(gqlSchema, query)).toEqual({
+    expect(query).toMatchInlineSnapshot(`
+"{
+  hello_world_message 
+}"
+`);
+    let data = await runGraphQL(gqlSchema, query);
+    expect(data.data).toEqual({
       hello_world_message: "Hello World"
     });
   });
@@ -883,12 +1046,21 @@ describe("Comments", () => {
             }
         `);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                /** This is a hello world message */
-                hello_world_message?: string
-            }
-        `);
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
+
+export type Query = GQLType & {
+    /** This is a hello world message */
+    hello_world_message?: string
+}
+
+"
+`);
   });
 
   test("New style GQL comments on fields", async () => {
@@ -899,12 +1071,21 @@ describe("Comments", () => {
             }
         `);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                /** This is a hello world message */
-                hello_world_message?: string
-            }
-        `);
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
+
+export type Query = GQLType & {
+    /** This is a hello world message */
+    hello_world_message?: string
+}
+
+"
+`);
   });
 
   test("Old style GQL comments on types", async () => {
@@ -915,12 +1096,21 @@ describe("Comments", () => {
             }
         `);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            /** This is a hello world message */
-            export type Query = {
-                hello_world_message?: string
-            }
-        `);
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
+
+/** This is a hello world message */
+export type Query = GQLType & {
+    hello_world_message?: string
+}
+
+"
+`);
   });
 
   test("New style GQL comments on types", async () => {
@@ -931,12 +1121,21 @@ describe("Comments", () => {
             }
         `);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            /** This is a hello world message */
-            export type Query = {
-                hello_world_message?: string
-            }
-        `);
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
+
+/** This is a hello world message */
+export type Query = GQLType & {
+    hello_world_message?: string
+}
+
+"
+`);
   });
 });
 
@@ -955,18 +1154,28 @@ describe("Mutations", () => {
             }
         `);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            type Query = CustomQueryAPI
-            type Mutation = CustomMutationAPI
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type Query = CustomQueryAPI
 
-            export type CustomQueryAPI = {
-                hello_world_message?: string
-            }
+type Mutation = CustomMutationAPI
 
-            export type CustomMutationAPI = {
-                merp?(args: { blah?: string }): string
-            }
-        `);
+type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
+
+export type CustomQueryAPI = GQLType & {
+    hello_world_message?: string
+}
+
+export type CustomMutationAPI = GQLType & {
+    merp?(args: { blah?: string }): string
+}
+
+"
+`);
   });
 
   test("Input & Output Type", async () => {
@@ -992,25 +1201,34 @@ describe("Mutations", () => {
 
     let schema = await parseGraphQL(gqlSchema);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                GetReview?: Review
-            }
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
 
-            export type Review = {
-                commentary?: string
-                author?: string
-            }
+export type Query = GQLType & {
+    GetReview?: Review
+}
 
-            export type Mutation = {
-                UpdateReview?(args: { input: ReviewInput }): Review
-            }
+export type Review = GQLType & {
+    commentary?: string
+    author?: string
+}
 
-            export type ReviewInput = {
-                commentary?: string
-                author?: string
-            }
-        `);
+export type Mutation = GQLType & {
+    UpdateReview?(args: { input: ReviewInput }): Review
+}
+
+export type ReviewInput = {
+    commentary?: string
+    author?: string
+}
+
+"
+`);
 
     let log = {};
     let tracker = makeAccessLogger(schema, getMutationRoot(schema), log);
@@ -1021,13 +1239,13 @@ describe("Mutations", () => {
     ).toEqual("Autograph {author}");
 
     let query = accessLogToGraphQL(log, { operationType: "mutation" });
-    expect(query).toMatchToken(`
-            mutation {
-              UpdateReview___inputcommentarynimbyyimbyauthorhankgeorge: UpdateReview(input: {commentary: "nimby yimby", author: "hank george"}) {
-                author
-              }
-            }
-        `);
+    expect(query).toMatchInlineSnapshot(`
+"mutation {
+  UpdateReview___inputcommentarynimbyyimbyauthorhankgeorge: UpdateReview(input: {commentary: \\"nimby yimby\\", author: \\"hank george\\"}) {
+    author 
+  }
+}"
+`);
 
     let data = await runGraphQL(gqlSchema, query, {
       Mutation: {
@@ -1036,13 +1254,13 @@ describe("Mutations", () => {
         }
       }
     });
-    expect(data).toEqual({
+    expect(data.data).toEqual({
       UpdateReview___inputcommentarynimbyyimbyauthorhankgeorge: {
         author: "hank george"
       }
     });
 
-    let ret = makeRetriever(data);
+    let ret = makeRetriever(data.data);
     expect(ret.UpdateReview({})).toBeUndefined();
     expect(
       ret.UpdateReview({
@@ -1068,15 +1286,24 @@ describe("Mutations", () => {
     `;
     let schema = await parseGraphQL(gqlSchema);
 
-    expect(schemaToTypescript(schema)).toMatchToken(`
-            export type Query = {
-                echo(args: { messages: string[] }): string
-            }
+    expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+"type GQLType = {
+    /** This field is defined when Autograph is executing a dry run */
+    __dryRun?: boolean
+    /** The name of the object type */
+    __typename: string
+}
 
-            export type Mutation = {
-                updateBio(args: { bio: string }): string
-            }
-        `);
+export type Query = GQLType & {
+    echo(args: { messages: string[] }): string
+}
+
+export type Mutation = GQLType & {
+    updateBio(args: { bio: string }): string
+}
+
+"
+`);
 
     let log = {};
     let tracker = makeAccessLogger(schema, getMutationRoot(schema), log);
@@ -1087,11 +1314,11 @@ describe("Mutations", () => {
     let query = accessLogToGraphQL(log, {
       operationType: "mutation"
     });
-    expect(query).toMatchToken(`
-            mutation {
-              updateBio___biowhatisthemeaningoflife: updateBio(bio: "what is the meaning of life")
-            }
-        `);
+    expect(query).toMatchInlineSnapshot(`
+"mutation {
+  updateBio___biowhatisthemeaningoflife: updateBio(bio: \\"what is the meaning of life\\") 
+}"
+`);
 
     let data = await runGraphQL(gqlSchema, query, {
       Mutation: {
@@ -1100,12 +1327,12 @@ describe("Mutations", () => {
         }
       }
     });
-    expect(data).toEqual({
+    expect(data.data).toEqual({
       updateBio___biowhatisthemeaningoflife:
         "what is the meaning of life and stuff"
     });
 
-    let ret = makeRetriever(data);
+    let ret = makeRetriever(data.data);
     expect(ret.updateBio()).toBeUndefined();
     expect(ret.updateBio({ bio: "what is the meaning of life" })).toEqual(
       "what is the meaning of life and stuff"
@@ -1158,6 +1385,42 @@ describe("High level query interface", () => {
     ).toMatchInlineSnapshot(`"blah"`);
   });
 
+  test("Local Dry Run", async () => {
+    let gqlSchema = `
+        type Query {
+            echo(messages: [String]!): String!
+        }
+    `;
+    type EchoQuery = {
+      /** This field is defined when Autograph is executing a dry run */
+      __dryRun?: boolean;
+      echo(args: { messages: string[] }): string;
+    };
+    const gqlClient = (query: string) =>
+      runGraphQL(gqlSchema, query, {
+        Query: {
+          echo(parent: any, args: any) {
+            return args.messages[0];
+          }
+        }
+      });
+
+    let DoQuery = CreateQuery<EchoQuery>(gqlClient);
+
+    let mockFn = jest.fn(e => e);
+    let callCounter = jest.fn();
+
+    await DoQuery(Query => {
+      callCounter();
+      skipIf(Query.__dryRun, mockFn)({
+        stuff: Query.echo({ messages: ["blah", "yolo"] })
+      });
+    });
+
+    expect(callCounter.mock.calls.length).toBe(2);
+    expect(mockFn.mock.calls.length).toBe(1);
+  });
+
   test("Local -> Object", async () => {
     let gqlSchema = `
         type Query {
@@ -1183,7 +1446,7 @@ describe("High level query interface", () => {
         thing: Query.echo({ messages: ["blah", "yolo"] })
       }))
     ).toEqual({
-      "thing": "blah",
+      thing: "blah"
     });
   });
 
@@ -1224,8 +1487,6 @@ describe("High level query interface", () => {
     ).toMatchInlineSnapshot(`"<div><li>blah</li><li>yolo</li></div>"`);
   });
 
-
-
   test("Local -> React Class Component", async () => {
     let gqlSchema = `
         type Query {
@@ -1246,20 +1507,18 @@ describe("High level query interface", () => {
 
     let DoQuery = CreateQuery<EchoQuery>(gqlClient);
 
-
     class Thingy extends React.Component<{ Query: EchoQuery }> {
-        render(){
-            let { Query } = this.props;
-            return (
-                <div>
-                  {Query.echo({ messages: ["blah", "yolo"] }).map(k => (
-                    <li key={k}>{k}</li>
-                  ))}
-                </div>
-              );
-        }
+      render() {
+        let { Query } = this.props;
+        return (
+          <div>
+            {Query.echo({ messages: ["blah", "yolo"] }).map(k => (
+              <li key={k}>{k}</li>
+            ))}
+          </div>
+        );
+      }
     }
-      
 
     expect(
       ReactDOMServer.renderToStaticMarkup(
@@ -1267,8 +1526,6 @@ describe("High level query interface", () => {
       )
     ).toMatchInlineSnapshot(`"<div><li>blah</li><li>yolo</li></div>"`);
   });
-
-
 
   test("Local Mutation -> String", async () => {
     let gqlSchema = `

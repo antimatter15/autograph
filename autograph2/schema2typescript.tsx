@@ -3,6 +3,8 @@ import { graphql, buildASTSchema } from 'graphql'
 import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
 import 'isomorphic-fetch'
 
+import * as React from 'react'
+
 let succinctIntrospectionQuery = `
   query IntrospectionQuery {
     __schema {
@@ -95,7 +97,7 @@ export async function parseGraphQL(schemaSource: string): Promise<GQLSchema> {
     // return (await runGraphQL(schemaSource, succinctIntrospectionQuery) as any).__schema
 }
 
-export async function runGraphQL(schemaSource: string, query: string, resolvers = {}) {
+export async function runGraphQL(schemaSource: string, query: string, resolvers = {}): Promise<{ errors?: any[], data?: any }> {
 
     const schema = makeExecutableSchema({ 
         typeDefs: schemaSource,
@@ -116,19 +118,19 @@ export async function runGraphQL(schemaSource: string, query: string, resolvers 
     // })
 
     addMockFunctionsToSchema({ schema, preserveResolvers: true });
-    let result = await graphql(schema, query)
+    return await graphql(schema, query) as any
 
-    if(result.errors) throw result.errors[0];
+    // if(result.errors) throw result.errors[0];
 
-    return result.data
+    // return result.data
 }
 
 
 
-type GQLClient = (query: string) => Promise<any>
+type GQLClient = (query: string) => Promise<{ data?: any, errors?: any[] }>
 
 
-async function runGQL(url: string | GQLClient, query: string): Promise<any> {
+async function runGQL(url: string | GQLClient, query: string): Promise<{ data?: any, errors?: any[] }> {
     if(typeof url == 'string'){
         return await fetch(url, {
             method: 'POST',
@@ -138,8 +140,7 @@ async function runGQL(url: string | GQLClient, query: string): Promise<any> {
             },
             body: JSON.stringify({query: query})
         })
-        .then(resp => resp.json())    
-        .then(data => data.data)
+        .then(resp => resp.json())
     }else{
         return await url(query)
     }
@@ -148,26 +149,83 @@ async function runGQL(url: string | GQLClient, query: string): Promise<any> {
 
 export function CreateMutation<MutationType>(url: string | GQLClient) {
     return async function Mutation<Result>(render: ((mutation: MutationType) => Result)): Promise<Result> {
-        let schema: GQLSchema = (await runGQL(url, succinctIntrospectionQuery)).__schema
+        let schema: GQLSchema = (await runGQL(url, succinctIntrospectionQuery)).data.__schema
         let accessLog = {}
         traverseTree(render(makeAccessLogger(schema, getMutationRoot(schema), accessLog) as MutationType))
         let gql = accessLogToGraphQL(accessLog, { operationType: 'mutation' })
-        return render(makeRetriever(await runGQL(url, gql)))
+        return render(makeRetriever((await runGQL(url, gql)).data))
     }
 }
 
 export function CreateQuery<QueryType>(url: string | GQLClient) {
     return async function Query<Result>(render: ((query: QueryType) => Result)): Promise<Result> {
-        let schema: GQLSchema = (await runGQL(url, succinctIntrospectionQuery)).__schema
+        let schema: GQLSchema = (await runGQL(url, succinctIntrospectionQuery)).data.__schema
         let accessLog = {}
         traverseTree(render(makeAccessLogger(schema, getQueryRoot(schema), accessLog) as QueryType))
         let gql = accessLogToGraphQL(accessLog)
-        return render(makeRetriever(await runGQL(url, gql)))
+        return render(makeRetriever((await runGQL(url, gql)).data))
     }
 }
 
 
-import * as React from 'react'
+type QueryType = GenericObject
+
+export function withAutograph(url: string){
+    return function(Component: React.ComponentType<{ Query: QueryType }>){
+        return function(props: GenericObject){
+            return <Autograph url={url}>{
+                Query => <Component {...props} Query={Query} />
+            }</Autograph>
+        }
+    }
+}
+
+export class Autograph extends React.Component<{
+    url: string
+    children: (Query: QueryType) => JSX.Element
+    suspense?: boolean
+    loading?: JSX.Element
+}> {
+    cache : { [key: string]: { result: any, promise: Promise<any>} } = {}
+
+    // synchronously resolve a GQL query if it exists in the cache
+    // otherwise initiate a fetch and return null. If the 'suspense'
+    // prop is `true` instead of returning null, it throws a promise
+    // that resolves when the fetching is completed
+
+    syncGQL(query: string){
+        let key = JSON.stringify([this.props.url, query])
+        if(this.cache[key]){
+            if(this.props.suspense) throw this.cache[key].promise;
+            return this.cache[key].result;
+        }
+        const update = (result: any) => {
+            this.cache[key].result = result
+            if(!this.props.suspense) this.setState({})
+        }
+        this.cache[key] = {
+            promise: runGQL(this.props.url, query)
+                .then(result => update(result), err => update({ errors: [err] })),
+            result: null
+        }
+        if(this.props.suspense) throw this.cache[key].promise;
+        return null;
+    }
+    render(){
+        let { children: renderFn, loading = <div>Loading...</div> } = this.props;
+        let schemaRequest, dataRequest;
+        if(!(schemaRequest = this.syncGQL(succinctIntrospectionQuery))) return loading;
+        if(schemaRequest.errors) return <div>Schema Error: {JSON.stringify(schemaRequest.errors)}</div>
+        let schema: GQLSchema = schemaRequest.data.__schema;
+        let accessLog = {}
+        traverseTree(renderFn(makeAccessLogger(schema, getQueryRoot(schema), accessLog)))
+        let gql = accessLogToGraphQL(accessLog)
+        if(!(dataRequest = this.syncGQL(gql))) return loading;
+        if(dataRequest.errors) return <div>Data Error: {JSON.stringify(dataRequest.errors)}</div>
+        return renderFn(makeRetriever(dataRequest.data))
+    }
+}
+
 
 function traverseTree(element: any): void {
     if(Array.isArray(element)){ // render all children
@@ -196,25 +254,6 @@ function traverseTree(element: any): void {
         }
     }
 }
-// type Blah = {
-//     merp: 42
-// }
-// let Mutation = CreateMutation<Blah>('merp')
-// Mutation(m => <div>{m.merp}</div>)
-
-// let Mutation = CreateMutation<GQL.Mutation>('url')
-// await Mutation(Mutation => <div />)
-
-
-// export async function autographData(url: string, render: (Query: GQLQuery) => JSX.Element) {
-//     let schema: GQLSchema = (await gqlFetchMemo(url, succinctIntrospectionQuery)).data.__schema;
-//     let accessLog = {}
-//     pseudoRender(render(makeTracker(schema.types, getQueryRoot(schema), accessLog)))
-//     return (await gqlFetchMemo(url, generateGraphQL(accessLog))).data
-// }
-
-
-
 
 function IsGQLTypeNullable(type: GQLType): boolean {
     return type.kind != 'NON_NULL'
@@ -247,6 +286,13 @@ export function schemaToTypescript(schema: GQLSchema): string {
         ts += 'type Mutation = ' + schema.mutationType.name + '\n\n' 
     }
 
+    ts += 'type GQLType = {\n'
+    ts += "    /** This field is defined when Autograph is executing a dry run */\n"
+    ts += '    ' + '__dryRun?: boolean\n'
+    ts += "    /** The name of the object type */\n"
+    ts += '    ' + '__typename: string\n'
+    ts += '}\n\n'
+
     const BUILTIN_TYPES = [
         "__Directive", "__DirectiveLocation", "__EnumValue", "__Field", 
         "__InputValue", "__Schema", "__Type", "__TypeKind",
@@ -266,7 +312,7 @@ export function schemaToTypescript(schema: GQLSchema): string {
                 ts += "/** " + type.description + " */\n";
 
 
-            ts += 'export type ' + type.name + ' = {\n'
+            ts += 'export type ' + type.name + ' = GQLType & {\n'
             for(let field of type.fields){
                 if(field.description) 
                     ts += "    /** " + field.description + " */\n"
@@ -290,6 +336,18 @@ export function schemaToTypescript(schema: GQLSchema): string {
                 ts += '}\n\n'
             }
 
+        }else if(type.kind == 'INTERFACE'){
+            if(type.description) 
+                ts += "/** " + type.description + " */\n";
+
+            ts += 'export interface ' + type.name + ' extends GQLType {\n'
+            
+            for(let field of type.fields){
+                if(field.description) 
+                    ts += "    /** " + field.description + " */\n"
+                ts += '    ' + field.name +  (IsGQLTypeNullable(field.type) ? '?: ' : ': ') + GQLType2TS(field.type) + '\n'
+            }
+            ts += '}\n\n'
         }else if(type.kind == 'SCALAR'){
             if(type.name == 'String' || type.name == 'Boolean') continue;
             if(type.description) 
@@ -319,17 +377,6 @@ export function schemaToTypescript(schema: GQLSchema): string {
                 ts += '    ' + field.name +  (IsGQLTypeNullable(field.type) ? '?: ' : ': ') + GQLType2TS(field.type) + '\n'
             }
             ts += '}\n\n'
-        }else if(type.kind == 'INTERFACE'){
-            if(type.description) 
-                ts += "/** " + type.description + " */\n";
-
-            ts += 'export interface ' + type.name + ' {\n'
-            for(let field of type.fields){
-                if(field.description) 
-                    ts += "    /** " + field.description + " */\n"
-                ts += '    ' + field.name +  (IsGQLTypeNullable(field.type) ? '?: ' : ': ') + GQLType2TS(field.type) + '\n'
-            }
-            ts += '}\n\n'
         }else{
             throw new Error(`Unable to handle type "${type.kind}" named "${type.name}"`)
         }
@@ -350,6 +397,10 @@ export function getMutationRoot(schema: GQLSchema){
     return query
 }
 
+// this is useful for the skipIf(query.__dryRun, blah)({ x, y })
+export function skipIf(cond: any, func: Function) {
+    return cond ? (() => {}) : func
+}
 
 function hashArguments(args: any): string {
     return JSON.stringify(args || {}).replace(/[^\w]+/g, '')
@@ -361,6 +412,12 @@ type GenericObject = { [key: string]: any }
 export function makeAccessLogger(schema: GQLSchema, obj: GQLTypeDef, log: AccessLog){
     let logger: GenericObject = { __typename: obj.name }
     
+    // allow functions to distinguish between the dry run and the real execution
+    // for instance to specifically gate side effects
+    Object.defineProperty(logger, '__dryRun', {
+        enumerable: false,
+        value: true
+    })
 
     const navigate = (field: GQLField, type: GQLType, args: GenericObject): any => {
         if(type.kind == 'NON_NULL') return navigate(field, type.ofType as GQLType, args);
