@@ -100,3 +100,12 @@ export function makeAccessLogger(schema: GQLSchema, obj: GQLTypeDef, log: Access
     
     return logger
 }
+
+export function inspectAccessLog(accessLog: GenericObject) {
+    let keys = Object.keys(accessLog).map(k => JSON.parse(k))
+    
+    return {
+        hasLoading: keys.some(k => k.type == 'FEAT' && k.name == '__loading'),
+        hasError: keys.some(k => k.type == 'FEAT' && k.name == '__error'),
+    }
+}
