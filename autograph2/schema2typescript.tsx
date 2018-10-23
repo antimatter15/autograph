@@ -128,7 +128,7 @@ export async function runGraphQL(schemaSource: string, query: string, resolvers 
 
 
 type GQLClient = (query: string) => Promise<{ data?: any, errors?: any[] }>
-type QueryType = GenericObject
+type QueryType = any
 
 async function runGQL(url: string | GQLClient, query: string): Promise<{ data?: any, errors?: any[] }> {
     if(typeof url == 'string'){
@@ -178,7 +178,7 @@ export function CreateQuery<QueryType>(url: string | GQLClient) {
     }
 }
 
-export function withAutograph(url: string){
+export function withAutograph(url: string | GQLClient){
     return function(Component: React.ComponentType<{ Query: QueryType }>){
         return function(props: GenericObject){
             return <Autograph url={url}>{
@@ -189,7 +189,7 @@ export function withAutograph(url: string){
 }
 
 export class Autograph extends React.Component<{
-    url: string
+    url: string | GQLClient
     children: (Query: QueryType) => JSX.Element
     suspense?: boolean
     loading?: JSX.Element
