@@ -1,4 +1,4 @@
-import { schemaToTypescript } from "../src/typescript";
+import { convertGQLSchemaToTypescript } from "../src/typescript";
 import { makeAccessLogger } from "../src/logger";
 import { getQueryRoot } from "../src/schema";
 import { accessLogToGraphQL } from "../src/generator";
@@ -13,7 +13,7 @@ describe('Different data types', () => {
             }
         `)
 
-        expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+        expect(convertGQLSchemaToTypescript(schema)).toMatchInlineSnapshot(`
 "type GQLType = {
     /** This field is defined when Autograph is executing a dry run */
     __dryRun?: boolean
@@ -37,7 +37,7 @@ export type Query = GQLType & {
         `
         let schema = await parseGraphQL(gqlSchema)
 
-        expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+        expect(convertGQLSchemaToTypescript(schema)).toMatchInlineSnapshot(`
 "type GQLType = {
     /** This field is defined when Autograph is executing a dry run */
     __dryRun?: boolean
@@ -87,7 +87,7 @@ export type Query = GQLType & {
 
         let schema = await parseGraphQL(gqlSchema)
 
-        expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+        expect(convertGQLSchemaToTypescript(schema)).toMatchInlineSnapshot(`
 "type GQLType = {
     /** This field is defined when Autograph is executing a dry run */
     __dryRun?: boolean
@@ -138,7 +138,7 @@ export type Zombocoin = any
         `
         let schema = await parseGraphQL(gqlSchema)
 
-        expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+        expect(convertGQLSchemaToTypescript(schema)).toMatchInlineSnapshot(`
 "type GQLType = {
     /** This field is defined when Autograph is executing a dry run */
     __dryRun?: boolean
@@ -194,7 +194,7 @@ export type Int = number
         `
         let schema = await parseGraphQL(gqlSchema)
 
-        expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+        expect(convertGQLSchemaToTypescript(schema)).toMatchInlineSnapshot(`
 "type GQLType = {
     /** This field is defined when Autograph is executing a dry run */
     __dryRun?: boolean
@@ -258,7 +258,7 @@ export type Review = GQLType & {
         `
         let schema = await parseGraphQL(gqlSchema)
 
-        expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+        expect(convertGQLSchemaToTypescript(schema)).toMatchInlineSnapshot(`
 "type GQLType = {
     /** This field is defined when Autograph is executing a dry run */
     __dryRun?: boolean
@@ -308,7 +308,7 @@ export type Float = number
         `
         let schema = await parseGraphQL(gqlSchema)
 
-        expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+        expect(convertGQLSchemaToTypescript(schema)).toMatchInlineSnapshot(`
 "type GQLType = {
     /** This field is defined when Autograph is executing a dry run */
     __dryRun?: boolean
@@ -358,7 +358,7 @@ export type ID = string
         `
         let schema = await parseGraphQL(gqlSchema)
 
-        expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+        expect(convertGQLSchemaToTypescript(schema)).toMatchInlineSnapshot(`
 "type GQLType = {
     /** This field is defined when Autograph is executing a dry run */
     __dryRun?: boolean
@@ -413,7 +413,7 @@ export type Query = GQLType & {
         `
         let schema = await parseGraphQL(gqlSchema)
 
-        expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+        expect(convertGQLSchemaToTypescript(schema)).toMatchInlineSnapshot(`
 "type GQLType = {
     /** This field is defined when Autograph is executing a dry run */
     __dryRun?: boolean
@@ -491,7 +491,7 @@ export type Builtins = Enemy
             }
         `
         let schema = await parseGraphQL(gqlSchema)
-        expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+        expect(convertGQLSchemaToTypescript(schema)).toMatchInlineSnapshot(`
 "type GQLType = {
     /** This field is defined when Autograph is executing a dry run */
     __dryRun?: boolean
@@ -559,7 +559,7 @@ export type ReviewInput = {
 
         let schema = await parseGraphQL(gqlSchema)
 
-        expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+        expect(convertGQLSchemaToTypescript(schema)).toMatchInlineSnapshot(`
 "type GQLType = {
     /** This field is defined when Autograph is executing a dry run */
     __dryRun?: boolean
@@ -608,7 +608,7 @@ export type SomethingElse = {
         `
         let schema = await parseGraphQL(gqlSchema)
 
-        expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+        expect(convertGQLSchemaToTypescript(schema)).toMatchInlineSnapshot(`
 "type GQLType = {
     /** This field is defined when Autograph is executing a dry run */
     __dryRun?: boolean
@@ -695,7 +695,7 @@ export type Episode = \\"NEWHOPE\\" | \\"EMPIRE\\" | \\"JEDI\\"
         `
         let schema = await parseGraphQL(gqlSchema)
 
-        expect(schemaToTypescript(schema)).toMatchInlineSnapshot(`
+        expect(convertGQLSchemaToTypescript(schema)).toMatchInlineSnapshot(`
 "type GQLType = {
     /** This field is defined when Autograph is executing a dry run */
     __dryRun?: boolean

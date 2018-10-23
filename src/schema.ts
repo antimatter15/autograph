@@ -1,6 +1,3 @@
-import 'isomorphic-fetch'
-
-
 export type GQLSchema = {
     queryType: { name: string }
     mutationType: { name: string }
@@ -81,7 +78,7 @@ export function getQueryRoot(schema: GQLSchema, operationType: GQLOperationTypes
 }
 
 
-export const succinctIntrospectionQuery = `
+export const introspectionQuery = `
   query IntrospectionQuery {
     __schema {
       queryType { name }

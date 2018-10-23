@@ -1,13 +1,16 @@
 import { parse } from 'graphql'
 import { graphql, buildASTSchema } from 'graphql'
 import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
-import { succinctIntrospectionQuery, GQLSchema } from '../src/schema';
+import { introspectionQuery, GQLSchema } from '../src/schema';
+import 'isomorphic-fetch'
+
+
 
 export async function parseGraphQL(schemaSource: string): Promise<GQLSchema> {
     let doc = buildASTSchema(parse(schemaSource), {
         commentDescriptions: true
     })
-    let data = await graphql(doc, succinctIntrospectionQuery) as any;
+    let data = await graphql(doc, introspectionQuery) as any;
     return data.data.__schema;
 }
 

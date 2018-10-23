@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { GQLClient, QueryType, runGQL, succinctIntrospectionQuery, GQLSchema, getQueryRoot, GenericObject } from "./schema";
+import { GQLClient, QueryType, runGQL, introspectionQuery, GQLSchema, getQueryRoot, GenericObject } from "./schema";
 import { makeAccessLogger } from "./logger";
 import { accessLogToGraphQL } from "./generator";
 import { makeRetriever } from "./retriever";
@@ -40,7 +40,7 @@ export class Autograph extends React.Component<{
     render(){
         let { children: renderFn, loading = <div>Loading...</div> } = this.props;
         let schemaRequest, dataRequest;
-        if(!(schemaRequest = this.syncGQL(succinctIntrospectionQuery))) return loading;
+        if(!(schemaRequest = this.syncGQL(introspectionQuery))) return loading;
         if(schemaRequest.errors) return <div>Schema Error: {JSON.stringify(schemaRequest.errors)}</div>
         let schema: GQLSchema = schemaRequest.data.__schema;
         let accessLog = {}

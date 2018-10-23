@@ -1,6 +1,6 @@
 import { GQLSchema, GQLType } from './schema'
 
-export function graphqlToTypescript(schema: GQLSchema): string {
+export function convertGQLSchemaToTypescript(schema: GQLSchema): string {
     const INDENT = '    ' // 4 spaces
     let ts = ''
 
