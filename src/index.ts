@@ -1,5 +1,5 @@
 export { CreateMutation, CreateQuery, getDataFromTree, loadGQLSchema } from './core'
-export { Autograph, withAutograph } from './react'
+export { Autograph, withAutograph, AutographProvider } from './react'
 export { makeRetriever } from './retriever'
 export { skipIf } from './util'
 export { convertGQLSchemaToTypescript } from './typescript'

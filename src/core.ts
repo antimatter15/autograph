@@ -41,8 +41,8 @@ export function CreateQuery<QueryType>(url: GQLEndpoint) {
     }
 }
 
-// export var globalURL: GQLClient;
+// export var globalURL: GQLEndpoint;
 
-// export function configureGlobal(url: GQLClient) {
+// export function configureGlobal(url: GQLEndpoint) {
 //     globalURL = url
 // }

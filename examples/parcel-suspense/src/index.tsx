@@ -2,12 +2,15 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 
 // import * as GQL from './schemas/ethereum'
-import { Autograph } from '../../../src/index'
+import { Autograph, AutographProvider } from '../../../src/index'
 const Suspense = (React as any).Suspense
 const ConcurrentMode = (React as any).unstable_ConcurrentMode
 
     
 function App({ Query } : { Query: any }){
+    if(Query.__loading){
+        return <div>jasdoifjaiosdjfoijasfd</div>
+    }
     let block = Query.block({ number: 5450945 })
     return <fieldset>
         <legend>Block {block.hash}</legend>
@@ -28,8 +31,10 @@ function App({ Query } : { Query: any }){
 }
 
 
-ReactDOM.render(<Suspense fallback={<div>Loading....</div>}>
-    <Autograph url="https://ethql-alpha.infura.io/graphql" suspense>{
-        Query => <App Query={Query} />
-    }</Autograph>
-</Suspense>, document.getElementById('root'))
+ReactDOM.render(<AutographProvider  url="https://ethql-alpha.infura.io/graphql">
+    <Suspense fallback={<div>Loading....</div>}>
+        <Autograph suspense>{
+            Query => <App Query={Query} />
+        }</Autograph>
+    </Suspense>
+</AutographProvider>, document.getElementById('root'))
