@@ -36,19 +36,6 @@ Here's the same code in Autograph
     }</Autograph>
 
 
-    <Autograph>{
-        Query => {
-            if(Query.__error) return <p>Error</p>;
-            if(Query.__loading) return <p>Loading</p>;
-            
-            return Query.rates({ currency: "USD" }).map(({ currency, rate }) => 
-                <div key={currency}>
-                    <p>{currency}: {rate}</p>
-                </div>
-            )
-        }
-    }</Autograph>
-
 
 Probably the slickest way to get started with Autograph is with the React API. To use that, you simply wrap your application with an `<Autograph>` component, which passes along a `Query` handle. Just use that `Query` handle as if it was a JSON blob that contained all of your data (fields with arguments turn into simple function calls).
 

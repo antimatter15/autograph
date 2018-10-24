@@ -1,0 +1,15 @@
+{
+  "name": "parcel-suspense",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@types/lodash": "^4.14.117",
+    "@types/react": "^16.4.18",
+    "@types/react-dom": "^16.0.9",
+    "lodash": "^4.17.11",
+    "parcel-bundler": "^1.10.3",
+    "react": "^16.6.0",
+    "react-dom": "^16.6.0"
+  }
+}

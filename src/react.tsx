@@ -21,33 +21,32 @@ type AutographProps = {
 //     return <Consumer>{value => <AutographCore {...props} url={value || props.url} />}</Consumer>
 // }
 
-export class Autograph extends React.Component<AutographProps> {
-    cache : { [key: string]: { result: any, promise: Promise<any>} } = {}
+const gqlCache : { [key: string]: { result: any, promise: Promise<any>} } = {}
 
+export class Autograph extends React.Component<AutographProps> {    
     // synchronously resolve a GQL query if it exists in the cache
     // otherwise initiate a fetch and return null. If the 'suspense'
     // prop is `true` instead of returning null, it throws a promise
     // that resolves when the fetching is completed
-
     syncGQL(query: string){
         if(!this.props.url) 
             throw new Error(`A GraphQL endpoint must be specified either as a prop (url), with a context provider (using AutographProvider), or with global configuration.`);
 
         let key = JSON.stringify([this.props.url, query])
-        if(this.cache[key]){
-            if(this.props.suspense) throw this.cache[key].promise;
-            return this.cache[key].result;
+        if(gqlCache[key]){
+            if(this.props.suspense && !gqlCache[key].result) throw gqlCache[key].promise;
+            return gqlCache[key].result;
         }
         const update = (result: any) => {
-            this.cache[key].result = result
+            gqlCache[key].result = result
             if(!this.props.suspense) this.setState({})
         }
-        this.cache[key] = {
+        gqlCache[key] = {
             promise: runGQL(this.props.url, query)
                 .then(result => update(result), err => update({ errors: [err] })),
             result: null
         }
-        if(this.props.suspense) throw this.cache[key].promise;
+        if(this.props.suspense) throw gqlCache[key].promise;
         return null;
     }
     render(){
