@@ -1,41 +1,50 @@
 import * as React from 'react'
 
-import { GQLEndpoint, QueryType, runGQL, introspectionQuery, GQLSchema, getQueryRoot, GenericObject } from "./schema";
+import { AutographConfig, QueryType, runGQL, introspectionQuery, GQLSchema, getQueryRoot, GenericObject } from "./schema";
 import { makeAccessLogger, inspectAccessLog } from "./logger";
 import { accessLogToGraphQL } from "./generator";
 import { makeRetriever } from "./retriever";
 import { traverseTree } from './traverse';
+import { convertGQLSchemaToTypescript } from './typescript';
 // import { globalURL } from './core';
 
 
 type AutographProps = {
-    url?: GQLEndpoint
+    config?: AutographConfig
     children: (Query: QueryType) => JSX.Element
     suspense?: boolean
 }
 
 const AutographContext = React.createContext<any>(null);
 
-export function AutographProvider({ url, children }: { url: GQLEndpoint, children: JSX.Element }) {
-    return <AutographContext.Provider value={url}>{children}</AutographContext.Provider>
+export function AutographProvider({ config, children }: { config: AutographConfig, children: JSX.Element }) {
+    return <AutographContext.Provider value={config}>{children}</AutographContext.Provider>
 }
 
-const gqlCache : { [key: string]: { result: any, promise: Promise<any>} } = {}
+type GQLCache = { [key: string]: { result: any, promise: Promise<any>} }
+
+// the react suspense cache needs to be global because the react component
+// may be initialized multiple times.
+
+const suspenseCache : GQLCache = {}
 
 export class Autograph extends React.Component<AutographProps> {    
     static contextType = AutographContext;
+    cache: GQLCache  = {}
 
     // synchronously resolve a GQL query if it exists in the cache
     // otherwise initiate a fetch and return null. If the 'suspense'
     // prop is `true` instead of returning null, it throws a promise
     // that resolves when the fetching is completed
     syncGQL(query: string){
-        let url = this.props.url || this.context;
+        let config = this.props.config || this.context;
 
-        if(!url) 
-            throw new Error(`A GraphQL endpoint must be specified either as a prop (url), with a context provider (using AutographProvider), or with global configuration.`);
+        if(!config) 
+            throw new Error(`A GraphQL endpoint must be specified either as a prop (config), with a context provider (using AutographProvider), or with global configuration.`);
 
-        let key = JSON.stringify([url, query])
+        let gqlCache = this.props.suspense ? suspenseCache : this.cache;
+
+        let key = JSON.stringify([config, query])
         if(gqlCache[key]){
             if(this.props.suspense && !gqlCache[key].result) throw gqlCache[key].promise;
             return gqlCache[key].result;
@@ -45,7 +54,7 @@ export class Autograph extends React.Component<AutographProps> {
             if(!this.props.suspense) this.setState({})
         }
         gqlCache[key] = {
-            promise: runGQL(url, query)
+            promise: runGQL(config, query)
                 .then(result => update(result), err => update({ errors: [err] })),
             result: null
         }
@@ -54,13 +63,20 @@ export class Autograph extends React.Component<AutographProps> {
     }
     render(){
         let { children: renderFn } = this.props;
-        let schemaRequest, dataRequest;
+        let schemaRequest;
         if(!(schemaRequest = this.syncGQL(introspectionQuery))) return <div>Loading...</div>;
         if(schemaRequest.errors) return <div>Schema Error: {JSON.stringify(schemaRequest.errors)}</div>
         let schema: GQLSchema = schemaRequest.data.__schema;
+        console.log(convertGQLSchemaToTypescript(schema))
         let accessLog = {}
-        traverseTree(renderFn(makeAccessLogger(schema, getQueryRoot(schema), accessLog)))
+        let logger = makeAccessLogger(schema, getQueryRoot(schema), accessLog)
+        try {
+            traverseTree(renderFn(logger))
+        } catch (err) {
+            console.warn(err)
+        }
         let gql = accessLogToGraphQL(accessLog), info = inspectAccessLog(accessLog)
+        let dataRequest;
         if(!(dataRequest = this.syncGQL(gql))) 
             return info.hasLoading ? renderFn({ __loading: true }) : 
                 <div>Loading...</div>;
@@ -73,10 +89,10 @@ export class Autograph extends React.Component<AutographProps> {
     }
 }
 
-export function withAutograph(url: GQLEndpoint){
+export function withAutograph(config: AutographConfig){
     return function(Component: React.ComponentType<{ Query: QueryType }>){
         return function(props: GenericObject){
-            return <Autograph url={url}>{
+            return <Autograph config={config}>{
                 Query => <Component {...props} Query={Query} />
             }</Autograph>
         }

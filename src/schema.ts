@@ -42,7 +42,7 @@ export type GQLType = {
 
 type GQLClient = (query: string) => Promise<{ data?: any, errors?: any[] }>
 
-export type GQLEndpoint = string | GQLClient
+export type AutographConfig = string | GQLClient
 
 export type QueryType = any
 export type GenericObject = { [key: string]: any }
@@ -51,7 +51,7 @@ export type GenericObject = { [key: string]: any }
 export type GQLOperationTypes = 'query' | 'mutation'
 
 
-export async function runGQL(url: string | GQLEndpoint, query: string): Promise<{ data?: any, errors?: any[] }> {
+export async function runGQL(url: string | AutographConfig, query: string): Promise<{ data?: any, errors?: any[] }> {
     if(typeof url == 'string'){
         return await fetch(url, {
             method: 'POST',

@@ -1,4 +1,4 @@
-import { GQLEndpoint, GQLSchema, runGQL, introspectionQuery, getQueryRoot, GenericObject, GQLOperationTypes } from "./schema";
+import { AutographConfig, GQLSchema, runGQL, introspectionQuery, getQueryRoot, GenericObject, GQLOperationTypes } from "./schema";
 import { makeAccessLogger } from "./logger";
 import { accessLogToGraphQL } from "./generator";
 import { makeRetriever } from "./retriever";
@@ -13,36 +13,36 @@ import { traverseTree } from "./traverse";
 // which may require a pure JSON-serializable response. 
 
 
-export async function loadGQLSchema(url: GQLEndpoint): Promise<GQLSchema> {
-    return (await runGQL(url, introspectionQuery)).data.__schema
+export async function loadGQLSchema(config: AutographConfig): Promise<GQLSchema> {
+    return (await runGQL(config, introspectionQuery)).data.__schema
 }
 
 export async function getDataFromTree<QueryType, Result>(
-    url: GQLEndpoint, 
+    config: AutographConfig, 
     operationType: GQLOperationTypes, 
     render: ((query: QueryType) => Result)
 ): Promise<GenericObject> {
-    let schema = await loadGQLSchema(url)
+    let schema = await loadGQLSchema(config)
     let accessLog = {}
     traverseTree(render(makeAccessLogger(schema, getQueryRoot(schema, operationType), accessLog) as QueryType))
     let gql = accessLogToGraphQL(accessLog, { operationType: operationType })
-    return (await runGQL(url, gql)).data
+    return (await runGQL(config, gql)).data
 }
 
-export function CreateMutation<MutationType>(url: GQLEndpoint) {
+export function CreateMutation<MutationType>(config: AutographConfig) {
     return async function Mutation<Result>(render: ((mutation: MutationType) => Result)): Promise<Result> {
-        return render(makeRetriever(await getDataFromTree(url, 'mutation', render)))
+        return render(makeRetriever(await getDataFromTree(config, 'mutation', render)))
     }
 }
 
-export function CreateQuery<QueryType>(url: GQLEndpoint) {
+export function CreateQuery<QueryType>(config: AutographConfig) {
     return async function Query<Result>(render: ((query: QueryType) => Result)): Promise<Result> {
-        return render(makeRetriever(await getDataFromTree(url, 'query', render)))
+        return render(makeRetriever(await getDataFromTree(config, 'query', render)))
     }
 }
 
 // export var globalURL: GQLEndpoint;
 
-// export function configureGlobal(url: GQLEndpoint) {
-//     globalURL = url
+// export function configureGlobal(config: GQLEndpoint) {
+//     globalURL = config
 // }

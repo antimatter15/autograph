@@ -29,9 +29,29 @@ export function makeAccessLogger(schema: GQLSchema, obj: GQLTypeDef, log: Access
         definePseudofield('__error', { type: 'FEAT', name: '__error' }, null)
     }
 
+    // For arrays, we bypass the result of filter so that it always returns the same
+    // list. This is so that we can observe which parts of the list get used in the
+    // map or forEach that may follow a filter.
+    const makeArray = (obj: any) => {
+        let array = [ obj ]
+        const addPassthrough = (name: string) => {
+            let orig = array[name]
+            array[name] = function(){
+                orig.apply(array, arguments)
+                return array
+            }
+        }
+        addPassthrough('filter')
+        addPassthrough('slice')
+        addPassthrough('splice')
+        addPassthrough('reverse')
+        addPassthrough('sort')
+        return array
+    }
+
     const navigate = (field: GQLField, type: GQLType, args: GenericObject): any => {
         if(type.kind == 'NON_NULL') return navigate(field, type.ofType as GQLType, args);
-        if(type.kind == 'LIST') return [ navigate(field, type.ofType as GQLType, args) ];
+        if(type.kind == 'LIST') return makeArray(navigate(field, type.ofType as GQLType, args) );
         if(type.kind == 'UNION'){
             let sub = schema.types.find(k => k.name == type.name)
             if(!sub) throw new Error(`Unable to find type "${type.name}" in schema.`);
