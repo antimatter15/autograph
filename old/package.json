@@ -1,0 +1,32 @@
+{
+  "name": "autograph",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "parcel index.html",
+    "postinstall": "patch-package"
+  },
+  "dependencies": {
+    "@types/graphql": "^14.0.3",
+    "@types/jest": "^23.3.5",
+    "@types/react": "^16.4.18",
+    "@types/react-dom": "^16.0.9",
+    "@types/react-test-renderer": "^16.0.3",
+    "graphql": "^14.0.2",
+    "graphql-tools": "^4.0.2",
+    "isomorphic-fetch": "^2.2.1",
+    "jest": "^23.6.0",
+    "lodash": "^4.17.11",
+    "parcel-bundler": "^1.10.3",
+    "prettier": "^1.14.3",
+    "react": "^16.5.2",
+    "react-dom": "^16.5.2",
+    "react-test-renderer": "^16.5.2",
+    "ts-jest": "^23.10.4"
+  },
+  "devDependencies": {
+    "patch-package": "^5.1.1",
+    "postinstall-postinstall": "^2.0.0"
+  }
+}

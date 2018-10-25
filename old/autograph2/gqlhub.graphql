@@ -1,0 +1,1088 @@
+schema {
+    query: GraphQLHubAPI
+    mutation: GraphQLHubMutationAPI
+}
+
+type GiphyAPI {
+    gif(
+    """id of the item"""
+    id: String!
+    ): GiphyGIFData
+    search(
+    """Search query or phrase"""
+    query: String!
+    limit: Int
+    offset: Int
+    rating: GiphyRatingType
+    ): [GiphyGIFData]
+    random(
+    """the GIF tag to limit randomness by"""
+    tag: String
+    rating: GiphyRatingType
+    ): GiphyGIFData
+}
+
+type GiphyGIFData {
+    """The item's unique id."""
+    id: String!
+    url: String!
+    images: GiphyGIFImages!
+}
+
+type GiphyGIFImageDataDownsized {
+    url: String!
+    width: String!
+    height: String!
+    small: String!
+}
+
+type GiphyGIFImageDataDownsizedLarge {
+    url: String!
+    width: String!
+    height: String!
+    size: String!
+}
+
+type GiphyGIFImageDataDownsizedStill {
+    url: String!
+    width: String!
+    height: String!
+}
+
+type GiphyGIFImageDataFixedHeight {
+    url: String!
+    width: String!
+    height: String!
+    size: String!
+    mp4: String!
+    mp4_size: String!
+    webp: String!
+    webp_size: String!
+}
+
+type GiphyGIFImageDataFixedHeightDownsample {
+    url: String!
+    width: String!
+    height: String!
+    size: String!
+    webp: String!
+    webp_size: String!
+}
+
+type GiphyGIFImageDataFixedHeightSmall {
+    url: String!
+    width: String!
+    height: String!
+    size: String!
+    webp: String!
+    webp_size: String!
+}
+
+type GiphyGIFImageDataFixedHeightSmallStill {
+    url: String!
+    width: String!
+    height: String!
+}
+
+type GiphyGIFImageDataFixedHeightStill {
+    url: String!
+    width: String!
+    height: String!
+}
+
+type GiphyGIFImageDataFixedWidth {
+    url: String!
+    width: String!
+    height: String!
+    size: String!
+    mp4: String!
+    mp4_size: String!
+    webp: String!
+    webp_size: String!
+}
+
+type GiphyGIFImageDataFixedWidthDownsample {
+    url: String!
+    width: String!
+    height: String!
+    size: String!
+    webp: String!
+    webp_size: String!
+}
+
+type GiphyGIFImageDataFixedWidthSmall {
+    url: String!
+    width: String!
+    height: String!
+    size: String!
+    webp: String!
+    webp_size: String!
+}
+
+type GiphyGIFImageDataFixedWidthSmallStill {
+    url: String!
+    width: String!
+    height: String!
+}
+
+type GiphyGIFImageDataFixedWidthStill {
+    url: String!
+    width: String!
+    height: String!
+}
+
+type GiphyGIFImageDataLooping {
+    mp4: String!
+}
+
+type GiphyGIFImageDataOriginal {
+    url: String!
+    width: String!
+    height: String!
+    size: String!
+    mp4: String!
+    mp4_size: String!
+    webp: String!
+    webp_size: String!
+    frames: String!
+}
+
+type GiphyGIFImageDataOriginalStill {
+    url: String!
+    width: String!
+    height: String!
+}
+
+type GiphyGIFImages {
+    fixed_height: GiphyGIFImageDataFixedHeight
+    fixed_height_still: GiphyGIFImageDataFixedHeightStill
+    fixed_height_downsampled: GiphyGIFImageDataFixedHeightDownsample
+    fixed_width: GiphyGIFImageDataFixedWidth
+    fixed_width_still: GiphyGIFImageDataFixedWidthStill
+    fixed_width_downsampled: GiphyGIFImageDataFixedWidthDownsample
+    fixed_height_small: GiphyGIFImageDataFixedHeightSmall
+    fixed_height_small_still: GiphyGIFImageDataFixedHeightSmallStill
+    fixed_width_small: GiphyGIFImageDataFixedWidthSmall
+    fixed_width_small_still: GiphyGIFImageDataFixedWidthSmallStill
+    downsized: GiphyGIFImageDataDownsized
+    downsized_still: GiphyGIFImageDataDownsizedStill
+    downsized_large: GiphyGIFImageDataDownsizedLarge
+    original: GiphyGIFImageDataOriginal
+    original_still: GiphyGIFImageDataOriginalStill
+    looping: GiphyGIFImageDataLooping
+}
+
+"""The rating of a GIF"""
+enum GiphyRatingType {
+    y
+    g
+    pg
+    pg13
+    r
+}
+
+"""The Github API"""
+type GithubAPI {
+    user(
+    """Username of the user"""
+    username: String!
+    ): GithubUser
+    repo(
+    """Name of the repo"""
+    name: String!
+
+    """Username of the owner"""
+    ownerUsername: String!
+    ): GithubRepo
+}
+
+type GithubBranch {
+    name: String
+    lastCommit: GithubCommit
+}
+
+type GithubCommit {
+    sha: String
+    author: UserOrCommitAuthor
+    message: String
+    date: String
+    status: [GithubStatus]
+    tree: GithubTree
+}
+
+"""Commit author that is not associated with a Github acount"""
+type GithubCommitAuthor {
+    email: String
+    name: String
+}
+
+type GithubIssue {
+    id: Int
+    state: String
+    title: String
+    body: String
+    user: GithubUser
+    assignee: GithubUser
+    closed_by: GithubUser
+    labels: [GithubIssueLabelType]
+    commentCount: Int
+    comments: [GithubIssueCommentType]
+}
+
+type GithubIssueCommentType {
+    id: Int
+    body: String
+    user: GithubUser
+}
+
+type GithubIssueLabelType {
+    url: String
+    name: String
+    color: String
+}
+
+type GithubRepo {
+    id: Int
+    name: String
+    commits(limit: Int): [GithubCommit]
+    issues(limit: Int): [GithubIssue]
+    branches(limit: Int): [GithubBranch]
+    owner: GithubUser
+}
+
+"""Status of a commit"""
+type GithubStatus {
+    state: String
+    description: String
+    target_url: String
+    context: String
+    updated_at: String
+}
+
+type GithubTree {
+    entries: [GithubTreeEntry]
+}
+
+type GithubTreeEntry {
+    path: String
+    last_commit: GithubCommit
+}
+
+type GithubUser {
+    login: String
+    id: Int
+    company: String
+    avatar_url: String
+    repos: [GithubRepo]
+}
+
+"""APIs exposed as GraphQL"""
+type GraphQLHubAPI {
+    """About GraphQLHub"""
+    graphQLHub: String
+    hn: HackerNewsAPI
+    hn2: HackerNewsAPIV2
+    reddit: RedditAPI
+    keyValue: KeyValueAPI
+    github: GithubAPI
+    twitter: TwitterAPI
+    giphy: GiphyAPI
+}
+
+"""APIs exposed as GraphQL mutations"""
+type GraphQLHubMutationAPI {
+    keyValue_setValue(input: SetValueForKeyInput!): SetValueForKeyPayload
+}
+
+"""The Hacker News V0 API"""
+type HackerNewsAPI {
+    item(
+    """id of the item"""
+    id: Int!
+    ): HackerNewsItem
+    user(
+    """id of the user"""
+    id: String!
+    ): HackerNewsUser
+
+    """Up to 500 of the top stories"""
+    topStories(
+    """Number of items to return"""
+    limit: Int
+
+    """Initial offset of number of items to return"""
+    offset: Int
+    ): [HackerNewsItem]
+
+    """Up to 500 of the newest stories"""
+    newStories(
+    """Number of items to return"""
+    limit: Int
+
+    """Initial offset of number of items to return"""
+    offset: Int
+    ): [HackerNewsItem]
+
+    """Up to 200 of the Show HN stories"""
+    showStories(
+    """Number of items to return"""
+    limit: Int
+
+    """Initial offset of number of items to return"""
+    offset: Int
+    ): [HackerNewsItem]
+
+    """Up to 200 of the Ask HN stories"""
+    askStories(
+    """Number of items to return"""
+    limit: Int
+
+    """Initial offset of number of items to return"""
+    offset: Int
+    ): [HackerNewsItem]
+
+    """Up to 200 of the Job stores"""
+    jobStories(
+    """Number of items to return"""
+    limit: Int
+
+    """Initial offset of number of items to return"""
+    offset: Int
+    ): [HackerNewsItem]
+
+    """Return list of stories"""
+    stories(
+    """Number of items to return"""
+    limit: Int
+
+    """Initial offset of number of items to return"""
+    offset: Int
+
+    """Type of story to list"""
+    storyType: String!
+    ): [HackerNewsItem]
+}
+
+"""
+The Hacker News V2 API; this is Relay-compatible (uses Nodes and Connections)
+"""
+type HackerNewsAPIV2 {
+    """Fetches an object given its ID"""
+    node(
+    """The ID of an object"""
+    id: ID!
+    ): Node
+
+    """
+    To ensure Node IDs are globally unique, GraphQLHub coerces IDs returned by the
+    HN API. Use this field to get nodes via normal HN IDs
+    """
+    nodeFromHnId(id: String!, isUserId: Boolean!): Node!
+}
+
+"""
+Stories, comments, jobs, Ask HNs and even polls are just items. They're identified by their ids, which are unique integers
+"""
+type HackerNewsItem {
+    """The item's unique id."""
+    id: String!
+
+    """if the item is deleted"""
+    deleted: Boolean
+
+    """
+    The type of item. One of "job", "story", "comment", "poll", or "pollopt".
+    """
+    type: ItemType!
+
+    """The item's author."""
+    by: HackerNewsUser!
+
+    """Creation date of the item, in Unix Time."""
+    time: Int!
+
+    """Creation date of the item, in ISO8601"""
+    timeISO: String!
+
+    """The comment, story or poll text. HTML."""
+    text: String
+
+    """if the item is dead"""
+    dead: Boolean
+
+    """The URL of the story."""
+    url: String
+
+    """The story's score, or the votes for a pollopt."""
+    score: Int
+
+    """The title of the story, poll or job."""
+    title: String
+
+    """The item's comments, in ranked display order."""
+    kids(
+    """Number of items to return"""
+    limit: Int
+
+    """Initial offset of number of items to return"""
+    offset: Int
+    ): [HackerNewsItem]
+
+    """
+    The item's parent. For comments, either another comment or the relevant story. For pollopts, the relevant poll.
+    """
+    parent: HackerNewsItem
+
+    """A list of related pollopts, in display order."""
+    parts: [HackerNewsItem]
+
+    """In the case of stories or polls, the total comment count."""
+    descendants: Int
+}
+
+"""
+Users are identified by case-sensitive ids. Only users that have public activity
+(comments or story submissions) on the site are available through the API.
+"""
+type HackerNewsUser {
+    """The user's unique username. Case-sensitive. Required."""
+    id: String!
+
+    """
+    Delay in minutes between a comment's creation and its visibility to other users.
+    """
+    delay: Int!
+
+    """Creation date of the user, in Unix Time."""
+    created: Int!
+
+    """Creation date of the user, in ISO8601"""
+    createdISO: String!
+
+    """The user's optional self-description. HTML."""
+    about: String
+
+    """List of the user's stories, polls and comments."""
+    submitted(
+    """Number of items to return"""
+    limit: Int
+
+    """Initial offset of number of items to return"""
+    offset: Int
+    ): [HackerNewsItem]
+}
+
+type HackerNewsV2Comment implements Node {
+    """The ID of an object"""
+    id: ID!
+
+    """The item's unique id."""
+    hnId: String!
+
+    """The item's author."""
+    by: HackerNewsV2User!
+
+    """
+    The item's parent. For comments, either another comment or the relevant story. For pollopts, the relevant poll.
+    """
+    parent: Node
+
+    """The comment, story or poll text. HTML."""
+    text: String
+
+    """Creation date of the item, in Unix Time."""
+    time: Int!
+
+    """Creation date of the item, in ISO8601"""
+    timeISO: String!
+
+    """The item's comments, in ranked display order."""
+    kids(after: String, first: Int, before: String, last: Int): HackerNewsV2CommentConnection
+
+    """if the item is deleted"""
+    deleted: Boolean
+
+    """if the item is dead"""
+    dead: Boolean
+}
+
+"""A connection to a list of items."""
+type HackerNewsV2CommentConnection {
+    """Information to aid in pagination."""
+    pageInfo: PageInfo!
+
+    """Information to aid in pagination."""
+    edges: [HackerNewsV2CommentEdge]
+}
+
+"""An edge in a connection."""
+type HackerNewsV2CommentEdge {
+    """The item at the end of the edge"""
+    node: HackerNewsV2Comment
+
+    """A cursor for use in pagination"""
+    cursor: String!
+}
+
+type HackerNewsV2Job implements Node {
+    """The ID of an object"""
+    id: ID!
+
+    """The item's unique id."""
+    hnId: String!
+
+    """The item's author."""
+    by: HackerNewsV2User!
+
+    """The story's score, or the votes for a pollopt."""
+    score: Int
+
+    """The comment, story or poll text. HTML."""
+    text: String
+
+    """Creation date of the item, in Unix Time."""
+    time: Int!
+
+    """Creation date of the item, in ISO8601"""
+    timeISO: String!
+
+    """The title of the story, poll or job."""
+    title: String
+
+    """The URL of the story."""
+    url: String
+
+    """if the item is deleted"""
+    deleted: Boolean
+
+    """if the item is dead"""
+    dead: Boolean
+}
+
+type HackerNewsV2Poll implements Node {
+    """The ID of an object"""
+    id: ID!
+
+    """The item's unique id."""
+    hnId: String!
+
+    """The item's author."""
+    by: HackerNewsV2User!
+
+    """In the case of stories or polls, the total comment count."""
+    descendants: Int
+
+    """The story's score, or the votes for a pollopt."""
+    score: Int
+
+    """Creation date of the item, in Unix Time."""
+    time: Int!
+
+    """Creation date of the item, in ISO8601"""
+    timeISO: String!
+
+    """The title of the story, poll or job."""
+    title: String
+
+    """The comment, story or poll text. HTML."""
+    text: String
+
+    """The item's comments, in ranked display order."""
+    kids(after: String, first: Int, before: String, last: Int): HackerNewsV2CommentConnection
+
+    """if the item is deleted"""
+    deleted: Boolean
+
+    """if the item is dead"""
+    dead: Boolean
+
+    """A list of related pollopts, in display order."""
+    parts: [HackerNewsV2PollPart]
+}
+
+type HackerNewsV2PollPart implements Node {
+    """The ID of an object"""
+    id: ID!
+
+    """The item's unique id."""
+    hnId: String!
+
+    """The item's author."""
+    by: HackerNewsV2User!
+
+    """The story's score, or the votes for a pollopt."""
+    score: Int
+
+    """Creation date of the item, in Unix Time."""
+    time: Int!
+
+    """Creation date of the item, in ISO8601"""
+    timeISO: String!
+
+    """The comment, story or poll text. HTML."""
+    text: String
+
+    """
+    The item's parent. For comments, either another comment or the relevant story. For pollopts, the relevant poll.
+    """
+    parent: Node
+
+    """if the item is deleted"""
+    deleted: Boolean
+}
+
+type HackerNewsV2Story implements Node {
+    """The ID of an object"""
+    id: ID!
+
+    """The item's unique id."""
+    hnId: String!
+
+    """The item's author."""
+    by: HackerNewsV2User!
+
+    """In the case of stories or polls, the total comment count."""
+    descendants: Int
+
+    """The story's score, or the votes for a pollopt."""
+    score: Int
+
+    """Creation date of the item, in Unix Time."""
+    time: Int!
+
+    """Creation date of the item, in ISO8601"""
+    timeISO: String!
+
+    """The title of the story, poll or job."""
+    title: String
+
+    """The URL of the story."""
+    url: String
+
+    """The comment, story or poll text. HTML."""
+    text: String
+
+    """The item's comments, in ranked display order."""
+    kids(after: String, first: Int, before: String, last: Int): HackerNewsV2CommentConnection
+
+    """if the item is deleted"""
+    deleted: Boolean
+
+    """if the item is dead"""
+    dead: Boolean
+}
+
+type HackerNewsV2User implements Node {
+    """The ID of an object"""
+    id: ID!
+
+    """The item's unique id."""
+    hnId: String!
+
+    """
+    Delay in minutes between a comment's creation and its visibility to other users.
+    """
+    delay: Int
+
+    """Creation date of the user, in Unix Time."""
+    created: Int
+
+    """Creation date of the user, in ISO8601"""
+    createdISO: String
+
+    """The user's optional self-description. HTML."""
+    about: String
+
+    """List of the user's stories, polls and comments."""
+    submitted(after: String, first: Int, before: String, last: Int): NodeConnection
+}
+
+"""The type of item"""
+enum ItemType {
+    job
+    story
+    comment
+    poll
+    pollopt
+}
+
+"""An in-memory key-value store"""
+type KeyValueAPI {
+    getValue(
+    """id of the item"""
+    id: String!
+    ): KeyValueItem
+}
+
+"""Item for a key-value pair"""
+type KeyValueItem {
+    """The item's unique id."""
+    id: String!
+
+    """The item's value."""
+    value: String
+}
+
+"""An object with an ID"""
+interface Node {
+    """The id of the object."""
+    id: ID!
+}
+
+"""A connection to a list of items."""
+type NodeConnection {
+    """Information to aid in pagination."""
+    pageInfo: PageInfo!
+
+    """Information to aid in pagination."""
+    edges: [NodeEdge]
+}
+
+"""An edge in a connection."""
+type NodeEdge {
+    """The item at the end of the edge"""
+    node: Node
+
+    """A cursor for use in pagination"""
+    cursor: String!
+}
+
+"""Information about pagination in a connection."""
+type PageInfo {
+    """When paginating forwards, are there more items?"""
+    hasNextPage: Boolean!
+
+    """When paginating backwards, are there more items?"""
+    hasPreviousPage: Boolean!
+
+    """When paginating backwards, the cursor to continue."""
+    startCursor: String
+
+    """When paginating forwards, the cursor to continue."""
+    endCursor: String
+}
+
+"""The Reddit API"""
+type RedditAPI {
+    subreddit(
+    """Name of the subreddit"""
+    name: String!
+    ): RedditSubreddit
+    user(
+    """Username of the user"""
+    username: String!
+    ): RedditUser
+}
+
+"""A comment on a link"""
+type RedditComment {
+    """Author of the comment"""
+    author: RedditUser!
+
+    """Body of the comment"""
+    body: String!
+
+    """Replies to the comment"""
+    replies(
+    """Maximum depth of subtrees in the thread"""
+    depth: Int
+
+    """Maximum number of comments to return"""
+    limit: Int
+    ): [RedditComment]!
+}
+
+"""A link posted to a subreddit"""
+type RedditLink {
+    """Title of the link"""
+    title: String!
+
+    """The Reddit API fullname of the link"""
+    fullnameId: String!
+
+    """Score of the link"""
+    score: Int!
+
+    """Number of comments"""
+    numComments: Int!
+
+    """URL of the link"""
+    url: String!
+
+    """Author of the link"""
+    author: RedditUser!
+
+    """Comments on the link"""
+    comments(
+    """Maximum depth of subtrees in the thread"""
+    depth: Int
+
+    """Maximum number of comments to return"""
+    limit: Int
+    ): [RedditComment]!
+}
+
+"""Information about and listings in a subreddit"""
+type RedditSubreddit {
+    """Name of the subreddit"""
+    name: String!
+
+    """The Reddit API fullname of the subreddit"""
+    fullnameId: String!
+
+    """Title of the subreddit"""
+    title: String!
+
+    """Description of the subreddit"""
+    publicDescription: String!
+
+    """Accounts active right now on the subreddit"""
+    accountsActive: Int!
+
+    """Number of subscribers to the subreddit"""
+    subscribers: Int!
+
+    """Creation date of the subreddit, in Unix Time (UTC)"""
+    created: Float!
+
+    """Creation date of the subreddit, in ISO8601"""
+    createdISO: String!
+
+    """Hot/"Front Page" listings of the subreddit"""
+    hotListings(
+    """
+    FullnameId of an item in the listing to use as the anchor point of the slice.
+    """
+    after: String
+
+    """
+    FullnameId of an item in the listing to use as the anchor point of the slice.
+    """
+    before: String
+
+    """The number of items already seen in this listing"""
+    count: Int
+
+    """The maximum number of items to return in this slice of the listing."""
+    limit: Int
+    ): [RedditLink]!
+
+    """Newest listings of the subreddit"""
+    newListings(
+    """
+    FullnameId of an item in the listing to use as the anchor point of the slice.
+    """
+    after: String
+
+    """
+    FullnameId of an item in the listing to use as the anchor point of the slice.
+    """
+    before: String
+
+    """The number of items already seen in this listing"""
+    count: Int
+
+    """The maximum number of items to return in this slice of the listing."""
+    limit: Int
+    ): [RedditLink]!
+
+    """Rising listings of the subreddit"""
+    risingListings(
+    """
+    FullnameId of an item in the listing to use as the anchor point of the slice.
+    """
+    after: String
+
+    """
+    FullnameId of an item in the listing to use as the anchor point of the slice.
+    """
+    before: String
+
+    """The number of items already seen in this listing"""
+    count: Int
+
+    """The maximum number of items to return in this slice of the listing."""
+    limit: Int
+    ): [RedditLink]!
+
+    """Controversial listings of the subreddit"""
+    controversialListings(
+    """
+    FullnameId of an item in the listing to use as the anchor point of the slice.
+    """
+    after: String
+
+    """
+    FullnameId of an item in the listing to use as the anchor point of the slice.
+    """
+    before: String
+
+    """The number of items already seen in this listing"""
+    count: Int
+
+    """The maximum number of items to return in this slice of the listing."""
+    limit: Int
+
+    """Time interval to retrieve listings"""
+    timeInterval: TimeInterval
+    ): [RedditLink]!
+
+    """Top listings of the subreddit"""
+    topListings(
+    """
+    FullnameId of an item in the listing to use as the anchor point of the slice.
+    """
+    after: String
+
+    """
+    FullnameId of an item in the listing to use as the anchor point of the slice.
+    """
+    before: String
+
+    """The number of items already seen in this listing"""
+    count: Int
+
+    """The maximum number of items to return in this slice of the listing."""
+    limit: Int
+
+    """Time interval to retrieve listings"""
+    timeInterval: TimeInterval
+    ): [RedditLink]!
+}
+
+"""Information about a Reddit user"""
+type RedditUser {
+    """The Reddit API fullname of the user"""
+    fullnameId: String!
+
+    """The user's unique username."""
+    username: String!
+
+    """Creation date of the user, in Unix Time (UTC)"""
+    created: Float!
+
+    """Creation date of the user, in ISO8601"""
+    createdISO: String!
+
+    """Karma by links of the user"""
+    linkKarma: Int!
+
+    """Karma by comments of the user"""
+    commentKarma: Int!
+}
+
+"""Retweet of a tweet"""
+type Retweet {
+    id: ID
+    created_at: String
+    in_reply_to_tweet_id: String
+    in_reply_to_user_id: Int
+    in_reply_to_screen_name: String
+    retweeted_status: Tweet
+    user: TwitterUser
+}
+
+"""Type of search response."""
+enum SearchReponse {
+    mixed
+    recent
+    popular
+}
+
+input SetValueForKeyInput {
+    id: String!
+    value: String!
+    clientMutationId: String!
+}
+
+type SetValueForKeyPayload {
+    item: KeyValueItem
+    clientMutationId: String!
+}
+
+"""Time interval by which listings are queried"""
+enum TimeInterval {
+    hour
+    day
+    week
+    month
+    year
+    all
+}
+
+"""A tweet object"""
+type Tweet {
+    id: ID
+    created_at: String
+    text: String
+    retweet_count: Int
+    user: TwitterUser
+
+    """Get a list of retweets"""
+    retweets(limit: Int = 5): [Retweet]
+}
+
+"""The Twitter API"""
+type TwitterAPI {
+    user(
+    """Either user_id or screen_name"""
+    identifier: UserIdentifier!
+
+    """User ID (Integer) or Screen name (String) to identify user"""
+    identity: UserIdentity!
+    ): TwitterUser
+    tweet(
+    """Unique ID of tweet"""
+    id: String!
+    ): Tweet
+
+    """Returns a collection of relevant Tweets matching a specified query."""
+    search(
+    """
+    A UTF-8, URL-encoded search query of 500 characters maximum, including
+    operators. Queries may additionally be limited by complexity.
+    """
+    q: String!
+
+    """
+    The number of tweets to return per page, up to a maximum of 100. This was
+    formerly the “rpp” parameter in the old Search API.
+    """
+    count: Int
+
+    """
+    Specifies what type of search results you would prefer to receive. Valid values include:
+                * mixed: Include both popular and real time results in the response.
+                * recent: return only the most recent results in the response
+                * popular: return only the most popular results in the response.
+    """
+    result_type: SearchReponse
+    ): [Tweet]
+}
+
+"""Twitter user"""
+type TwitterUser {
+    created_at: String
+    description: String
+    id: ID
+    screen_name: String
+    name: String
+    profile_image_url: String
+    url: String
+    tweets_count: Int
+    followers_count: Int
+
+    """Get a list of tweets for current user"""
+    tweets(limit: Int = 10): [Tweet]
+}
+
+"""Either user unique ID, or screen name"""
+enum UserIdentifier {
+    id
+    name
+}
+
+"""Parse user provided identity"""
+scalar UserIdentity
+
+union UserOrCommitAuthor = GithubCommitAuthor | GithubUser
