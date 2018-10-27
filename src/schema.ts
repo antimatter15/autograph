@@ -42,7 +42,8 @@ export type GQLType = {
 
 type GQLClient = (query: string) => Promise<{ data?: any, errors?: any[] }>
 
-export type AutographConfig = string | GQLClient
+type GQLEndpointURL = string
+export type AutographConfig = GQLEndpointURL | GQLClient
 
 export type QueryType = any
 export type GenericObject = { [key: string]: any }

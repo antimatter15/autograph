@@ -1,6 +1,6 @@
-# autograph
+# Autograph
 
-Using GraphQL is often quite repetitive and repetitive. You have to declare your schemas, implement your resolvers, write your queries, and destructure the results of your queries. You end up writing the same thing in different forms several times, each time using slightly different syntax. Here's what it looks like to use Apollo to request stuff. 
+Using GraphQL is often quite repetitive and repetitive. You have to declare your schemas, implement your resolvers, write your queries, and destructure the results of your queries. You end up writing the same thing in different forms several times, each time using slightly different syntax. Here's what it looks like to use Apollo to query a server for some basic information about currencies:
 
     <Query
         query={gql`
@@ -25,10 +25,10 @@ Using GraphQL is often quite repetitive and repetitive. You have to declare your
     </Query>
 
 
-Here's the same code in Autograph
+Here's some code that accomplishes the same thing with Autograph.
 
     <Autograph>{
-        Query => Query.rates({ currency: "USD" }).map(({ currency, rate }) => 
+        (Query: GQL.Query) => Query.rates({ currency: "USD" }).map(({ currency, rate }) => 
             <div key={currency}>
                 <p>{currency}: {rate}</p>
             </div>
@@ -36,28 +36,12 @@ Here's the same code in Autograph
     }</Autograph>
 
 
-
-Probably the slickest way to get started with Autograph is with the React API. To use that, you simply wrap your application with an `<Autograph>` component, which passes along a `Query` handle. Just use that `Query` handle as if it was a JSON blob that contained all of your data (fields with arguments turn into simple function calls).
-
-    <Autograph url="Your GraphQL Endpoint">{
-        Query => <div>{
-            Query.me.friends({ limit: 50 }).map(friend => 
-                <div key={friend.id}>{friend.name} ({friend.mutuals.length} mutual friends)</div>
-            )
-        }</div>
-    }</Autograph>
-
-Autograph will automatically generate the following GraphQL query, and feed the right data into your app.
+At runtime, Autograph will automatically generate the following GraphQL query, which fetches all of the data needed to render the component in a single request, and requests only the fields that you actually use. 
 
     query {
-        me {
-            friends(limit: 50) {
-                id
-                name
-                mutuals {
-                    __typename
-                }
-            }
+        rates(currency: "USD") {
+            currency
+            rate
         }
     }
 
@@ -65,9 +49,16 @@ It doesn't require any compilation plugins either— so you don't have to worry
 
 That said, things get even better if you write your app in Typescript. Autograph can import a GraphQL schema and automatically generate a Typescript definition file, so that your editor can autocomplete fields in GraphQL while providing inline documentation, and your typechecker can ensure that all your UI code fits the data access schema. 
 
+
+## How It Works
+
 You might ask, how does this sorcery work? It's actually quite simple. We render your component twice— the first time, instead of threading in actual data through the `Query` object, we pass in a special object that we dynamically construct using the GraphQL schema. This object has methods and getters defined in all the right places that all output fake data. Whenever any field of the object gets accessed, it records the path of the data that was requested. At the end of the special rendering pass, all the paths are added up, and we generate the exact GraphQL query that fetches all the right data. Now it's just a simple matter of feeding the real data into your render function by calling it one last time.
 
 Since React rendering functions typically have no side effects, most of the time things should just work. You can even pass the `Query` object or any of its descendents as a prop to other components, and it'll still do the right thing. It does have a few gotchas though— most notably, if there's any code path that accesses data which doesn't get called during the scouting phase, Autograph won't know to fetch that data. 
+
+
+
+## Mutations
 
 So we've seen Autograph for running queries, but what about for running mutations and updating a form on your site? 
 
@@ -97,6 +88,99 @@ What if you don't want to deal with React components at all? That's fine, the `d
     })
     // data = { name: 'Bob Smitterjensen', numberOfFriends: 3 }
 
+
+## Higher Order Component
+
+Don't want to wrap your components in a render prop? We also have a higher order component which will automatically inject `Query` as a prop to your component.
+
+    function App({ Query }){
+        return <div>
+            <h1>My Pokemons</h1>
+            {Query.pokemons({ first: 20 }).map(k => 
+            <div key={k.id}>
+                <PokemonSummary pokemon={k} />
+            </div>)}
+        </div>
+    }
+
+    export default withAutograph(App)
+
+## React Suspense
+
+React 16.6.0 includes a feature called Suspense, which allows a component to suspend rendering by throwing a promise within its render function. This can be used to easily handle and display different loading states, while providing slick user experiences without extraneous loading spinners.
+
+Autograph can be told to fetch data this way simply by adding `suspense` as an argument. 
+
+    <Autograph suspense>{
+        Query => <div>{
+            Query.me.friends({ limit: 50 }).map(friend => 
+                <div key={friend.id}>{friend.name} ({friend.mutuals.length} mutual friends)</div>
+            )
+        }</div>
+    }</Autograph>
+
+
+## Server Side / Universal Rendering
+
+With an SSR framework such as Next.JS, it's easy to add isomorphic GraphQL rendering with Autograph. A `getDataFromTree` method can do a simulated render pass of the entire component tree to determine the necessary GraphQL queries to run and to fetch them all in one request that can then be rendered with `renderToString`. On top of that the data can get serialized and sent to the client for hydration and use within interactive components. 
+
+    export default ({ Query, ctx }: { Query: GQL.Query, ctx }) => {
+        let pokemon = Query.pokemon({ id: ctx.query.id })
+        return <div>
+            <Link href="/"><a>&larr; Back</a></Link>
+            <h1>{pokemon.name}</h1>
+            <i>{ctx.query.id}</i>
+            <div><img src={pokemon.image} /></div>
+            <div>{pokemon.types.map(k => <li key={k}>{k}</li>)}</div>
+            <fieldset>
+                <legend>Evolutions:</legend>
+                {(pokemon.evolutions || []).map(k => <div key={k.id}>
+                    <PokemonSummary pokemon={k} />
+                </div>)}
+            </fieldset>
+        </div>
+    }
+
+## A sneak peek into the depths of absolute madness
+
+React recently announced their new Hooks API, which provides new APIs like `useState`, `useEffects`, and `useContext` which are accessible in functional components— no need to use render props, or to thread data through props. 
+
+In a similar vein we've prototyped `useQuery`. You'd pass in a reference to the current function and props, and it'll return a query object that you can synchronously use as if all the data on your server has already been loaded. 
+
+    function App(props){
+        let query: GQL.Query = useQuery(App, props)
+        let block = query.block({ number: 5450945 })
+
+        return <fieldset>
+            <legend>Block {block.hash}</legend>
+            <table><tbody>
+                <tr><td><b>Miner</b></td><td>{block.miner.address}</td></tr>
+                <tr><td><b>Number</b></td><td>{block.number}</td></tr>
+            </tbody></table>
+            {block.transactions({ filter: { withInput: false }})
+                .map(tx => <fieldset key={tx.hash}>
+                    <legend>{tx.index}: {tx.hash}</legend>
+                    <table><tbody>
+                        <tr><td><b>From</b></td><td>{tx.from.address}</td></tr>
+                        <tr><td><b>To</b></td><td>{tx.to.address}</td></tr>
+                    </tbody></table>
+                </fieldset>)}
+        </fieldset>
+    }
+
+When `useQuery` is called from a base reality, it simulates in invocation of the calling function. The base reality call to `useQuery` coordinates with the copy of itself existing in the simulation, and returns a sentinel in the simulated case. The simulation of the parent function continues to run, which in turn monitors how the sentinel gets used and passed around. Once the simulation is finished, the base reality `useQuery` call compiles all that information together and generates a GraphQL query that fetches all the information needed to render the component. It checks to see if the data has been loaded into the cache, and if not, it begins the process of fetching the data and throws a promise that resolves when the data is loaded. This promise is caught by React Suspense, which then tries again to render the the component when the promise resolves, in turn restarting the whole `useQuery` nightmare.  
+
+
+## Browser Support 
+
+Autograph supports all browsers that React supports (IE9+). 
+
+
+## Caveats
+
+
+
+
 You might say that all of this looks pretty neat, but what if I want to do something stateful? What if I want to run a query and call some sort of external method with the results, without having to worry about a phantom scouting phase that feeds fake data? Conveniently every fake object in the initial phase includes a `__dryRun` field, which you can use to guard stateful calls. 
 
     await doQuery(query => {
@@ -114,31 +198,3 @@ You might say that all of this looks pretty neat, but what if I want to do somet
 
 We've included a helper method `skipIf(shouldSkip: boolean, fn: function)` which you can use to easily substitute a function for a dummy function (you shouldn't use if statements because then Autograph won't know which fields are needed to run the query when it's actually time to call the function). 
 
-
-
-
-
-## What is autograph?
-
-Autograph lets you use graphql to load data. 
-
-## Ways to use Autograph:
-
-- React Suspense (suspend rendering until data loaded / loading placeholder boundaries)
-- NextJS (server side isomorphic rendering)
-- React Render Prop (show placeholder until data is loaded)
-- React Higher Order Component (wrap a component so that it is passed Query as a prop)
-
-
-## How autograph works
-
-React works by first rendering to a virtual dom, figuring out which elements need to be created and updated, and applying the appropriate changes to the DOM. Autograph essentially makes use of a virtual virtual dom— a cursory rendering pass where it tries to figure out what pieces of data your app needs to render. From this it automatically generates a GraphQL query that fetches only the data that your app needs and nothing more. 
-
-If you use typescript, you can import the type definitions generated by Autograph and have typescript statically ensure that all of your rendering code is compliant with your graphql schema. 
-
-## Browser Compatibility
-
-Autograph supports all browsers that React supports (IE9+). 
-
-
-## What does it look like?
