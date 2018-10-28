@@ -13,6 +13,7 @@ type AutographProps = {
     config?: AutographConfig
     children: (Query: QueryType) => JSX.Element
     suspense?: boolean
+    throw?: boolean
 }
 
 const AutographContext = React.createContext<any>(null);
@@ -65,7 +66,10 @@ export class Autograph extends React.Component<AutographProps> {
         let { children: renderFn } = this.props;
         let schemaRequest;
         if(!(schemaRequest = this.syncGQL(introspectionQuery))) return <div>Loading...</div>;
-        if(schemaRequest.errors) return <div>Schema Error: {JSON.stringify(schemaRequest.errors)}</div>
+        if(schemaRequest.errors){
+            if(this.props.throw) throw schemaRequest.errors;
+            return <div>Schema Error: {JSON.stringify(schemaRequest.errors)}</div>
+        }
         let schema: GQLSchema = schemaRequest.data.__schema;
         console.log(convertGQLSchemaToTypescript(schema))
         let accessLog = {}
@@ -82,9 +86,11 @@ export class Autograph extends React.Component<AutographProps> {
                 <div>Loading...</div>;
         if(info.hasLoading && this.props.suspense)
             console.warn('Query.__loading can not be used in conjunction with React Suspense. Display loading information by configuring a Suspense fallback.');
-        if(dataRequest.errors) 
+        if(dataRequest.errors){
+            if(this.props.throw) throw dataRequest.errors;
             return info.hasError ? renderFn({ __error: dataRequest.errors }) : 
                 <div>Data Error: {JSON.stringify(dataRequest.errors)}</div>
+        }
         return renderFn(makeRetriever(dataRequest.data))
     }
 }

@@ -37,9 +37,8 @@ export function useQuery(config: AutographConfig, component: React.ComponentType
     let schema: GQLSchema = schemaRequest.data.__schema;
     let inceptionScope = queryCallStack.find(entry => 
         entry.component === component && entry.props === props)
-    if(inceptionScope){
-        return makeAccessLogger(schema, getQueryRoot(schema), inceptionScope.accessLog)
-    }
+    if(inceptionScope)
+        return makeAccessLogger(schema, getQueryRoot(schema), inceptionScope.accessLog);
     let accessLog: AccessLog = {}
     let stackEntry = {
         component: component,
@@ -56,7 +55,8 @@ export function useQuery(config: AutographConfig, component: React.ComponentType
     if(queryCallStack.pop() !== stackEntry)
         throw new Error('Unexpected stack manipulation');
     
-    let gql = accessLogToGraphQL(accessLog), info = inspectAccessLog(accessLog)
+    let gql = accessLogToGraphQL(accessLog), 
+        info = inspectAccessLog(accessLog)
     let dataRequest = syncGQL(config, gql)
     if(dataRequest.errors) {
         if(info.hasError) return { __error: dataRequest.errors }
