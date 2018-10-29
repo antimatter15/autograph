@@ -26,7 +26,7 @@ Using GraphQL is often quite repetitive and repetitive. You have to declare your
 </Query>
 ```
 
-Autograph is a new kind of GraphQL client that is remarkably easy to use. Here's some code which does the same thing as the code above, using Autograph:
+Autograph is a new kind of GraphQL client that eliminates some of that repetition. Here's some code which does the same thing as the code above, using Autograph:
 
 ```jsx
 <Autograph>{
@@ -49,7 +49,7 @@ query {
 }
 ```
 
-It doesn't require any compilation plugins— so you don't have to worry about messing up your precarious `.babelrc`. You can use it with Webpack, Babel, Parcel, Next.JS, or even plain Javascript. 
+It doesn't require any compilation plugins— so you don't have to worry about messing up your precariously functional `.babelrc`. You can use it with Webpack, Babel, Parcel, Next.JS, or even plain Javascript. 
 
 That said, things get even better if you write your app in Typescript. Autograph can import a GraphQL schema and automatically generate a Typescript definition file, so that your editor can autocomplete fields in GraphQL while providing inline documentation, and your typechecker can ensure that all your UI code fits the data access schema. 
 

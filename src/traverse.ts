@@ -14,17 +14,21 @@ export function traverseTree(element: any): void {
         }
         return
     }
+    
     if((element.props as GenericObject).children)
         traverseTree((element.props as GenericObject).children);
     if(typeof element.type === 'function'){
         if(element.type.prototype.render){
             // stateful react components
+            
             let clone = React.cloneElement(element)
             let el = new (clone.type as any)(clone.props)
-            el.render()
+            traverseTree(el.render())
         }else{
             // stateless functional react components
-            traverseTree((element.type as (props: GenericObject) => JSX.Element)(element.props))    
+            let result = (element.type as (props: GenericObject) => JSX.Element)(element.props)
+            
+            traverseTree(result)    
         }
     }
 }
