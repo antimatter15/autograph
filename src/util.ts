@@ -14,3 +14,13 @@ export function skipIf(cond: any, func: Function) {
 
 
 
+export function shallowCompare(a: any, b: any): boolean {
+    if(a === b) return true;
+    let aK = Object.keys(a),
+        bK = Object.keys(b);
+    if(aK.length != bK.length) return false;
+    for(let i = 0; i < aK.length; i++){
+        if(a[aK[i]] !== b[aK[i]]) return false;
+    }
+    return true;
+}
