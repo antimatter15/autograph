@@ -2,8 +2,10 @@ import Link from 'next/link'
 import * as GQL from '../types'
 
 export default ({ Query }: { Query: GQL.Query }) => {
-    console.log(Query)
-    return <div>{Query.pokemons({ first: 20 }).map(k => 
+    let pokemons = Query.pokemons({ first: 20 });
+    if(!pokemons) return <div>no pokemons</div>;
+    
+    return <div>{pokemons.map(k => 
             <div key={k.id}>
                 <PokemonSummary pokemon={k} />
             </div>)}</div>

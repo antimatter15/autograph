@@ -1,0 +1,14 @@
+{
+  "name": "forked-render",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.11",
+    "parcel-bundler": "^1.10.3",
+    "react": "^16.7.0-alpha.2",
+    "react-dom": "^16.7.0-alpha.2",
+    "react-reconciler": "^0.18.0-alpha.2",
+    "react-test-renderer": "^16.7.0-alpha.2"
+  }
+}
