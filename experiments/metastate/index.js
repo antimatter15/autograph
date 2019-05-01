@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 import useMetastate from './metastate'
+const ReactInternals = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
 
 
 const sampleData = {
@@ -32,7 +33,7 @@ function cachedFetcher(fields){
 
 function Profile({ data }){
     let [ isExpanded, setExpanded ] = useState(false);
-
+    console.log('render profile', isExpanded, ReactInternals.ReactCurrentOwner.current.memoizedState)
     return <fieldset>
         <legend>Profile</legend>
 

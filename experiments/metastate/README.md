@@ -18,4 +18,11 @@ The biggest problem with Metastate is that it requires poking around with the Re
 
 As these are react internals, there is no real guarantee that they will remain. The temporary dispatcher system for hooks is simple enough that it will likely be available in some for or another for the foreseeable future. The internal representation of Fiber, not so much. 
 
+the subset of the react reconciliation algorithm means that it is relatively brittle— for instance, currently fragments, portals are not supported. additionally, nested arrays of children are not supported. the algorithm for resolving refs to objects is also not correct. 
+
+
 the other problem is that there is a "flash of unloaded content" which can occur when child component updates without re-rendering the parent component. 
+
+## how does this differ from autograph
+
+autograph uses getters to define the object, here we just have a getter method that one needs to call by string. metastate does not deal with graphql at all, and instead works with a mock data loading interface. 

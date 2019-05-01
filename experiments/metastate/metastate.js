@@ -32,7 +32,12 @@ export default function useMetastate(dataFetcher){
             let value;
             if(currentState){
                 dispatcher.__MetastateCurrentState = currentState.next;    
-                value = currentState.memoizedState;
+                if(currentState.queue){
+                    value = currentState.queue.lastRenderedState
+                }else{
+                    value = currentState.memoizedState;    
+                }
+                
             }else{
                 value = (init !== undefined) ? init(initialArg) : initialArg;
             }
@@ -57,14 +62,19 @@ export default function useMetastate(dataFetcher){
         }
 
     }
-    ReactInternals.ReactCurrentDispatcher.current = dispatcher;
 
-    console.groupCollapsed('dreaming')
-    fakeRender(currentOwner.type, currentOwner.pendingProps, currentOwner, dispatcher)
 
-    console.groupEnd('dreaming')
+    function triggerVirtualRender(){
+        console.groupCollapsed('dreaming')
+        let earlierDispatcher = ReactInternals.ReactCurrentDispatcher.current;
+        ReactInternals.ReactCurrentDispatcher.current = dispatcher;
+        fakeRender(currentOwner.type, currentOwner.pendingProps, currentOwner, dispatcher)
+        ReactInternals.ReactCurrentDispatcher.current = earlierDispatcher;
+        console.groupEnd('dreaming')
+    }
 
-    ReactInternals.ReactCurrentDispatcher.current = currentDispatcher;
+    
+    triggerVirtualRender()
 
     console.log(dispatcher.__MetastateFields)
 
@@ -78,6 +88,9 @@ export default function useMetastate(dataFetcher){
                 console.warn('TRIGGERING UPDATE', field)
                 triggerUpdate(updateCount + 1)
                 
+                triggerVirtualRender()
+                dataFetcher(dispatcher.__MetastateFields)
+                // console.log(ReactInternals.ReactCurrentOwner.current.memoizedState)
                 // throw new Promise((resolve) => {
                 //     setTimeout(resolve, 10000)
                 // })
