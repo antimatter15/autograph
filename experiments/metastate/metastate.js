@@ -110,7 +110,7 @@ function fakeRender(type, props, fiber, dispatcher){
 
     // TODO: FRAGMENTS!
 
-    if(typeof type === 'string' ){
+    if(typeof type === 'string' || type === Symbol.for('react.suspense')){
         // TODO: this algorithm probably doesn't function 
         // exactly the same way the real react reconciler does
         // so there's bound to be some edge cases when some keys
@@ -142,7 +142,7 @@ function fakeRender(type, props, fiber, dispatcher){
             }
         }
 
-    }else if(type.prototype.isReactComponent){
+    }else if(typeof type === 'function' && type.prototype.isReactComponent){
         // https://overreacted.io/how-does-react-tell-a-class-from-a-function/
 
         if(fiber){
@@ -152,7 +152,7 @@ function fakeRender(type, props, fiber, dispatcher){
 
         let node;
         let el = new type(props);
-        if(fiber){
+        if(fiber && fiber.memoizedState){
             el.state = fiber.memoizedState
         }
         el.props = props;
@@ -189,5 +189,7 @@ function fakeRender(type, props, fiber, dispatcher){
         // if the type does not match, ignore all the existing subtree
         // and dont bother reconciling them as we rebuild teh entire tree from
         // scratch in this case. 
+    }else{
+        console.log('RENDERING UNKNOWN ELEMNT TYPE', type, props, fiber)
     }
 }

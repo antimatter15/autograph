@@ -26,14 +26,13 @@ function cachedFetcher(fields){
                 cache[field] = sampleData[field]
             }
             resolve()
-        }, 300)
+        }, 1300)
     })
 }
 
 
 function Profile({ data }){
     let [ isExpanded, setExpanded ] = useState(false);
-    console.log('render profile', isExpanded, ReactInternals.ReactCurrentOwner.current.memoizedState)
     return <fieldset>
         <legend>Profile</legend>
 
@@ -96,7 +95,9 @@ class ChildCounter extends React.Component {
 
 function Subpanel({ data }){
     return <div>
-        <Profile data={data} /> 
+        <React.Suspense fallback={<div>Loading profile info...</div>}>
+            <Profile data={data} /> 
+        </React.Suspense>
         <Counter data={data} />
         <ChildCounter data={data} />
     </div>
