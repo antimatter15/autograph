@@ -94,13 +94,13 @@ class ChildCounter extends React.Component {
 
 
 function Subpanel({ data }){
-    return <div>
+    return <React.Fragment>
         <React.Suspense fallback={<div>Loading profile info...</div>}>
             <Profile data={data} /> 
         </React.Suspense>
         <Counter data={data} />
         <ChildCounter data={data} />
-    </div>
+    </React.Fragment>
 }
 
 

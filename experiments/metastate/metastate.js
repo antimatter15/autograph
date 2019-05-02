@@ -107,9 +107,9 @@ export default function useMetastate(dataFetcher){
 function fakeRender(type, props, fiber, dispatcher){
     console.log('fake render', type, props, fiber)
 
-    // TODO: FRAGMENTS!
-
-    if(typeof type === 'string' || type === Symbol.for('react.suspense')){
+    if(typeof type === 'string' 
+        || type === Symbol.for('react.fragment')
+        || type === Symbol.for('react.suspense')){
         // TODO: this algorithm probably doesn't function 
         // exactly the same way the real react reconciler does
         // so there's bound to be some edge cases when some keys
@@ -119,7 +119,8 @@ function fakeRender(type, props, fiber, dispatcher){
             let fiberChildren = []
 
             if(fiber && fiber.child){
-                let fiberChild = fiber.child;
+
+                let fiberChild = type === Symbol.for('react.fragment') ? fiber : fiber.child;
                 while(fiberChild){
                     if(fiberChild.key){
                         fiberKeyMap[fiberChild.key] = fiberChild;
@@ -152,7 +153,7 @@ function fakeRender(type, props, fiber, dispatcher){
         if(fiber && fiber.memoizedState){
             el.state = fiber.memoizedState
         }
-        if(fiber && fiber.updateQueue){
+        if(fiber && fiber.updateQueue && fiber.updateQueue.firstUpdate){
             let update = fiber.updateQueue.firstUpdate;
             do {
                 if(update.tag == 0){ // update state
@@ -190,7 +191,11 @@ function fakeRender(type, props, fiber, dispatcher){
 
         fakeRender(node.type, 
             node.props, 
-            (fiber && fiber.child && node.type === fiber.child.type) ? fiber.child : null,
+            (
+                fiber && fiber.child && (
+                    node.type === fiber.child.type 
+                    || node.type === Symbol.for('react.fragment'))
+                ) ? fiber.child : null,
             dispatcher)
 
         // if the type does not match, ignore all the existing subtree
