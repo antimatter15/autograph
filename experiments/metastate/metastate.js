@@ -80,7 +80,7 @@ export default function useMetastate(dataFetcher){
         let earlierDispatcher = ReactInternals.ReactCurrentDispatcher.current;
         ReactInternals.ReactCurrentDispatcher.current = dispatcher;
         fakeRender2(
-            React.createElement(currentOwner.type, currentOwner.pendingProps), 
+            { type: currentOwner.type, props: currentOwner.pendingProps }, 
             currentOwner, 
             dispatcher,
         )
@@ -119,14 +119,14 @@ export default function useMetastate(dataFetcher){
 
 
 
-
-
-
 function fakeRender2(node, fiber, dispatcher){
     console.log('FAKE RENDER', node, fiber)
 
     if(node.$$typeof === Symbol.for('react.portal')){
-        return fakeRender2(React.createElement('FAKEPORTAL', null, node.children), fiber, dispatcher)
+        return fakeRender2({
+            type: 'fakeportal',
+            props: { children: node.children } 
+        }, fiber, dispatcher)
 
     }else if(typeof node.type === 'string'
 
@@ -142,7 +142,7 @@ function fakeRender2(node, fiber, dispatcher){
 
         if(fiber && fiber.child){
 
-            let fiberChild = node.type === Symbol.for('react.fragment') ? fiber : fiber.child;
+            let fiberChild = fiber.child;
             while(fiberChild){
                 if(fiberChild.key){
                     fiberKeyMap[fiberChild.key] = fiberChild;
@@ -156,12 +156,14 @@ function fakeRender2(node, fiber, dispatcher){
         for(let child of children){
             if(Array.isArray(child)){
                 let fiberChild = fiberChildren.shift();
-                fakeRender2(React.createElement("FAKEARRAYFRAGMENT", null, child), fiberChild, dispatcher)
+                fakeRender2({
+                    type: 'fakearrayfragment',
+                    props: { children: child } 
+                }, fiberChild, dispatcher)
                 continue;
             }
             if(!child || !child.type) continue;
             let fiberChild = child.key ? fiberKeyMap[child.key] : fiberChildren.shift();
-            console.log('hi stuff', fiberChild, child)
             if(!fiberChild || fiberChild.type !== child.type) fiberChild = null;
             fakeRender2(child, fiberChild, dispatcher)
         }
@@ -203,10 +205,9 @@ function fakeRender2(node, fiber, dispatcher){
         if(!nextChildren) return;
 
         fakeRender2(nextChildren,
-            (
-                fiber && fiber.child && (
-                    nextChildren.type === fiber.child.type 
-                    || nextChildren.type === Symbol.for('react.fragment'))
+                nextChildren.type === Symbol.for('react.fragment') ? fiber : 
+                (fiber && fiber.child && (
+                    nextChildren.type === fiber.child.type )
                 ) ? fiber.child : null,
             dispatcher)
 
