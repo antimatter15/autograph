@@ -28,7 +28,7 @@ function cachedFetcher(fields){
                 cache[field] = sampleData[field]
             }
             resolve()
-        }, 1300)
+        }, 600)
     })
 }
 

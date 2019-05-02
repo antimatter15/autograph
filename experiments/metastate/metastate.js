@@ -48,7 +48,6 @@ export default function useMetastate(dataFetcher){
                 }else{
                     value = currentState.memoizedState;    
                 }
-                
             }else{
                 value = (init !== undefined) ? init(initialArg) : initialArg;
             }
@@ -71,9 +70,7 @@ export default function useMetastate(dataFetcher){
         useMemo(fn, deps){
             throw new Error('useMemo not implemented')
         }
-
     }
-
 
     function triggerVirtualRender(){
         console.groupCollapsed('dreaming')
@@ -95,7 +92,6 @@ export default function useMetastate(dataFetcher){
 
 
     let fetchedData = dataFetcher(dispatcher.__MetastateFields)
-
     return {
         requestedFields: dispatcher.__MetastateFields,
         get(field){
@@ -103,7 +99,6 @@ export default function useMetastate(dataFetcher){
                 console.warn('TRIGGERING UPDATE', field)
                 triggerUpdate(updateCount + 1) // this will cause the parent autograph root to re-render
                 
-
                 triggerVirtualRender()
                 // this will throw a promise if the data has not yet been loaded
                 dataFetcher(dispatcher.__MetastateFields)
@@ -123,25 +118,16 @@ function fakeRender2(node, fiber, dispatcher){
     console.log('FAKE RENDER', node, fiber)
 
     if(node.$$typeof === Symbol.for('react.portal')){
-        return fakeRender2({
-            type: 'fakeportal',
-            props: { children: node.children } 
-        }, fiber, dispatcher)
-
+        return fakeRender2({ type: 'fakeportal', props: { children: node.children } }, fiber, dispatcher)
     }else if(typeof node.type === 'string'
-
     || node.type === Symbol.for('react.fragment')
     || node.type === Symbol.for('react.suspense')){
         let children = React.isValidElement(node.props.children) ? [ node.props.children ] : node.props.children;    
         if(!children) return;
         
-
         let fiberKeyMap = {}
         let fiberChildren = []
-        let fiberOther = []
-
         if(fiber && fiber.child){
-
             let fiberChild = fiber.child;
             while(fiberChild){
                 if(fiberChild.key){
@@ -155,11 +141,7 @@ function fakeRender2(node, fiber, dispatcher){
 
         for(let child of children){
             if(Array.isArray(child)){
-                let fiberChild = fiberChildren.shift();
-                fakeRender2({
-                    type: 'fakearrayfragment',
-                    props: { children: child } 
-                }, fiberChild, dispatcher)
+                fakeRender2({ type: 'fakearrayfragment', props: { children: child } }, fiberChildren.shift(), dispatcher)
                 continue;
             }
             if(!child || !child.type) continue;
@@ -172,9 +154,7 @@ function fakeRender2(node, fiber, dispatcher){
         dispatcher.__MetastateCurrentState = null;
         let nextChildren;
         let el = new node.type(node.props);
-        if(fiber && fiber.memoizedState){
-            el.state = fiber.memoizedState
-        }
+        if(fiber && fiber.memoizedState) el.state = fiber.memoizedState;
         if(fiber && fiber.updateQueue && fiber.updateQueue.firstUpdate){
             let update = fiber.updateQueue.firstUpdate;
             do {
@@ -195,11 +175,9 @@ function fakeRender2(node, fiber, dispatcher){
                     !nextChildren.type && !fiber.child.type
                 ))) ? fiber.child : null,
             dispatcher)
-
     }else if(typeof node.type === 'function'){
-        if(fiber){
-            dispatcher.__MetastateCurrentState = fiber.memoizedState    
-        }
+        if(fiber) dispatcher.__MetastateCurrentState = fiber.memoizedState;
+
         let nextChildren = node.type(node.props);
         dispatcher.__MetastateCurrentState = null;
         if(!nextChildren) return;
@@ -210,10 +188,6 @@ function fakeRender2(node, fiber, dispatcher){
                     nextChildren.type === fiber.child.type )
                 ) ? fiber.child : null,
             dispatcher)
-
-        // if the type does not match, ignore all the existing subtree
-        // and dont bother reconciling them as we rebuild teh entire tree from
-        // scratch in this case. 
     }else{
         console.warn('RENDERING UNKNOWN ELEMENT TYPE', type, props, fiber)
     }
