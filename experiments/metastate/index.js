@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 import useMetastate from './metastate'
+import './reconcile'
+
 const ReactInternals = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
 
 
@@ -113,6 +115,10 @@ function Widget(){
             <legend>Requested bits of data</legend>
             {data.requestedFields.map((k, i) => <li key={i}>{k}</li>)}
         </fieldset>
+
+        {['one', 'is', 'the', 'loneliest', 'number'].map(k => 
+            <Counter data={data} />
+        )}
 
         <Subpanel data={data} /> 
     </div>

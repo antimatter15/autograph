@@ -1,7 +1,17 @@
 import React, { useState } from 'react'
 
+global.React = React;
+
 const ReactInternals = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
 
+// GraphQL From the Future
+// Or, Lambda: The Ultimate GraphQL Client
+
+// Won't this be incredibly slow? 
+// React already renders your components twice whenever you're
+// in developer mode. Didn't notice? Autograph's pre-rendering
+// is much more lightweight than React's full rendering and 
+// reconciliation process. 
 
 // this is our stand-in for autograph
 export default function useMetastate(dataFetcher){
@@ -117,6 +127,7 @@ function fakeRender(type, props, fiber, dispatcher){
         if(props.children){
             let fiberKeyMap = {}
             let fiberChildren = []
+            let fiberOther = []
 
             if(fiber && fiber.child){
 
@@ -126,6 +137,8 @@ function fakeRender(type, props, fiber, dispatcher){
                         fiberKeyMap[fiberChild.key] = fiberChild;
                     }else if(fiberChild.type){
                         fiberChildren.push(fiberChild)
+                    }else{
+                        fiberOther.push(fiberChild)
                     }
                     fiberChild = fiberChild.sibling;
                 }
@@ -134,6 +147,12 @@ function fakeRender(type, props, fiber, dispatcher){
             let children = React.isValidElement(props.children) ? [ props.children ] : props.children;
 
             for(let child of children){
+                if(Array.isArray(child)){
+                    let fiberChild = fiberOther.shift();
+                    console.log('do fake render thing', child, fiberChild )
+                    fakeRender('fragment', { children: child }, fiberChild, dispatcher);
+                    continue;
+                }
                 if(!child || !child.type) continue;
                 let fiberChild = child.key ? fiberKeyMap[child.key] : fiberChildren.shift();
                 if(!fiberChild || fiberChild.type !== child.type)
