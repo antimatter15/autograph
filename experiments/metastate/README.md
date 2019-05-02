@@ -8,6 +8,15 @@ It can even work with child components which maintain their own independent stat
 
 The metastate prototype revolves around the "Hooks" or "amb" style interface, where you simply call `withMetastate` as if it synchronously returned the appropriate data object. This means there's no need to mess around with render props or any of that convoluted logic. 
 
+## resolved problems
+
+no more "flash of unloaded content" which can occur when child component updates without re-rendering the parent component. 
+
+
+
+
+
+
 ## problems
 
 The biggest problem with Metastate is that it requires poking around with the React internals. It does two things:
@@ -21,8 +30,7 @@ As these are react internals, there is no real guarantee that they will remain. 
 the subset of the react reconciliation algorithm means that it is relatively brittle— for instance, currently fragments, portals are not supported. additionally, nested arrays of children are not supported. the algorithm for resolving refs to objects is also not correct. 
 
 
-the other problem is that there is a "flash of unloaded content" which can occur when child component updates without re-rendering the parent component. 
-
 ## how does this differ from autograph
 
 autograph uses getters to define the object, here we just have a getter method that one needs to call by string. metastate does not deal with graphql at all, and instead works with a mock data loading interface. 
+

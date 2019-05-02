@@ -33,6 +33,7 @@ export default function useMetastate(dataFetcher){
             if(currentState){
                 dispatcher.__MetastateCurrentState = currentState.next;    
                 if(currentState.queue){
+                    // we use the latest state we can possibly have access to
                     value = currentState.queue.lastRenderedState
                 }else{
                     value = currentState.memoizedState;    
@@ -86,14 +87,12 @@ export default function useMetastate(dataFetcher){
         get(field){
             if(!dispatcher.__MetastateFields.includes(field)){
                 console.warn('TRIGGERING UPDATE', field)
-                triggerUpdate(updateCount + 1)
+                triggerUpdate(updateCount + 1) // this will cause the parent autograph root to re-render
                 
+
                 triggerVirtualRender()
+                // this will throw a promise if the data has not yet been loaded
                 dataFetcher(dispatcher.__MetastateFields)
-                // console.log(ReactInternals.ReactCurrentOwner.current.memoizedState)
-                // throw new Promise((resolve) => {
-                //     setTimeout(resolve, 10000)
-                // })
             }else{
                 // console.info('noop triggered')
                 return fetchedData[field]
@@ -145,19 +144,27 @@ function fakeRender(type, props, fiber, dispatcher){
     }else if(typeof type === 'function' && type.prototype.isReactComponent){
         // https://overreacted.io/how-does-react-tell-a-class-from-a-function/
 
-        if(fiber){
-            dispatcher.__MetastateCurrentState = fiber.memoizedState    
-        }
-        console.log('REACT COMPPOENNT', fiber)
+        dispatcher.__MetastateCurrentState = null;
+        console.log('REACT COMPPOENNT', fiber, fiber && fiber.memoizedState)
 
         let node;
         let el = new type(props);
         if(fiber && fiber.memoizedState){
             el.state = fiber.memoizedState
         }
+        if(fiber && fiber.updateQueue){
+            let update = fiber.updateQueue.firstUpdate;
+            do {
+                if(update.tag == 0){ // update state
+                    el.state = { ...el.state, ...update.payload };
+                }else if(update.tag == 1){ // replace state
+                    el.state = update.payload;
+                }
+            } while (update = update.next);
+        }
         el.props = props;
         node = el.render()
-        dispatcher.__MetastateCurrentState = null;
+        
 
         console.log('node', node, fiber && fiber.child)
 
