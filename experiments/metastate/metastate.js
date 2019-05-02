@@ -79,7 +79,11 @@ export default function useMetastate(dataFetcher){
         console.groupCollapsed('dreaming')
         let earlierDispatcher = ReactInternals.ReactCurrentDispatcher.current;
         ReactInternals.ReactCurrentDispatcher.current = dispatcher;
-        fakeRender(currentOwner.type, currentOwner.pendingProps, currentOwner, dispatcher)
+        fakeRender2(
+            React.createElement(currentOwner.type, currentOwner.pendingProps), 
+            currentOwner, 
+            dispatcher,
+        )
         ReactInternals.ReactCurrentDispatcher.current = earlierDispatcher;
         console.groupEnd('dreaming')
     }
@@ -112,63 +116,60 @@ export default function useMetastate(dataFetcher){
 
 }
 
-// const REACT_FRAGMENT_TYPE = Symbol.for('react.fragment');
 
-function fakeRender(type, props, fiber, dispatcher){
-    console.log('fake render', type, props, fiber)
 
-    if(typeof type === 'string' 
-        || type === Symbol.for('react.fragment')
-        || type === Symbol.for('react.suspense')){
-        // TODO: this algorithm probably doesn't function 
-        // exactly the same way the real react reconciler does
-        // so there's bound to be some edge cases when some keys
-        // are duplicated, or when keys are only used sometimes
-        if(props.children){
-            let fiberKeyMap = {}
-            let fiberChildren = []
-            let fiberOther = []
 
-            if(fiber && fiber.child){
 
-                let fiberChild = type === Symbol.for('react.fragment') ? fiber : fiber.child;
-                while(fiberChild){
-                    if(fiberChild.key){
-                        fiberKeyMap[fiberChild.key] = fiberChild;
-                    }else if(fiberChild.type){
-                        fiberChildren.push(fiberChild)
-                    }else{
-                        fiberOther.push(fiberChild)
-                    }
-                    fiberChild = fiberChild.sibling;
+
+
+function fakeRender2(node, fiber, dispatcher){
+    console.log('FAKE RENDER', node, fiber)
+
+    if(node.$$typeof === Symbol.for('react.portal')){
+        return fakeRender2(React.createElement('FAKEPORTAL', null, node.children), fiber, dispatcher)
+
+    }else if(typeof node.type === 'string'
+
+    || node.type === Symbol.for('react.fragment')
+    || node.type === Symbol.for('react.suspense')){
+        let children = React.isValidElement(node.props.children) ? [ node.props.children ] : node.props.children;    
+        if(!children) return;
+        
+
+        let fiberKeyMap = {}
+        let fiberChildren = []
+        let fiberOther = []
+
+        if(fiber && fiber.child){
+
+            let fiberChild = node.type === Symbol.for('react.fragment') ? fiber : fiber.child;
+            while(fiberChild){
+                if(fiberChild.key){
+                    fiberKeyMap[fiberChild.key] = fiberChild;
+                }else{
+                    fiberChildren.push(fiberChild)
                 }
-            }
-
-            let children = React.isValidElement(props.children) ? [ props.children ] : props.children;
-
-            for(let child of children){
-                if(Array.isArray(child)){
-                    let fiberChild = fiberOther.shift();
-                    console.log('do fake render thing', child, fiberChild )
-                    fakeRender('fragment', { children: child }, fiberChild, dispatcher);
-                    continue;
-                }
-                if(!child || !child.type) continue;
-                let fiberChild = child.key ? fiberKeyMap[child.key] : fiberChildren.shift();
-                if(!fiberChild || fiberChild.type !== child.type)
-                    fiberChild = null;
-                fakeRender(child.type, child.props, fiberChild, dispatcher)
+                fiberChild = fiberChild.sibling;
             }
         }
 
-    }else if(typeof type === 'function' && type.prototype.isReactComponent){
+        for(let child of children){
+            if(Array.isArray(child)){
+                let fiberChild = fiberChildren.shift();
+                fakeRender2(React.createElement("FAKEARRAYFRAGMENT", null, child), fiberChild, dispatcher)
+                continue;
+            }
+            if(!child || !child.type) continue;
+            let fiberChild = child.key ? fiberKeyMap[child.key] : fiberChildren.shift();
+            console.log('hi stuff', fiberChild, child)
+            if(!fiberChild || fiberChild.type !== child.type) fiberChild = null;
+            fakeRender2(child, fiberChild, dispatcher)
+        }
+    }else if(typeof node.type === 'function' && node.type.prototype.isReactComponent){
         // https://overreacted.io/how-does-react-tell-a-class-from-a-function/
-
         dispatcher.__MetastateCurrentState = null;
-        console.log('REACT COMPPOENNT', fiber, fiber && fiber.memoizedState)
-
-        let node;
-        let el = new type(props);
+        let nextChildren;
+        let el = new node.type(node.props);
         if(fiber && fiber.memoizedState){
             el.state = fiber.memoizedState
         }
@@ -182,38 +183,30 @@ function fakeRender(type, props, fiber, dispatcher){
                 }
             } while (update = update.next);
         }
-        el.props = props;
-        node = el.render()
-        
+        el.props = node.props;
+        nextChildren = el.render()
+        if(!nextChildren) return;
 
-        console.log('node', node, fiber && fiber.child)
-
-        // TODO: handle cases where node is an array, null, or a fragment, or a portal
-        // node.props
-
-        fakeRender(node.type, 
-            node.props, 
-            (fiber && fiber.child && node.type === fiber.child.type) ? fiber.child : null,
+        fakeRender2(nextChildren,
+            (fiber && fiber.child && (
+                nextChildren.type === fiber.child.type || (
+                    !nextChildren.type && !fiber.child.type
+                ))) ? fiber.child : null,
             dispatcher)
 
-    }else if(typeof type === 'function'){
+    }else if(typeof node.type === 'function'){
         if(fiber){
             dispatcher.__MetastateCurrentState = fiber.memoizedState    
         }
-        let node = type(props);
+        let nextChildren = node.type(node.props);
         dispatcher.__MetastateCurrentState = null;
+        if(!nextChildren) return;
 
-        console.log('node', node, fiber && fiber.child)
-
-        // TODO: handle cases where node is an array, null, or a fragment, or a portal
-        // node.props
-
-        fakeRender(node.type, 
-            node.props, 
+        fakeRender2(nextChildren,
             (
                 fiber && fiber.child && (
-                    node.type === fiber.child.type 
-                    || node.type === Symbol.for('react.fragment'))
+                    nextChildren.type === fiber.child.type 
+                    || nextChildren.type === Symbol.for('react.fragment'))
                 ) ? fiber.child : null,
             dispatcher)
 
@@ -221,6 +214,6 @@ function fakeRender(type, props, fiber, dispatcher){
         // and dont bother reconciling them as we rebuild teh entire tree from
         // scratch in this case. 
     }else{
-        console.log('RENDERING UNKNOWN ELEMNT TYPE', type, props, fiber)
+        console.warn('RENDERING UNKNOWN ELEMENT TYPE', type, props, fiber)
     }
 }

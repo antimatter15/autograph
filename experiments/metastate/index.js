@@ -116,13 +116,30 @@ function Widget(){
             {data.requestedFields.map((k, i) => <li key={i}>{k}</li>)}
         </fieldset>
 
-        {['one', 'is', 'the', 'loneliest', 'number'].map(k => 
+
+        <Subpanel data={data} /> 
+
+
+        {[1, 2].map(k => 
             <Counter data={data} />
         )}
 
-        <Subpanel data={data} /> 
+        <Modal>
+            <ChildCounter data={data} />
+        </Modal>
     </div>
 }
+
+
+class Modal extends React.Component {
+  render() {
+    return ReactDOM.createPortal(
+      this.props.children,
+      document.getElementById('modal-root')
+    );
+  }
+}
+
 
 
 function App(){
