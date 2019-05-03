@@ -29,7 +29,8 @@ export default function useMetastate(dataFetcher){
 
     console.log('we are in the base reality', currentOwner)
 
-    let dispatcher = {
+    let [ dispatcher, updateDispatcher] = useState(() => ({
+        __fetchedData: {},
         __MetastateFields: [],
         __MetastateCurrentState: null,
         __MetastateSentinel: {
@@ -72,7 +73,7 @@ export default function useMetastate(dataFetcher){
         useMemo(fn, deps){
             throw new Error('useMemo not implemented')
         }
-    }
+    }))
 
     function triggerVirtualRender(){
         console.groupCollapsed('dreaming')
@@ -88,25 +89,32 @@ export default function useMetastate(dataFetcher){
     }
 
     
-    triggerVirtualRender()
+    // triggerVirtualRender()
+    // console.log(dispatcher.__MetastateFields)
+    // let fetchedData = dataFetcher(dispatcher.__MetastateFields)
+    // let fetchedData = {}
 
-    console.log(dispatcher.__MetastateFields)
+    dispatcher.__fetchedData = dataFetcher(dispatcher.__MetastateFields);
 
-
-    let fetchedData = dataFetcher(dispatcher.__MetastateFields)
     return {
         requestedFields: dispatcher.__MetastateFields,
         get(field){
             if(!dispatcher.__MetastateFields.includes(field)){
                 console.warn('TRIGGERING UPDATE', field)
-                triggerUpdate(updateCount + 1) // this will cause the parent autograph root to re-render
                 
+                triggerUpdate(updateCount + 1) // this will cause the parent autograph root to re-render
+
+                dispatcher.__MetastateFields = []
                 triggerVirtualRender()
+                // console.log(dispatcher.__fetchedData, field, dispatcher.__MetastateFields)
+
                 // this will throw a promise if the data has not yet been loaded
                 dataFetcher(dispatcher.__MetastateFields)
+
+                
             }else{
                 // console.info('noop triggered')
-                return fetchedData[field]
+                return dispatcher.__fetchedData[field]
             }
         }
     }

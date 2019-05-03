@@ -56,6 +56,15 @@ key features:
 
 
 
+## performance?
+
+what if we generally didn't do the virtual rendering pass? what if instead we just returned an empty object and waited until someone tried to access something before we went and fetched the data? 
+
+that is, what if we're lazy about data fetching.
+
+
+
+
 ## features used
 
 - suspense
@@ -75,3 +84,6 @@ another possibility is that we
 
 autograph uses getters to define the object, here we just have a getter method that one needs to call by string. metastate does not deal with graphql at all, and instead works with a mock data loading interface. 
 
+
+
+https://www.npmjs.com/package/test-all-versions
