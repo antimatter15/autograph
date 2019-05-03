@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import ReactIs from 'react-is'
+
 
 global.React = React;
 
@@ -113,7 +115,6 @@ export default function useMetastate(dataFetcher){
 
 
 
-
 function fakeRender2(node, fiber, dispatcher){
     console.log('FAKE RENDER', node, fiber)
 
@@ -149,7 +150,7 @@ function fakeRender2(node, fiber, dispatcher){
             if(!fiberChild || fiberChild.type !== child.type) fiberChild = null;
             fakeRender2(child, fiberChild, dispatcher)
         }
-    }else if(typeof node.type === 'function' && node.type.prototype.isReactComponent){
+    }else if(typeof node.type === 'function' && node.type.prototype.isReactComponent){ // use !isSimpleFunctionComponent
         // https://overreacted.io/how-does-react-tell-a-class-from-a-function/
         dispatcher.__MetastateCurrentState = null;
         let nextChildren;
