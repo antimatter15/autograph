@@ -102,7 +102,7 @@ export default function useMetastate(dataFetcher){
             if(!dispatcher.__MetastateFields.includes(field)){
                 console.warn('TRIGGERING UPDATE', field)
                 
-                triggerUpdate(updateCount + 1) // this will cause the parent autograph root to re-render
+                // triggerUpdate(updateCount + 1) // this will cause the parent autograph root to re-render
 
                 dispatcher.__MetastateFields = []
                 triggerVirtualRender()

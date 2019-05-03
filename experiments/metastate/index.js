@@ -35,6 +35,7 @@ function cachedFetcher(fields){
 
 function Profile({ data }){
     let [ isExpanded, setExpanded ] = useState(false);
+    console.log('rofile')
     return <fieldset>
         <legend>Profile</legend>
 
