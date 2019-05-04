@@ -99,7 +99,7 @@ export default function useMetastate(dataFetcher){
     return {
         requestedFields: dispatcher.__MetastateFields,
         get(field){
-            if(!dispatcher.__MetastateFields.includes(field)){
+            if(!(field in dispatcher.__fetchedData)){
                 console.warn('TRIGGERING UPDATE', field)
                 
                 // triggerUpdate(updateCount + 1) // this will cause the parent autograph root to re-render
@@ -113,7 +113,6 @@ export default function useMetastate(dataFetcher){
 
                 
             }else{
-                // console.info('noop triggered')
                 return dispatcher.__fetchedData[field]
             }
         }
