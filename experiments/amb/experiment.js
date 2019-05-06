@@ -2,6 +2,7 @@ var index = null,
     queue = null,
     stack = null;
 
+
 function amb(x){
     // when amb is executed outside of a funky context
     // it is identical to the identity function
@@ -25,6 +26,7 @@ function amb(x){
     }
 }
 
+
 function explore(fn){
     queue = [[]]
     var results = []
@@ -38,6 +40,7 @@ function explore(fn){
     return results
 }
 
+
 function check(fn, reference){
     let results = explore(fn);
     if(JSON.stringify(results) != JSON.stringify(reference)){
@@ -48,9 +51,11 @@ function check(fn, reference){
 }
 
 
+
 function noBranch(){
     return 'X'
 }
+
 
 function oneBranch(){
     let conds = ''
@@ -61,6 +66,7 @@ function oneBranch(){
     }
     return conds
 }
+
 
 function elseChain(){
     let conds = ''
@@ -148,6 +154,7 @@ function independentBranches3(){
     }
     return conds
 }
+
 
 check(noBranch, ['X'])
 check(oneBranch, ['A', 'B'])
