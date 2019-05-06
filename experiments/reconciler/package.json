@@ -5,9 +5,10 @@
   "license": "MIT",
   "dependencies": {
     "fbjs": "^1.0.0",
-    "parcel": "^1.10.3",
-    "react": "^0.0.0-c5b7d26c7",
-    "react-dom": "^0.0.0-c5b7d26c7",
-    "react-reconciler": "^0.0.0-c5b7d26c7"
+    "parcel": "^1.12.3",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-reconciler": "^0.20.4",
+    "scheduler": "^0.14.0"
   }
 }
