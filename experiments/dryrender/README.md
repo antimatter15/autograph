@@ -16,18 +16,18 @@ function useAutograph(client){
         data: {},
         sentinel: field => dispatcher.fields.push(field)
     })
-    if(currentTotem === client) return dispatcher.sentinel;
+    if(currentTotem === dispatcher) return dispatcher.sentinel;
     if(dispatcher.fetching) throw dispatcher.fetching;
     return field => {
         if(field in dispatcher.data) return dispatcher.data[field];
         if(!dispatcher.fetching){
             dispatcher.fields = []
-            let lastTotem = currentTotem;
+            let previousTotem = currentTotem;
             try {
-                currentTotem = client;
+                currentTotem = dispatcher;
                 dryRender(elementFromFiber(rootFiber), rootFiber)
             } finally {
-                currentTotem = lastTotem;
+                currentTotem = previousTotem;
             }
             dispatcher.fetching = fetchData(client, dispatcher.fields)
                 .then(data => dispatcher.data = data)
@@ -56,7 +56,7 @@ Minimal/complete design:
 - [DONE] Fragments
 - [DONE] useEffect / [DONE] useLayoutEffect / [DONE] useImperativeHandle — Noops
 - [DONE] Context.Provider / [DONE] Context.Consumer / [DONE] Class.contextType  / [DONE] useContext
-- [DONE] Class.contextTypes / [DONE] Function.contextTypes / [DONE] Class.childContextTypes
+- [DONE] Class.contextTypes / [DONE] Function.contextTypes / [DONE] Class.childContextTypes / 
 - Errors — Continue rendering, ignore subtree
 
 
