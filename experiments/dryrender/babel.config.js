@@ -7,4 +7,7 @@ module.exports = {
         }
       }
     ], '@babel/preset-react'],
+
+  "sourceMaps": "inline",
+  "retainLines": true
 };
