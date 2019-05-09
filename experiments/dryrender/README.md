@@ -1,21 +1,14 @@
 # Dry Render
 
-```dryRender(node, fiber, totem)```
+```dryRender(node, fiber)```
 
 - `node` is the JSX node corresponding to a particular thing that we want to dry render. this is required, anotehr function may exist to derive a node from a particular fiber node if present. 
 - `fiber` is optional, it is the existing react render fiber corresponding to the node if it exists that is used to pull state information. 
-- `totem` is an optional, arbitrary object that can be used to identify when it's in a dream, and whose dream it is
-
-Returns a list of exceptions encountered during the render process.
-
-```checkTotem(totem)```
-
-Returns true if it is currently operating within a dry render identified by this totem. 
-
 
 
 
 ```jsx
+let currentTotem;
 function useAutograph(client){
     let rootFiber = currentFiber
     let [dispatcher, setDispatcher] = useState({
@@ -23,13 +16,19 @@ function useAutograph(client){
         data: {},
         sentinel: field => dispatcher.fields.push(field)
     })
-    if(checkTotem(client)) return dispatcher.sentinel;
+    if(currentTotem === client) return dispatcher.sentinel;
     if(dispatcher.fetching) throw dispatcher.fetching;
     return field => {
         if(field in dispatcher.data) return dispatcher.data[field];
         if(!dispatcher.fetching){
             dispatcher.fields = []
-            dryRender(elementFromFiber(rootFiber), rootFiber, client)
+            let lastTotem = currentTotem;
+            try {
+                currentTotem = client;
+                dryRender(elementFromFiber(rootFiber), rootFiber)
+            } finally {
+                currentTotem = lastTotem;
+            }
             dispatcher.fetching = fetchData(client, dispatcher.fields)
                 .then(data => dispatcher.data = data)
             setDispatcher(dispatcher) // schedule re-render autograph root

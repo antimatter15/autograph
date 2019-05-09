@@ -21,6 +21,7 @@ function mapChildFibers(fiber){
 
 const LEGACY_CONTEXT_API = true;
 let _currentLegacyContext = {}
+let _currentHookState;
 
 function dryRender(node, fiber){
     // console.group(node.type.toString())
@@ -161,8 +162,6 @@ function dryRender(node, fiber){
     }
     // console.groupEnd(node.type.toString())
 }
-
-let _currentHookState;
 
 function nextHook(){
     let currentHook = _currentHookState;
