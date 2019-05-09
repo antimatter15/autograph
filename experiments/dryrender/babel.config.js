@@ -7,6 +7,7 @@ module.exports = {
         }
       }
     ], '@babel/preset-react'],
+    "plugins": ["@babel/plugin-proposal-class-properties"],
 
   "sourceMaps": "inline",
   "retainLines": true

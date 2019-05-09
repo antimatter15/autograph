@@ -46,17 +46,19 @@ We should have a guided walkthrough of the 20 line pseudocode that explains how 
 
 
 Minimal/complete design:
-- useEffect / useReducer 
-- Strict Mode / Concurrent Mode / Portals / forwardRef / Profiler - Treat as plain element
-- React.lazy — Check ._status for whether it's resolved, then render element, otherwise throw error
-- Suspense — Treat as plain element, thrown promises treated like thrown errors
+- [DONE] useEffect / [DONE] useReducer 
+- [DONE] Strict Mode / [DONE] Concurrent Mode / [DONE] Profiler - Treat as plain element
+- [DONE] forwardRef
+- [DONE] Portals
+- [DONE] React.lazy — Check ._status for whether it's resolved, then render element, otherwise throw error
+- [DONE] Suspense — Treat as plain element, thrown promises treated like thrown errors
+- [DONE] useCallback / [DONE] useMemo — always recompute
+- [DONE] shouldComponentUpdate / [DONE] React.memo — always re-render
+- [DONE] Fragments
+- [DONE] useEffect / [DONE] useLayoutEffect / [DONE] useImperativeHandle — Noops
+- [DONE] Context.Provider / [DONE] Context.Consumer / [DONE] Class.contextType  / [DONE] useContext
+- [DONE] Class.contextTypes / [DONE] Function.contextTypes / [DONE] Class.childContextTypes
 - Errors — Continue rendering, ignore subtree
-- useCallback / useMemo — always recompute
-- shouldComponentUpdate / React.memo — always re-render
-- Fragments
-- useEffect / useLayoutEffect / useImperativeHandle — Noops
-- Contexts — this is gonna be a bit of a pain in the ass
-
 
 
 
