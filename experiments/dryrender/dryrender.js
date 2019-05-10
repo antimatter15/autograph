@@ -1,5 +1,6 @@
 import React from 'react';
 import * as ReactIs from 'react-is'
+import { Exception } from 'handlebars';
 
 const ALLOW_LEGACY_CONTEXT_API = true;
 
@@ -30,29 +31,31 @@ export default function dryRender(node, fiber){
             console.assert(fiber.type === null)
         }
         return dryRender(node.children, fiber && fiber.child)
-    }
-
-    if(fiber && fiber.elementType !== node.type){
-        console.log("Fiber-node type mismatch", fiber.elementType, node.type)
-        debugger
-        fiber = null;
-    }
-    
-    if(ReactIs.isMemo(node.type)){
+    }else if(ReactIs.isMemo(node.type)){
         // we ignore shouldComponentUpdate / memo directives and always re-render
-        return dryRender(React.createElement(node.type.type, node.props), fiber)
+        return dryRender(React.createElement(node.type.type, node.props), fiber && fiber.child)
     }else if(ReactIs.isLazy(node.type)){
         // https://github.com/facebook/react/blob/master/packages/react-reconciler/src/ReactFiberLazyComponent.js
-        if(fiber){
-            console.assert(fiber.tag === 16)
-        }
+        // if(fiber){
+        //     console.assert(fiber.tag === 16)
+        // }
         if(node.type._status === 1){
             return dryRender(React.createElement(node.type._result, node.props), fiber)
         }else{
             console.log('Lazy component not yet resolved....')
             return
         }
-    }else if(typeof node.type === 'string'){
+    }
+
+    if(fiber && !(
+        fiber.type === node.type
+    )){
+        console.log("Fiber-node type mismatch", fiber.type, node.type)
+        debugger
+        fiber = null;
+    }
+
+    if(typeof node.type === 'string'){
         console.log('Host component', node.type)
         dryRender(node.props.children, fiber && fiber.child)
     }else if(typeof node.type === 'function' && node.type.prototype && node.type.prototype.isReactComponent){
@@ -116,15 +119,22 @@ export default function dryRender(node, fiber){
         let context = node.type._context;
         dryRender(node.props.children(context._currentValue), fiber && fiber.child)
     }else if(ReactIs.isSuspense(node)){
-        if(fiber){
-            console.assert(fiber.child.tag === 7)
+        // if(fiber){
+        //     console.assert(fiber.child.tag === 7)
+        // }
+        if(fiber && fiber.child.tag === 7){
+            dryRender(node.props.children, fiber && fiber.child.child);
+        }else{
+            dryRender(node.props.children, fiber && fiber.child);
         }
-        dryRender(node.props.children, fiber && fiber.child.child);
+        
     }else if(ReactIs.isStrictMode(node) || ReactIs.isConcurrentMode(node) || ReactIs.isProfiler(node)){
         dryRender(node.props.children, fiber && fiber.child)
     }else if(ReactIs.isForwardRef(node)){
         let nextChildren = node.type.render(node.props, node.ref);
         dryRender(nextChildren, fiber && fiber.child)
+    }else{
+        throw new Exception('unhandled node type')
     }
 }
 

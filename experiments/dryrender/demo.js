@@ -5,9 +5,9 @@ import PropTypes from 'prop-types';
 import dryRender from './dryrender'
 
 
-function Link(props){
-    return <a href={props.page}>{props.children}</a>
-}
+// function Link(props){
+//     return <a href={props.page}>{props.children}</a>
+// }
 
 
 function elementFromFiber(fiber){
@@ -22,110 +22,110 @@ function findFiberRoot(node){
 }
 
 
-class LegacyContextProvider extends React.Component {
-    static childContextTypes = {
-        color: PropTypes.string
-    }
-    getChildContext() {
-        return {color: "purple"};
-    }
-    render(){
-        return <div>{this.props.children}</div>
-    }
-}
+// class LegacyContextProvider extends React.Component {
+//     static childContextTypes = {
+//         color: PropTypes.string
+//     }
+//     getChildContext() {
+//         return {color: "purple"};
+//     }
+//     render(){
+//         return <div>{this.props.children}</div>
+//     }
+// }
 
 
-class LegacyContextConsumer extends React.Component {
-    static contextTypes = {
-        color: PropTypes.string
-    }
-    render(){
-        return <div>{this.context.color}</div>
-    }
-}
+// class LegacyContextConsumer extends React.Component {
+//     static contextTypes = {
+//         color: PropTypes.string
+//     }
+//     render(){
+//         return <div>{this.context.color}</div>
+//     }
+// }
 
-function LegacyColorFunction(props, context){
-    return <div>{context.color}</div>
-}
-LegacyColorFunction.contextTypes = {
-    color: PropTypes.string
-}
+// function LegacyColorFunction(props, context){
+//     return <div>{context.color}</div>
+// }
+// LegacyColorFunction.contextTypes = {
+//     color: PropTypes.string
+// }
 
-class DemoComponent extends React.Component {
-    constructor(){
-        super()
-        this.state = {
-            message: 'hello'
-        }
-    }
-    render(){
-        this.props.logState(this.state.message)
-        return <div>{this.state.message}</div>
-    }
-}
+// class DemoComponent extends React.Component {
+//     constructor(){
+//         super()
+//         this.state = {
+//             message: 'hello'
+//         }
+//     }
+//     render(){
+//         this.props.logState(this.state.message)
+//         return <div>{this.state.message}</div>
+//     }
+// }
 
-function LogChildren(props){
-    console.log('log children', props.children)
-    return <div>{props.children}</div>
-}
+// function LogChildren(props){
+//     console.log('log children', props.children)
+//     return <div>{props.children}</div>
+// }
 
-const FancyButton = React.forwardRef((props, ref) => (
-    <input ref={ref} type="button" className="FancyButton">
-      {props.children}
-    </input>
-  ));
+// const FancyButton = React.forwardRef((props, ref) => (
+//     <input ref={ref} type="button" className="FancyButton">
+//       {props.children}
+//     </input>
+//   ));
   
 
-function Dummy(){
-    return <div>loaded!</div>
-}
+// function Dummy(){
+//     return <div>loaded!</div>
+// }
 
-// const LazyDummy = React.lazy(() => new Promise((resolve) => setTimeout(() => resolve(Dummy), 1000)))
-const LazyDummy = React.lazy(() => new Promise((resolve) => resolve({
-    'default': Dummy
-})))
+// // const LazyDummy = React.lazy(() => new Promise((resolve) => setTimeout(() => resolve(Dummy), 1000)))
+// const LazyDummy = React.lazy(() => new Promise((resolve) => resolve({
+//     'default': Dummy
+// })))
 
-const MemoLogChildren = React.memo(LogChildren)
+// const MemoLogChildren = React.memo(LogChildren)
 
-function DemoStateful(){
-    let [ message, setMessage ] = useState("wat")
-    let magicday = React.useContext(MagicDay)
+// function DemoStateful(){
+//     let [ message, setMessage ] = useState("wat")
+//     let magicday = React.useContext(MagicDay)
 
-    useEffect(() => {
-        console.log('ran an effect!')
-    })
-    console.log('my hooks message', message, magicday)
-    return <button onClick={e => {
-        setMessage('yolo')
-    }}>{message}{magicday}</button>
-}
+//     useEffect(() => {
+//         console.log('ran an effect!')
+//     })
+//     console.log('my hooks message', message, magicday)
+//     return <button onClick={e => {
+//         setMessage('yolo')
+//     }}>{message}{magicday}</button>
+// }
 
-let MagicDay = React.createContext(420)
-
-
-function FragTurner(){
-    return <React.Fragment>
-        <li>hello</li>
-        <li>world</li>
-        {[
-            <li key="blerp">hi</li>,
-            <li key="blerpx">sup</li>
-        ]}
-    </React.Fragment>
-}
-
-function ForwardTest(){    
-    const ref = React.createRef();
-    return <FancyButton ref={ref}>Click me!</FancyButton>;
-}
+// let MagicDay = React.createContext(420)
 
 
-function ThinkWithPortals(props){
-    return ReactDOM.createPortal(props.children, {
-        nodeType: 1,
-        children: []
-    })
-}
+// function FragTurner(){
+//     return <React.Fragment>
+//         <li>hello</li>
+//         <li>world</li>
+//         {[
+//             <li key="blerp">hi</li>,
+//             <li key="blerpx">sup</li>
+//         ]}
+//     </React.Fragment>
+// }
+
+// function ForwardTest(){    
+//     const ref = React.createRef();
+//     return <FancyButton ref={ref}>Click me!</FancyButton>;
+// }
+
+
+// function ThinkWithPortals(props){
+//     return ReactDOM.createPortal(props.children, {
+//         nodeType: 1,
+//         children: []
+//     })
+// }
 // const el = <React.StrictMode kdey="sdaf">
 //     <Link page="http://www.facebook.com">Facebook</Link>
 // </React.StrictMode>
@@ -158,51 +158,99 @@ function ThinkWithPortals(props){
 // </div>
 // <FragTurner />
 // </React.StrictMode></div>;
-
-
-const ContextDemo = React.createContext(451)
-let lastMessage;
-
 function StatefulDemo(){
     let [ state, setState ] = React.useState('wumbo')
-    lastMessage = state;
-    return <button onClick={e => setState(x => {
-        return x + 'x'
-    })}>{state}</button>
+    // lastMessage = state;
+    return <button onClick={e => setState('derp')}>{state}</button>
 }
 
-
-
-
-const node = 
-    <React.unstable_ConcurrentMode>
-        <StatefulDemo />
-    </React.unstable_ConcurrentMode>
+function Dummy(){
+    // callRender()
+    return <StatefulDemo />
+}
+const LazyDummy = React.lazy(() => new Promise((resolve) => resolve({
+    'default': Dummy
+})))
+const node = <React.Suspense fallback={<div>loading...</div>}>
+    <LazyDummy />
+</React.Suspense>
 
 const component = renderer.create(node);
 let root = findFiberRoot(component.root._fiber);
 
-// expect(lastMessage).toBe('wumbo')
+// expect(callRender.mock.calls.length).toBe(0)
 // dryRender(elementFromFiber(root.child), root.child)
-// expect(lastMessage).toBe('wumbo')
-act(() => {
-    component.root.findByType('button').props.onClick()
-    // component.root.findByType('button').props.onClick()
-    // component.root.findByType('button').props.onClick()
-    // component.root.findByType('button').props.onClick()
-})
+// expect(callRender.mock.calls.length).toBe(0)
 
-// setTimeout(function(){
+// await delay(10)
+// expect(callRender.mock.calls.length).toBe(1)
+// dryRender(elementFromFiber(root.child), root.child)
+// expect(callRender.mock.calls.length).toBe(2)
+setTimeout(() => {
 
-console.log(component.toJSON())
+    // expect(lastMessage).toBe('wumbo')
+    dryRender(elementFromFiber(root.child), root.child)
+    // expect(lastMessage).toBe('wumbo')
+    act(() => component.root.findByType('button').props.onClick())
+
+    // expect(lastMessage).toBe('derp')
+    dryRender(elementFromFiber(root.child), root.child)
+    // expect(lastMessage).toBe('derp')
+
+    debugger
+}, 10)
+
+// const ContextDemo = React.createContext(451)
+// let lastMessage;
+
+// function StatefulDemo(){
+//     let [ state, setState ] = React.useState('wumbo')
+//     lastMessage = state;
+//     return <button onClick={e => setState(x => {
+//         return x + 'x'
+//     })}>{state}</button>
+// }
 
 
-console.log('I DID TTHE THING')
-// expect(lastMessage).toBe('derp')
-dryRender(elementFromFiber(root.child), root.child)
-// expect(lastMessage).toBe('derp')
 
-debugger
+
+// // const node = 
+// //     <React.unstable_ConcurrentMode>
+// //         <StatefulDemo />
+// //     </React.unstable_ConcurrentMode>
+
+// const MemoThing = React.memo(StatefulDemo, (a, b) => true)
+
+
+// const node = <React.Suspense fallback={<div>Loading</div>}>
+//     <StatefulDemo />
+// </React.Suspense>
+
+
+// const component = renderer.create(node);
+// let root = findFiberRoot(component.root._fiber);
+
+// // expect(lastMessage).toBe('wumbo')
+// // dryRender(elementFromFiber(root.child), root.child)
+// // expect(lastMessage).toBe('wumbo')
+// act(() => {
+//     component.root.findByType('button').props.onClick()
+//     // component.root.findByType('button').props.onClick()
+//     // component.root.findByType('button').props.onClick()
+//     // component.root.findByType('button').props.onClick()
+// })
+
+// // setTimeout(function(){
+
+// console.log(component.toJSON())
+
+
+// console.log('I DID TTHE THING')
+// // expect(lastMessage).toBe('derp')
+// dryRender(elementFromFiber(root.child), root.child)
+// // expect(lastMessage).toBe('derp')
+
+// debugger
 
 // }, 1000)
 // let callRender = jest.fn()

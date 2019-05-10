@@ -305,6 +305,37 @@ test('strict mode rehydrate', () => {
 })
 
 
+
+
+test('profiler rehydrate', () => {
+    const ContextDemo = React.createContext(451)
+    let lastMessage;
+
+    function StatefulDemo(){
+        let [ state, setState ] = React.useState('wumbo')
+        lastMessage = state;
+        return <button onClick={e => setState('derp')}>{state}</button>
+    }
+
+    const node = 
+        <React.unstable_Profiler>
+            <StatefulDemo />
+        </React.unstable_Profiler>
+
+    const component = renderer.create(node);
+    let root = findFiberRoot(component.root._fiber);
+
+    expect(lastMessage).toBe('wumbo')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('wumbo')
+    act(() => component.root.findByType('button').props.onClick())
+
+    expect(lastMessage).toBe('derp')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('derp')
+})
+
+
 test('forwardRef rehydrate', () => {
     let lastMessage;
 
@@ -325,6 +356,99 @@ test('forwardRef rehydrate', () => {
         <FancyButton>
             <StatefulDemo />
         </FancyButton>
+
+    const component = renderer.create(node);
+    let root = findFiberRoot(component.root._fiber);
+
+    expect(lastMessage).toBe('wumbo')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('wumbo')
+    act(() => component.root.findByType('button').props.onClick())
+
+    expect(lastMessage).toBe('derp')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('derp')
+})
+
+
+
+
+test('memo rehydrate', () => {
+    let lastMessage;
+
+    function StatefulDemo(){
+        let [ state, setState ] = React.useState('wumbo')
+        lastMessage = state;
+        return <button onClick={e => setState('derp')}>{state}</button>
+    }
+
+    const MemoThing = React.memo(StatefulDemo, (a, b) => true)
+
+    const node = <div>
+        <MemoThing />
+    </div>
+
+    const component = renderer.create(node);
+    let root = findFiberRoot(component.root._fiber);
+
+    expect(lastMessage).toBe('wumbo')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('wumbo')
+    act(() => component.root.findByType('button').props.onClick())
+
+    expect(lastMessage).toBe('derp')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('derp')
+})
+
+
+
+
+test('suspense rehydrate', () => {
+    let lastMessage;
+
+    function StatefulDemo(){
+        let [ state, setState ] = React.useState('wumbo')
+        lastMessage = state;
+        return <button onClick={e => setState('derp')}>{state}</button>
+    }
+
+
+    const node = <React.Suspense fallback={<div>Loading...</div>}>
+        <StatefulDemo />
+    </React.Suspense>
+
+    const component = renderer.create(node);
+    let root = findFiberRoot(component.root._fiber);
+
+    expect(lastMessage).toBe('wumbo')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('wumbo')
+    act(() => component.root.findByType('button').props.onClick())
+
+    expect(lastMessage).toBe('derp')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('derp')
+})
+
+
+
+
+
+test('fragment rehydrate', () => {
+    let lastMessage;
+
+    function StatefulDemo(){
+        let [ state, setState ] = React.useState('wumbo')
+        lastMessage = state;
+        return <button onClick={e => setState('derp')}>{state}</button>
+    }
+
+
+    const node = <React.Fragment>
+        <div key='ylo'>merp</div>,
+        <StatefulDemo key='xyz' />
+    </React.Fragment>
 
     const component = renderer.create(node);
     let root = findFiberRoot(component.root._fiber);
