@@ -3,6 +3,7 @@ import renderer from 'react-test-renderer';
 import dryRender from '../dryrender'
 import PropTypes from 'prop-types';
 
+// TODO: add unit tests for inheritance from outside of dryRender scope
 
 test('legacy context api', () => {
     let callRender = jest.fn()
@@ -90,7 +91,7 @@ test('modern context api (class)', () => {
 })
 
 
-test('moder context api (render prop)', () => {
+test('modern context api (render prop)', () => {
     let callRender = jest.fn()
     const ContextDemo = React.createContext(451)
 
@@ -112,4 +113,7 @@ test('moder context api (render prop)', () => {
     dryRender(node, null)
     expect(callRender.mock.calls.length).toBe(2)
 })
+
+
+
 

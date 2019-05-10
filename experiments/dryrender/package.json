@@ -4,19 +4,22 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@types/react": "^16.8.17",
+    "@types/react-is": "^16.7.1",
     "react": "^16.8.6",
     "react-is": "^16.8.6"
   },
   "devDependencies": {
+    "@babel/node": "^7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
     "@babel/preset-env": "^7.4.4",
     "@babel/preset-react": "^7.0.0",
     "babel-jest": "^24.7.1",
-    "react-test-renderer": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "@babel/node": "^7.2.2",
-    "@babel/plugin-proposal-class-properties": "^7.4.4",
     "jest": "^24.7.1",
-    "prop-types": "^15.7.2"
+    "prop-types": "^15.7.2",
+    "react-dom": "^16.8.6",
+    "react-test-renderer": "^16.8.6",
+    "test-all-versions": "^4.1.0"
   },
   "scripts": {
     "test": "jest"

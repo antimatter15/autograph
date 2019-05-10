@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import renderer from 'react-test-renderer';
+import renderer, { act } from 'react-test-renderer';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import dryRender from './dryrender'
@@ -160,26 +160,90 @@ function ThinkWithPortals(props){
 // </React.StrictMode></div>;
 
 
+// let callRender = jest.fn()
+let lastMessage;
 
-        class Modal extends React.Component {
-            constructor(){
-                super()
-                this.el = {
-                    nodeType: 1,
-                    children: []
-                }
-            }
-            render(){
-                return ReactDOM.createPortal(this.props.children, this.el)
-            }
+class StatefulThing extends React.Component {
+    constructor(){
+        super()
+        this.state = {
+            message: 'hello'
         }
+    }
+    render(){
+        // callRender()
+        lastMessage = this.state.message;
+        return <button>{this.state.message}</button>    
+    }
+    
+}
+const node = <StatefulThing />
 
-const el = <Modal>
-            <div>
+const component = renderer.create(node);
+// expect(callRender.mock.calls.length).toBe(1)
+// expect(lastMessage).toBe('hello')
+
+let root = findFiberRoot(component.root._fiber);
+dryRender(elementFromFiber(root.child), root.child)
+// expect(callRender.mock.calls.length).toBe(2)
+// expect(lastMessage).toBe('hello')
+
+
+act(() => {
+    component.root.findByType(StatefulThing).instance.setState({
+        message: 'zombocom'
+    })
+})
+
+// expect(callRender.mock.calls.length).toBe(3)
+// expect(lastMessage).toBe('zombocom')
+
+dryRender(elementFromFiber(root.child), root.child)
+// expect(callRender.mock.calls.length).toBe(4)
+// expect(lastMessage).toBe('zombocom')
+
+
+
+act(() => {
+    component.root.findByType(StatefulThing).instance.setState(
+        oldState => Object.assign({}, oldState, { message: 'meep' }))
+    component.root.findByType(StatefulThing).instance.setState(
+            oldState => Object.assign({}, oldState, { message: 'moop' }))
+    
+    dryRender(elementFromFiber(root.child), root.child)
+    console.assert(lastMessage === 'moop')
+    
+            component.root.findByType(StatefulThing).instance.setState(
+                oldState => Object.assign({}, oldState, { message: 'floop' }))
+})
+
+// expect(callRender.mock.calls.length).toBe(5)
+// expect(lastMessage).toBe('meep')
+
+
+// expect(callRender.mock.calls.length).toBe(6)
+// expect(lastMessage).toBe('meep')
+
+
+//         class Modal extends React.Component {
+//             constructor(){
+//                 super()
+//                 this.el = {
+//                     nodeType: 1,
+//                     children: []
+//                 }
+//             }
+//             render(){
+//                 return ReactDOM.createPortal(this.props.children, this.el)
+//             }
+//         }
+
+// const el = <Modal>
+//             <div>
                 
-            </div>
-        </Modal>
-dryRender(el, null)
+//             </div>
+//         </Modal>
+// dryRender(el, null)
 
 // const el = [<React.StrictMode key="blah">{[<DemoComponent key="xyz" logState={e => {
 //     console.log('logging state from prop', e)

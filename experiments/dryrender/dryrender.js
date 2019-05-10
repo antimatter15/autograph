@@ -23,15 +23,13 @@ export default function dryRender(node, fiber){
         console.log('String', node)
         return
     }else if(ReactIs.isFragment(node)){
-        dryRender(node.props.children, fiber)
-        return
+        return dryRender(node.props.children, fiber)
     }else if(ReactIs.isPortal(node)){
         if(fiber){
             console.assert(fiber.tag === 4)
             console.assert(fiber.type === null)
         }
-        dryRender(node.children, fiber && fiber.child)
-        return
+        return dryRender(node.children, fiber && fiber.child)
     }
 
     if(fiber && fiber.elementType !== node.type){
@@ -42,7 +40,7 @@ export default function dryRender(node, fiber){
     
     if(ReactIs.isMemo(node.type)){
         // we ignore shouldComponentUpdate / memo directives and always re-render
-        return dryRender(React.createElement(node.type.type, node.props))
+        return dryRender(React.createElement(node.type.type, node.props), fiber)
     }else if(ReactIs.isLazy(node.type)){
         // https://github.com/facebook/react/blob/master/packages/react-reconciler/src/ReactFiberLazyComponent.js
         if(fiber){
@@ -62,7 +60,7 @@ export default function dryRender(node, fiber){
         // https://overreacted.io/how-does-react-tell-a-class-from-a-function/
         let stateNode = new node.type(node.props, /* TODO: legacy context API */);
         stateNode.props = node.props;
-        if(fiber) stateNode.state = readLatestClassComponentState(fiber);
+        if(fiber) stateNode.state = readLatestClassComponentState(fiber, stateNode, node.props);
         
         let originalLegacyContext = _currentLegacyContext;
         if(ALLOW_LEGACY_CONTEXT_API && node.type.childContextTypes){
@@ -100,7 +98,7 @@ export default function dryRender(node, fiber){
         const DispatcherRef = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentDispatcher;
         const previousDispatcher = DispatcherRef.current;
         try {
-            DispatcherRef.current = DryRenderDispatcher;
+            DispatcherRef.current = DryRenderHooksDispatcher;
             nextChildren = node.type(node.props, legacyContext);
         } finally {
             DispatcherRef.current = previousDispatcher;
@@ -139,28 +137,31 @@ export default function dryRender(node, fiber){
     }
 }
 
-function readLatestClassComponentState(fiber){
-    // if(fiber && fiber.memoizedState) el.state = fiber.memoizedState;
-    // if(fiber && fiber.updateQueue && fiber.updateQueue.firstUpdate){
-    //     let update = fiber.updateQueue.firstUpdate;
-    //     do {
-    //         if(update.tag == 0){ // update state
-    //             el.state = { ...el.state, ...update.payload };
-    //         }else if(update.tag == 1){ // replace state
-    //             el.state = update.payload;
-    //         }
-    //     } while (update = update.next);
-    // }
-    return fiber.alternate ? 
-        fiber.alternate.memoizedState: // also traverse updateQueue
-        fiber.memoizedState
+function readLatestClassComponentState(fiber, stateNode, props){
+    let state = fiber.memoizedState;
+    
+    if(fiber.updateQueue && fiber.updateQueue.firstUpdate){
+        let update = fiber.updateQueue.firstUpdate;
+        do {
+            // Reference: https://github.com/facebook/react/blob/4c78ac0b9df88edec73492f92f09d5438dd74c4d/packages/react-reconciler/src/ReactUpdateQueue.js#L342
+            // We don't support Replace State, because that has been deprecated
+            // since React 0.13 and there isn't a way to trigger it without manually using
+            // .updater.enqueueReplaceState. If any software exists which depends on this behavior
+            // it should be reasonably easy to add. 
+            if(update.tag === 0 /* UPDATE STATE */){ 
+                let partialState = update.payload;
+                if(typeof update.payload === 'function')
+                    partialState = update.payload.call(stateNode, state, props);
+                state = { ...state, ...partialState };
+            }
+        } while (update = update.next);
+    }
+    return state
 }
 
 function readLatestHooksState(fiber){
     return fiber.memoizedState
 }
-
-
 
 function nextHook(){
     let currentHook = _currentHookState;
@@ -171,7 +172,7 @@ function nextHook(){
     return currentHook;
 }
 
-const DryRenderDispatcher = {
+const DryRenderHooksDispatcher = {
     // TODO: look into ._currentValue2 used for secondary renderers like React ART
     // TODO: look up contexts that are set within  the dry render process first
     useContext: (context) => {
@@ -196,7 +197,7 @@ const DryRenderDispatcher = {
     },
     
     useState: (initialState) => {
-        return DryRenderDispatcher.useReducer(() => {}, initialState)
+        return DryRenderHooksDispatcher.useReducer(() => {}, initialState)
     },
 
     // TODO: don't ignore deps
@@ -206,7 +207,7 @@ const DryRenderDispatcher = {
     },
 
     useCallback: (callback, deps) => {
-        return DryRenderDispatcher.useMemo(() => callback, deps)
+        return DryRenderHooksDispatcher.useMemo(() => callback, deps)
     },
 
     useEffect: (create, deps) => { nextHook() },
