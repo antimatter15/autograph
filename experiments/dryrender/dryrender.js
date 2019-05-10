@@ -45,9 +45,11 @@ export default function dryRender(node, fiber){
         return dryRender(React.createElement(node.type.type, node.props))
     }else if(ReactIs.isLazy(node.type)){
         // https://github.com/facebook/react/blob/master/packages/react-reconciler/src/ReactFiberLazyComponent.js
-        console.assert(fiber.tag === 16)
+        if(fiber){
+            console.assert(fiber.tag === 16)
+        }
         if(node.type._status === 1){
-            return dryRender(React.createElement(node.type._result, node.props))
+            return dryRender(React.createElement(node.type._result, node.props), fiber)
         }else{
             console.log('Lazy component not yet resolved....')
             return
