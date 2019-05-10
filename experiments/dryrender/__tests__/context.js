@@ -112,3 +112,4 @@ test('moder context api (render prop)', () => {
     dryRender(node, null)
     expect(callRender.mock.calls.length).toBe(2)
 })
+

@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+import renderer, { act } from 'react-test-renderer';
 import dryRender from '../dryrender'
 
 
@@ -208,4 +208,62 @@ test('useContext', () => {
     </ContextDemo.Provider>
     dryRender(node, null)
     expect(callRender.mock.calls.length).toBe(1)
+})
+
+
+function elementFromFiber(fiber){
+    let props = { ...fiber.memoizedProps }
+    if(fiber.key) props.key = fiber.key;
+    return React.createElement(fiber.type, props)
+}
+
+function findFiberRoot(node){
+    while(node.return) node = node.return;
+    return node;
+}
+
+
+
+test('useState', () => {
+  let myMessage;
+  let callRender = jest.fn()
+  function DemoStateful(){
+      let [ message, setMessage ] = React.useState("wat")
+      myMessage = message;
+      callRender()
+      return <button onClick={e => {
+        if(message === 'wat'){
+          setMessage('yolo')
+        }else{
+          setMessage(x => x + 'oo')
+        }
+      }}>{message}</button>
+  }
+
+  const el = <DemoStateful />
+  const component = renderer.create(el);
+  let root = findFiberRoot(component.root._fiber);
+
+  expect(callRender.mock.calls.length).toBe(1)
+  expect(myMessage).toBe('wat')
+
+  dryRender(elementFromFiber(root.child), root.child)
+  expect(callRender.mock.calls.length).toBe(2)
+  expect(myMessage).toBe('wat')
+  
+  act(() => {
+    component.root.findByType('button').props.onClick()  
+  })
+  expect(callRender.mock.calls.length).toBe(3)
+  expect(myMessage).toBe('yolo')
+
+  dryRender(elementFromFiber(root.child), root.child)
+  expect(callRender.mock.calls.length).toBe(4)
+  expect(myMessage).toBe('yolo')
+
+  act(() => {
+    component.root.findByType('button').props.onClick()  
+  })
+  expect(callRender.mock.calls.length).toBe(5)
+  expect(myMessage).toBe('yolooo')
 })

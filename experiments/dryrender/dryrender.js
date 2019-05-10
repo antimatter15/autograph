@@ -196,7 +196,7 @@ const DryRenderDispatcher = {
     },
     
     useState: (initialState) => {
-        return DryRenderDispatcher.useReducer(basicStateReducer, initialState)
+        return DryRenderDispatcher.useReducer(() => {}, initialState)
     },
 
     // TODO: don't ignore deps
@@ -217,11 +217,6 @@ const DryRenderDispatcher = {
         return { current: null }
     },
     useDebugValue: (value) => {},
-}
-
-// copied from react-reconciler internals
-function basicStateReducer(state, action) {
-    return typeof action === 'function' ? action(state) : action;
 }
 
 function mapChildFibers(fiber){
