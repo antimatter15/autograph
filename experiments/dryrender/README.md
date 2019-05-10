@@ -61,6 +61,9 @@ Minimal/complete design:
 
 
 
+Dry render should work with all of React 16, Autograph for everything since 16.6, with hooks starting in 16.8. 
+
+
 
 
 Theoretically it'd be possible to use Autograph with any version of react since 16.6.0 (October 23, 2018). Since it includes Suspense. However it does not include Hooks, so we need some way to write autograph without hooks. 

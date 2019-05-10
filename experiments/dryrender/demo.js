@@ -129,65 +129,86 @@ function ThinkWithPortals(props){
 // const el = <React.StrictMode kdey="sdaf">
 //     <Link page="http://www.facebook.com">Facebook</Link>
 // </React.StrictMode>
-const el = <div>
+// const el = <div>
 
-<LegacyContextProvider>
-        <LegacyContextConsumer />
-        <LegacyContextFunction />
-    </LegacyContextProvider>
-    <React.StrictMode><div>
-    <MagicDay.Provider value={777}>
-        <Link page="http://www.facebook.com">
-            <DemoStateful />
-        </Link>
-        <MagicDay.Consumer>{value => <MemoLogChildren>{value}</MemoLogChildren>}</MagicDay.Consumer>
-    </MagicDay.Provider>
+// <LegacyContextProvider>
+//         <LegacyContextConsumer />
+//         <LegacyContextFunction />
+//     </LegacyContextProvider>
+//     <React.StrictMode><div>
+//     <MagicDay.Provider value={777}>
+//         <Link page="http://www.facebook.com">
+//             <DemoStateful />
+//         </Link>
+//         <MagicDay.Consumer>{value => <MemoLogChildren>{value}</MemoLogChildren>}</MagicDay.Consumer>
+//     </MagicDay.Provider>
     
-    <Link page="http://www.google.com">
-        <DemoComponent logState={e => {
-            console.log('hi logg', e)
-        }}/>
-    </Link>
-    <ForwardTest />
-    <ThinkWithPortals>
-        <div>hi</div>
-    </ThinkWithPortals>
-    <React.Suspense fallback={<div>loading...</div>}>
-        <LazyDummy />
-    </React.Suspense>
-</div>
-<FragTurner />
-</React.StrictMode></div>;
+//     <Link page="http://www.google.com">
+//         <DemoComponent logState={e => {
+//             console.log('hi logg', e)
+//         }}/>
+//     </Link>
+//     <ForwardTest />
+//     <ThinkWithPortals>
+//         <div>hi</div>
+//     </ThinkWithPortals>
+//     <React.Suspense fallback={<div>loading...</div>}>
+//         <LazyDummy />
+//     </React.Suspense>
+// </div>
+// <FragTurner />
+// </React.StrictMode></div>;
 
+
+
+        class Modal extends React.Component {
+            constructor(){
+                super()
+                this.el = {
+                    nodeType: 1,
+                    children: []
+                }
+            }
+            render(){
+                return ReactDOM.createPortal(this.props.children, this.el)
+            }
+        }
+
+const el = <Modal>
+            <div>
+                
+            </div>
+        </Modal>
+dryRender(el, null)
 
 // const el = [<React.StrictMode key="blah">{[<DemoComponent key="xyz" logState={e => {
 //     console.log('logging state from prop', e)
 // }} />]}</React.StrictMode>, <div key="derp">thing</div>]
 
-const component = renderer.create(el);
+// const component = renderer.create(el);
 
-let f = component.root._fiber;
-// console.log(React.createElement(f.type, { ...f.pendingProps } ))
-// console.log(component.toJSON())
-component.root.findByType(DemoComponent).instance.setState({
-    message: 'zombocom'
-})
+// let f = component.root._fiber;
+// // console.log(React.createElement(f.type, { ...f.pendingProps } ))
+// // console.log(component.toJSON())
+// component.root.findByType(DemoComponent).instance.setState({
+//     message: 'zombocom'
+// })
 
-component.root.findByType('button').props.onClick()
+// component.root.findByType('button').props.onClick()
 
-// console.log(component.toJSON())
-// console.log(el)
-let root = findFiberRoot(component.root._fiber);
-console.assert(!root.type)
-console.assert(root.tag === 3)
-console.log(root)
+// // console.log(component.toJSON())
+// // console.log(el)
+// let root = findFiberRoot(component.root._fiber);
+// console.assert(!root.type)
+// console.assert(root.tag === 3)
+// console.log(root)
 
 
 
-setTimeout(() => {
-    dryRender(elementFromFiber(root.child), root.child)
-    debugger
-}, 0)
+// setTimeout(() => {
+//     dryRender(elementFromFiber(root.child), root.child)
+//     debugger
+// }, 0)
 
 
 
