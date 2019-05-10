@@ -44,10 +44,10 @@ class LegacyContextConsumer extends React.Component {
     }
 }
 
-function LegacyContextFunction(props, context){
+function LegacyColorFunction(props, context){
     return <div>{context.color}</div>
 }
-LegacyContextFunction.contextTypes = {
+LegacyColorFunction.contextTypes = {
     color: PropTypes.string
 }
 
@@ -161,61 +161,144 @@ function ThinkWithPortals(props){
 
 
 // let callRender = jest.fn()
-let lastMessage;
-
-class StatefulThing extends React.Component {
-    constructor(){
-        super()
-        this.state = {
-            message: 'hello'
+        
+    class ColorProvider extends React.Component {
+        static childContextTypes = {
+            color: PropTypes.string
+        }
+        getChildContext() {
+            return { color: "purple" };
+        }
+        render(){
+            // callRender()
+            return <div>{this.props.children}</div>
         }
     }
-    render(){
-        // callRender()
-        lastMessage = this.state.message;
-        return <button>{this.state.message}</button>    
+
+    class LanguageProvider extends React.Component {
+        static childContextTypes = {
+            language: PropTypes.string
+        }
+        getChildContext() {
+            return { language: "swahili" };
+        }
+        render(){
+            // callRender()
+            return <div>{this.props.children}</div>
+        }
     }
+
+    class LegacyColorConsumer extends React.Component {
+        static contextTypes = {
+            color: PropTypes.string,
+            language: PropTypes.string
+        }
+        render(){
+            // expect(this.context.color).toBe('purple')
+            // expect(this.context.language).toBe('swahili')
+            // callRender()
+            return <div>{this.context.color}</div>
+        }
+    }
+
+    function LegacyContextFunction(props, context){
+        // expect(context.color).toBe('purple')
+        // expect(context.language).toBe('swahili')
+        // callRender()
+        return <div>{context.color}</div>
+    }
+    LegacyContextFunction.contextTypes = {
+        color: PropTypes.string,
+        language: PropTypes.string
+    }
+
+    function IlliterateFunction(props, context){
+        // expect(context.color).toBe('purple')
+        // expect(context.language).toBeUndefined()
+        // callRender()
+        debugger
+        return <div>{context.language}</div>
+    }
+    IlliterateFunction.contextTypes = {
+        language: PropTypes.string,
+        color: PropTypes.string
+    }
+
+
+    const node = <ColorProvider>
+        <LanguageProvider>
+            <LegacyColorConsumer />
+            <LegacyColorFunction />
+        </LanguageProvider>
+        <IlliterateFunction />
+    </ColorProvider>
+
+    const component = renderer.create(node);
+    // expect(callRender.mock.calls.length).toBe(5)
     
-}
-const node = <StatefulThing />
+    let root = findFiberRoot(component.root._fiber);
 
-const component = renderer.create(node);
-// expect(callRender.mock.calls.length).toBe(1)
-// expect(lastMessage).toBe('hello')
-
-let root = findFiberRoot(component.root._fiber);
-dryRender(elementFromFiber(root.child), root.child)
-// expect(callRender.mock.calls.length).toBe(2)
-// expect(lastMessage).toBe('hello')
+    // re-render but dont re-render ColorProvider
+    dryRender(elementFromFiber(root.child.child), root.child.child)
+    // expect(callRender.mock.calls.length).toBe(5 + 3)
 
 
-act(() => {
-    component.root.findByType(StatefulThing).instance.setState({
-        message: 'zombocom'
-    })
-})
+// let callRender = jest.fn()
+// let lastMessage;
 
-// expect(callRender.mock.calls.length).toBe(3)
-// expect(lastMessage).toBe('zombocom')
-
-dryRender(elementFromFiber(root.child), root.child)
-// expect(callRender.mock.calls.length).toBe(4)
-// expect(lastMessage).toBe('zombocom')
-
-
-
-act(() => {
-    component.root.findByType(StatefulThing).instance.setState(
-        oldState => Object.assign({}, oldState, { message: 'meep' }))
-    component.root.findByType(StatefulThing).instance.setState(
-            oldState => Object.assign({}, oldState, { message: 'moop' }))
+// class StatefulThing extends React.Component {
+//     constructor(){
+//         super()
+//         this.state = {
+//             message: 'hello'
+//         }
+//     }
+//     render(){
+//         // callRender()
+//         lastMessage = this.state.message;
+//         return <button>{this.state.message}</button>    
+//     }
     
-    dryRender(elementFromFiber(root.child), root.child)
-    console.assert(lastMessage === 'moop')
+// }
+// const node = <StatefulThing />
+
+// const component = renderer.create(node);
+// // expect(callRender.mock.calls.length).toBe(1)
+// // expect(lastMessage).toBe('hello')
+
+// let root = findFiberRoot(component.root._fiber);
+// dryRender(elementFromFiber(root.child), root.child)
+// // expect(callRender.mock.calls.length).toBe(2)
+// // expect(lastMessage).toBe('hello')
+
+
+// act(() => {
+//     component.root.findByType(StatefulThing).instance.setState({
+//         message: 'zombocom'
+//     })
+// })
+
+// // expect(callRender.mock.calls.length).toBe(3)
+// // expect(lastMessage).toBe('zombocom')
+
+// dryRender(elementFromFiber(root.child), root.child)
+// // expect(callRender.mock.calls.length).toBe(4)
+// // expect(lastMessage).toBe('zombocom')
+
+
+
+// act(() => {
+//     component.root.findByType(StatefulThing).instance.setState(
+//         oldState => Object.assign({}, oldState, { message: 'meep' }))
+//     component.root.findByType(StatefulThing).instance.setState(
+//             oldState => Object.assign({}, oldState, { message: 'moop' }))
     
-            component.root.findByType(StatefulThing).instance.setState(
-                oldState => Object.assign({}, oldState, { message: 'floop' }))
-})
+//     dryRender(elementFromFiber(root.child), root.child)
+//     console.assert(lastMessage === 'moop')
+
+//             component.root.findByType(StatefulThing).instance.setState(
+//                 oldState => Object.assign({}, oldState, { message: 'floop' }))
+// })
 
 // expect(callRender.mock.calls.length).toBe(5)
 // expect(lastMessage).toBe('meep')

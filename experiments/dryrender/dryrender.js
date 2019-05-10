@@ -17,7 +17,7 @@ export default function dryRender(node, fiber){
             //     console.error(err)
             // }
         }
-        console.log('Array/Fragment', node)
+        console.log('Array/Fragment')
         return
     }else if(typeof node === 'string' || typeof node === 'number' || !node){
         console.log('String', node)
@@ -56,7 +56,7 @@ export default function dryRender(node, fiber){
         console.log('Host component', node.type)
         dryRender(node.props.children, fiber && fiber.child)
     }else if(typeof node.type === 'function' && node.type.prototype && node.type.prototype.isReactComponent){
-        console.log('Class component', node.type.name, fiber, fiber && fiber.memoizedState)
+        console.log('Class component', node.type.name, fiber && fiber.memoizedState)
         // https://overreacted.io/how-does-react-tell-a-class-from-a-function/
         let stateNode = new node.type(node.props, /* TODO: legacy context API */);
         stateNode.props = node.props;
@@ -65,16 +65,13 @@ export default function dryRender(node, fiber){
         let originalLegacyContext = _currentLegacyContext;
         if(ALLOW_LEGACY_CONTEXT_API && node.type.childContextTypes){
             _currentLegacyContext = {
-                // pull in the context from the existing node if it exists, but at a lower
-                // priority than any of the things which are already stored in the legacy context
-                ...(fiber ? fiber.stateNode.__reactInternalMemoizedMergedChildContext : {}),
                 ..._currentLegacyContext,
                 ...stateNode.getChildContext()
             }
         }
 
         if(ALLOW_LEGACY_CONTEXT_API && node.type.contextTypes){
-            stateNode.context = _currentLegacyContext;
+            stateNode.context = readLegacyContext(fiber, node.type.contextTypes);
         }else if(node.type.contextType){
             stateNode.context = node.type.contextType._currentValue
         }
@@ -90,9 +87,9 @@ export default function dryRender(node, fiber){
         console.log('Functional component', node.type.name)
         let nextChildren;
         let legacyContext;
-        if(fiber) _currentHookState = readLatestHooksState(fiber);
+        if(fiber) _currentHookState = fiber.memoizedState;
         
-        if(ALLOW_LEGACY_CONTEXT_API && node.type.contextTypes) legacyContext = _currentLegacyContext;
+        if(ALLOW_LEGACY_CONTEXT_API && node.type.contextTypes) legacyContext = readLegacyContext(fiber, node.type.contextTypes);
         // We need to override the current dispatcher which is how React resolves .useEffect, .useState, etc
         // https://twitter.com/dan_abramov/status/1055724109399638017?lang=en
         const DispatcherRef = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentDispatcher;
@@ -105,13 +102,10 @@ export default function dryRender(node, fiber){
         }
         dryRender(nextChildren, fiber && fiber.child)
     }else if(ReactIs.isContextProvider(node)){
-        console.log("PROVIDING SOME CONTEXT", node.props.value, node.type)
         let context = node.type._context,
             initialValue = context._currentValue;
-        // Note that we're modifying context._currentValue
-        // which is what React is also doing so there may be
-        // some problems here if React runs while we're running but that
-        // shouldn't be able to happen.
+        // Note that we're modifying context._currentValue, which may be problematic
+        // if React ends up running before we restore it to the initial value. 
         try {
             context._currentValue = node.props.value;
             dryRender(node.props.children, fiber && fiber.child)
@@ -120,7 +114,6 @@ export default function dryRender(node, fiber){
         }
     }else if(ReactIs.isContextConsumer(node)){
         let context = node.type._context;
-        console.log('CONSUMING A CONTEXT', context)
         dryRender(node.props.children(context._currentValue), fiber && fiber.child)
     }else if(ReactIs.isSuspense(node)){
         if(fiber){
@@ -137,6 +130,20 @@ export default function dryRender(node, fiber){
     }
 }
 
+
+function readLegacyContext(fiber, contextTypes){
+    let legacyContext = { ..._currentLegacyContext }
+    if(fiber){
+        do {
+            if(fiber.stateNode)
+                legacyContext = Object.assign({}, fiber.stateNode.__reactInternalMemoizedMergedChildContext || {}, legacyContext);
+        } while (fiber = fiber.return)
+    }
+    let filteredLegacyContext = {};
+    for(let key in contextTypes) filteredLegacyContext[key] = legacyContext[key];
+    return filteredLegacyContext;
+}
+
 function readLatestClassComponentState(fiber, stateNode, props){
     let state = fiber.memoizedState;
     
@@ -144,23 +151,15 @@ function readLatestClassComponentState(fiber, stateNode, props){
         let update = fiber.updateQueue.firstUpdate;
         do {
             // Reference: https://github.com/facebook/react/blob/4c78ac0b9df88edec73492f92f09d5438dd74c4d/packages/react-reconciler/src/ReactUpdateQueue.js#L342
-            // We don't support Replace State, because that has been deprecated
-            // since React 0.13 and there isn't a way to trigger it without manually using
-            // .updater.enqueueReplaceState. If any software exists which depends on this behavior
-            // it should be reasonably easy to add. 
-            if(update.tag === 0 /* UPDATE STATE */){ 
+            if(update.tag === 0 /* UPDATE STATE */ || update.tag === 1 /* REPLACE STATE */){ 
                 let partialState = update.payload;
                 if(typeof update.payload === 'function')
                     partialState = update.payload.call(stateNode, state, props);
-                state = { ...state, ...partialState };
+                state = update.tag === 0 ? { ...state, ...partialState } : partialState;
             }
         } while (update = update.next);
     }
     return state
-}
-
-function readLatestHooksState(fiber){
-    return fiber.memoizedState
 }
 
 function nextHook(){

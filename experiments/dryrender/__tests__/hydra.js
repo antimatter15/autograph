@@ -127,7 +127,6 @@ test('Stateful Class Component (setState function)', async () => {
         component.root.findByType(StatefulThing).instance.setState(
             oldState => Object.assign({}, oldState, { message: 'meep' }))
 
-
         component.root.findByType(StatefulThing).instance.setState(
             oldState => Object.assign({}, oldState, { message: 'moop' }))
 
@@ -141,8 +140,46 @@ test('Stateful Class Component (setState function)', async () => {
 })
 
 
+// replaceState has pretty much been deprecated in react since 0.13
+// but it's still possible to access it by directly interfacing with
+// the updater
+test('replace state', () => {
+    let callRender = jest.fn()
+    let lastMessage;
 
+    class StatefulThing extends React.Component {
+        constructor(){
+            super()
+            this.state = {
+                message: 'hello'
+            }
+        }
+        render(){
+            callRender()
+            lastMessage = this.state.message;
+            return <button>{this.state.message}</button>    
+        }
+        
+    }
+    const node = <StatefulThing />
 
+    const component = renderer.create(node);
+    expect(callRender.mock.calls.length).toBe(1)
+    expect(lastMessage).toBe('hello')
+    let root = findFiberRoot(component.root._fiber);
+
+    
+    act(() => {
+        let instance = component.root.findByType(StatefulThing).instance
+
+        instance.updater.enqueueReplaceState(instance, {
+            message: 'd'
+        });
+
+        dryRender(elementFromFiber(root.child), root.child)
+        expect(lastMessage).toBe('d')
+    })
+})
 
 
 

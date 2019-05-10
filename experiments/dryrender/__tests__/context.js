@@ -3,6 +3,20 @@ import renderer from 'react-test-renderer';
 import dryRender from '../dryrender'
 import PropTypes from 'prop-types';
 
+
+function elementFromFiber(fiber){
+    let props = { ...fiber.memoizedProps }
+    if(fiber.key) props.key = fiber.key;
+    return React.createElement(fiber.type, props)
+}
+
+function findFiberRoot(node){
+    while(node.return) node = node.return;
+    return node;
+}
+
+
+
 // TODO: add unit tests for inheritance from outside of dryRender scope
 
 test('legacy context api', () => {
@@ -49,6 +63,94 @@ test('legacy context api', () => {
 
     dryRender(node, null)
     expect(callRender.mock.calls.length).toBe(3)
+})
+
+
+
+test('legacy context api (inheritance)', () => {
+    let callRender = jest.fn()
+        
+    class ColorProvider extends React.Component {
+        static childContextTypes = {
+            color: PropTypes.string
+        }
+        getChildContext() {
+            return { color: "purple" };
+        }
+        render(){
+            callRender()
+            return <div>{this.props.children}</div>
+        }
+    }
+
+    class LanguageProvider extends React.Component {
+        static childContextTypes = {
+            language: PropTypes.string
+        }
+        getChildContext() {
+            return { language: "swahili" };
+        }
+        render(){
+            callRender()
+            return <div>{this.props.children}</div>
+        }
+    }
+
+    class LegacyContextConsumer extends React.Component {
+        static contextTypes = {
+            color: PropTypes.string,
+            language: PropTypes.string
+        }
+        render(){
+            expect(this.context.color).toBe('purple')
+            expect(this.context.language).toBe('swahili')
+            callRender()
+            return <div>{this.context.color}</div>
+        }
+    }
+
+    function LegacyContextFunction(props, context){
+        expect(context.color).toBe('purple')
+        expect(context.language).toBe('swahili')
+        callRender()
+        return <div>{context.color}</div>
+    }
+    LegacyContextFunction.contextTypes = {
+        color: PropTypes.string,
+        language: PropTypes.string
+    }
+
+    function IlliterateFunction(props, context){
+        expect(context.color).toBe('purple')
+        expect(context.language).toBeUndefined()
+        callRender()
+        return <div>{context.language}</div>
+    }
+    IlliterateFunction.contextTypes = {
+        language: PropTypes.string,
+        color: PropTypes.string
+    }
+
+
+    const node = <ColorProvider>
+        <LanguageProvider>
+            <LegacyContextConsumer />
+            <LegacyContextFunction />
+        </LanguageProvider>
+        <IlliterateFunction />
+    </ColorProvider>
+
+    const component = renderer.create(node);
+    expect(callRender.mock.calls.length).toBe(5)
+    
+    let root = findFiberRoot(component.root._fiber);
+
+    // re-render but dont re-render ColorProvider
+    dryRender(elementFromFiber(root.child.child), root.child.child)
+    expect(callRender.mock.calls.length).toBe(5 + 4)
+
+    // dryRender(node, null)
+    // expect(callRender.mock.calls.length).toBe(3)
 })
 
 
