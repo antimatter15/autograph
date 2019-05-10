@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import renderer, { act } from 'react-test-renderer';
 import dryRender from '../dryrender'
 import PropTypes from 'prop-types';
@@ -183,48 +184,160 @@ test('replace state', () => {
 
 
 
-// test('Thinking with portals', async () => {
-//     let callRender = jest.fn()
+test('Thinking with portals', async () => {
+    let lastMessage;
 
-//     class Modal extends React.Component {
-//         constructor(){
-//             super()
-//             this.el = {
-//                 nodeType: 1,
-//                 children: []
-//             }
-//         }
-//         render(){
-//             return ReactDOM.createPortal(this.props.children, this.el)
-//         }
-//     }
+    class Modal extends React.Component {
+        constructor(){
+            super()
+            this.el = {
+                nodeType: 1,
+                children: []
+            }
+        }
+        render(){
+            return ReactDOM.createPortal(this.props.children, this.el)
+        }
+    }
 
 
-//     class StatefulThing extends React.Component {
-//         constructor(){
-//             this.state = {
-//                 message: 'hello'
-//             }
-//         }
-//         render(){
-//             return <button onClick={e => {
-//                 this.setState({ message: 'derp' })
-//             }}></button>    
-//         }
+    class StatefulThing extends React.Component {
+        constructor(){
+            super()
+            this.state = {
+                message: 'hello'
+            }
+        }
+        render(){
+            lastMessage = this.state.message;
+            return <button onClick={e => {
+                this.setState({ message: 'derp' })
+            }}></button>    
+        }
         
-//     }
+    }
 
-//     function Thing(props){
-//         callRender()
-//         return "thing"
-//     }
+    const node = <Modal>
+        <div>
+            <StatefulThing />
+        </div>
+    </Modal>
 
-//     const node = <Modal>
-//         <div>
-//             <Thing />
-//         </div>
-//     </Modal>
 
-//     dryRender(node, null)
-//     expect(callRender.mock.calls.length).toBe(1)
-// })
+    const component = renderer.create(node);
+    let root = findFiberRoot(component.root._fiber);
+
+    expect(lastMessage).toBe('hello')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('hello')
+    
+
+    act(() => {
+        component.root.findByType(StatefulThing).instance.setState({
+            message: 'zombocom'
+        })
+    })
+
+    expect(lastMessage).toBe('zombocom')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('zombocom')
+
+})
+
+
+
+
+test('concurrent mode rehydrate', () => {
+    const ContextDemo = React.createContext(451)
+    let lastMessage;
+
+    function StatefulDemo(){
+        let [ state, setState ] = React.useState('wumbo')
+        lastMessage = state;
+        return <button onClick={e => setState('derp')}>{state}</button>
+    }
+
+    const node = 
+        <React.unstable_ConcurrentMode>
+            <StatefulDemo />
+        </React.unstable_ConcurrentMode>
+
+    const component = renderer.create(node);
+    let root = findFiberRoot(component.root._fiber);
+
+    expect(lastMessage).toBe('wumbo')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('wumbo')
+    act(() => component.root.findByType('button').props.onClick())
+    // concurrent mode is weird?
+    // expect(lastMessage).toBe('derp')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('derp')
+})
+
+
+test('strict mode rehydrate', () => {
+    const ContextDemo = React.createContext(451)
+    let lastMessage;
+
+    function StatefulDemo(){
+        let [ state, setState ] = React.useState('wumbo')
+        lastMessage = state;
+        return <button onClick={e => setState('derp')}>{state}</button>
+    }
+
+    const node = 
+        <React.StrictMode>
+            <StatefulDemo />
+        </React.StrictMode>
+
+    const component = renderer.create(node);
+    let root = findFiberRoot(component.root._fiber);
+
+    expect(lastMessage).toBe('wumbo')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('wumbo')
+    act(() => component.root.findByType('button').props.onClick())
+
+    expect(lastMessage).toBe('derp')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('derp')
+})
+
+
+test('forwardRef rehydrate', () => {
+    let lastMessage;
+
+    function StatefulDemo(){
+        let [ state, setState ] = React.useState('wumbo')
+        lastMessage = state;
+        return <button onClick={e => setState('derp')}>{state}</button>
+    }
+
+
+    const FancyButton = React.forwardRef((props, ref) => (
+        <div ref={ref} type="button" className="FancyButton">
+          {props.children}
+        </div>
+    ));
+
+    const node = 
+        <FancyButton>
+            <StatefulDemo />
+        </FancyButton>
+
+    const component = renderer.create(node);
+    let root = findFiberRoot(component.root._fiber);
+
+    expect(lastMessage).toBe('wumbo')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('wumbo')
+    act(() => component.root.findByType('button').props.onClick())
+
+    expect(lastMessage).toBe('derp')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('derp')
+})
+
+
+

@@ -160,87 +160,132 @@ function ThinkWithPortals(props){
 // </React.StrictMode></div>;
 
 
+const ContextDemo = React.createContext(451)
+let lastMessage;
+
+function StatefulDemo(){
+    let [ state, setState ] = React.useState('wumbo')
+    lastMessage = state;
+    return <button onClick={e => setState(x => {
+        return x + 'x'
+    })}>{state}</button>
+}
+
+
+
+
+const node = 
+    <React.unstable_ConcurrentMode>
+        <StatefulDemo />
+    </React.unstable_ConcurrentMode>
+
+const component = renderer.create(node);
+let root = findFiberRoot(component.root._fiber);
+
+// expect(lastMessage).toBe('wumbo')
+// dryRender(elementFromFiber(root.child), root.child)
+// expect(lastMessage).toBe('wumbo')
+act(() => {
+    component.root.findByType('button').props.onClick()
+    // component.root.findByType('button').props.onClick()
+    // component.root.findByType('button').props.onClick()
+    // component.root.findByType('button').props.onClick()
+})
+
+// setTimeout(function(){
+
+console.log(component.toJSON())
+
+
+console.log('I DID TTHE THING')
+// expect(lastMessage).toBe('derp')
+dryRender(elementFromFiber(root.child), root.child)
+// expect(lastMessage).toBe('derp')
+
+debugger
+
+// }, 1000)
 // let callRender = jest.fn()
         
-    class ColorProvider extends React.Component {
-        static childContextTypes = {
-            color: PropTypes.string
-        }
-        getChildContext() {
-            return { color: "purple" };
-        }
-        render(){
-            // callRender()
-            return <div>{this.props.children}</div>
-        }
-    }
+    // class ColorProvider extends React.Component {
+    //     static childContextTypes = {
+    //         color: PropTypes.string
+    //     }
+    //     getChildContext() {
+    //         return { color: "purple" };
+    //     }
+    //     render(){
+    //         // callRender()
+    //         return <div>{this.props.children}</div>
+    //     }
+    // }
 
-    class LanguageProvider extends React.Component {
-        static childContextTypes = {
-            language: PropTypes.string
-        }
-        getChildContext() {
-            return { language: "swahili" };
-        }
-        render(){
-            // callRender()
-            return <div>{this.props.children}</div>
-        }
-    }
+    // class LanguageProvider extends React.Component {
+    //     static childContextTypes = {
+    //         language: PropTypes.string
+    //     }
+    //     getChildContext() {
+    //         return { language: "swahili" };
+    //     }
+    //     render(){
+    //         // callRender()
+    //         return <div>{this.props.children}</div>
+    //     }
+    // }
 
-    class LegacyColorConsumer extends React.Component {
-        static contextTypes = {
-            color: PropTypes.string,
-            language: PropTypes.string
-        }
-        render(){
-            // expect(this.context.color).toBe('purple')
-            // expect(this.context.language).toBe('swahili')
-            // callRender()
-            return <div>{this.context.color}</div>
-        }
-    }
+    // class LegacyColorConsumer extends React.Component {
+    //     static contextTypes = {
+    //         color: PropTypes.string,
+    //         language: PropTypes.string
+    //     }
+    //     render(){
+    //         // expect(this.context.color).toBe('purple')
+    //         // expect(this.context.language).toBe('swahili')
+    //         // callRender()
+    //         return <div>{this.context.color}</div>
+    //     }
+    // }
 
-    function LegacyContextFunction(props, context){
-        // expect(context.color).toBe('purple')
-        // expect(context.language).toBe('swahili')
-        // callRender()
-        return <div>{context.color}</div>
-    }
-    LegacyContextFunction.contextTypes = {
-        color: PropTypes.string,
-        language: PropTypes.string
-    }
+    // function LegacyContextFunction(props, context){
+    //     // expect(context.color).toBe('purple')
+    //     // expect(context.language).toBe('swahili')
+    //     // callRender()
+    //     return <div>{context.color}</div>
+    // }
+    // LegacyContextFunction.contextTypes = {
+    //     color: PropTypes.string,
+    //     language: PropTypes.string
+    // }
 
-    function IlliterateFunction(props, context){
-        // expect(context.color).toBe('purple')
-        // expect(context.language).toBeUndefined()
-        // callRender()
-        debugger
-        return <div>{context.language}</div>
-    }
-    IlliterateFunction.contextTypes = {
-        language: PropTypes.string,
-        color: PropTypes.string
-    }
+    // function IlliterateFunction(props, context){
+    //     // expect(context.color).toBe('purple')
+    //     // expect(context.language).toBeUndefined()
+    //     // callRender()
+    //     debugger
+    //     return <div>{context.language}</div>
+    // }
+    // IlliterateFunction.contextTypes = {
+    //     language: PropTypes.string,
+    //     color: PropTypes.string
+    // }
 
 
-    const node = <ColorProvider>
-        <LanguageProvider>
-            <LegacyColorConsumer />
-            <LegacyColorFunction />
-        </LanguageProvider>
-        <IlliterateFunction />
-    </ColorProvider>
+    // const node = <ColorProvider>
+    //     <LanguageProvider>
+    //         <LegacyColorConsumer />
+    //         <LegacyColorFunction />
+    //     </LanguageProvider>
+    //     <IlliterateFunction />
+    // </ColorProvider>
 
-    const component = renderer.create(node);
-    // expect(callRender.mock.calls.length).toBe(5)
+    // const component = renderer.create(node);
+    // // expect(callRender.mock.calls.length).toBe(5)
     
-    let root = findFiberRoot(component.root._fiber);
+    // let root = findFiberRoot(component.root._fiber);
 
-    // re-render but dont re-render ColorProvider
-    dryRender(elementFromFiber(root.child.child), root.child.child)
-    // expect(callRender.mock.calls.length).toBe(5 + 3)
+    // // re-render but dont re-render ColorProvider
+    // dryRender(elementFromFiber(root.child.child), root.child.child)
+    // // expect(callRender.mock.calls.length).toBe(5 + 3)
 
 
 // let callRender = jest.fn()

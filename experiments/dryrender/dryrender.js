@@ -125,8 +125,6 @@ export default function dryRender(node, fiber){
     }else if(ReactIs.isForwardRef(node)){
         let nextChildren = node.type.render(node.props, node.ref);
         dryRender(nextChildren, fiber && fiber.child)
-    }else{
-        debugger
     }
 }
 
@@ -182,9 +180,10 @@ const DryRenderHooksDispatcher = {
         let hook = nextHook()
         let value;
         if(hook) {
-            // value = hook.memoizedState;
-            if(hook.queue){
-                // we use the latest state we can possibly have access to
+            // we use the latest state we can possibly have access to
+            if(hook.queue && hook.queue.last){
+                value = hook.queue.last.eagerState
+            }else if(hook.queue){
                 value = hook.queue.lastRenderedState
             }else{
                 value = hook.memoizedState;    

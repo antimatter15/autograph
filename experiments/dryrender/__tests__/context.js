@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+import renderer, { act } from 'react-test-renderer';
 import dryRender from '../dryrender'
 import PropTypes from 'prop-types';
 
@@ -214,6 +214,40 @@ test('modern context api (render prop)', () => {
 
     dryRender(node, null)
     expect(callRender.mock.calls.length).toBe(2)
+})
+
+
+
+
+
+test('modern context api (render prop / rehydrate)', () => {
+    const ContextDemo = React.createContext(451)
+    let lastMessage;
+
+    function StatefulDemo(){
+        let [ state, setState ] = React.useState('wumbo')
+        lastMessage = state;
+        return <button onClick={e => setState('derp')}>{state}</button>
+    }
+
+    const node = <div>
+        <ContextDemo.Provider value={711}>
+            <ContextDemo.Consumer>{
+                value => <StatefulDemo />
+            }</ContextDemo.Consumer>
+        </ContextDemo.Provider>
+    </div>
+
+    const component = renderer.create(node);
+    let root = findFiberRoot(component.root._fiber);
+
+    expect(lastMessage).toBe('wumbo')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('wumbo')
+    act(() => component.root.findByType('button').props.onClick())
+    expect(lastMessage).toBe('derp')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('derp')
 })
 
 
