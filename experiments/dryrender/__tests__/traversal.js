@@ -1,6 +1,6 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import dryRender from './dryrender'
+import dryRender from '../dryrender'
 import ReactDOM from 'react-dom';
 
 describe('basic render traversal', () => {
