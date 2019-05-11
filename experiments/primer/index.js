@@ -44,69 +44,64 @@ function elementFromFiber(fiber){
 }
 
 
-let currentTotem;
-let stateMap = new Map()
-let state = {
-    fields: [],
-    data: {},
-    sentinel: field => {
-        if(!field) debugger;
-        state.fields.push(field)
-        if(field in state.data) return state.data[field];
-        return 'hi'
-    }
-}
+
+const clientMap = new Map()
 
 function usePrimer(client){
+    if(!clientMap.has(client)){
+        clientMap.set(client, {
+            fields: [],
+            data: {},
+            callbacks: {}
+        })
+    }
+    let state = clientMap.get(client);
+    let [ callbackID, triggerCallback ] = useState(Math.random().toString(36).slice(3))
+
+    if(state.sentinel) return state.sentinel;
+    if(state.fetching) throw state.fetching;
+
+    state.callbacks[callbackID] = () => {
+        // callbacks are only fired once
+        delete state.callbacks[callbackID]
+        console.log('remaining callbacks', Object.keys(state.callbacks))
+        triggerCallback(callbackID)
+    };
+    // state.callbacks.push(cb)
+    console.log('adding callback', callbackID)
+    
     let rootFiber = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner.current
-    console.log(state, rootFiber.memoizedState)
-    // if(!stateMap.has(rootFiber)){
-    //     console.log('allocating a new thing')
-    //     stateMap.set(rootFiber, {
-    //         fields: [],
-    //         data: {},
-    //         sentinel: field => state.fields.push(field)
-    //     })
-    // }
-    // let state = stateMap.get(rootFiber);
-    let [ xyz, setState ] = useState(11)
 
-    React.useEffect(() => {
-        console.log('do')
-        return () => {
-            console.log('undo')
-        }
-    })
-    
-    // console.log(xyz, currentTotem)
-
-    if(currentTotem) return state.sentinel;
-    if(state.fetching) throw state.fetching;    
-
-    
     return field => {
         if(field in state.data) return state.data[field];
+        console.log('missing data', field, state.data)
         if(!state.fetching){
             state.fields = []
-            let previousTotem = currentTotem;
-            try {
-                currentTotem = true;
-                dryRender(elementFromFiber(rootFiber), rootFiber)
-            } finally {
-                currentTotem = previousTotem;
+            state.sentinel = field => {
+                console.log('sentinel read', field)
+                state.fields.push(field)
+                if(field in state.data) return state.data[field];
+                return 'hi'
             }
+            dryRender(elementFromFiber(rootFiber), rootFiber)
+            delete state.sentinel;
+
             state.fetching = client(state.fields)
                 .then(data => {
                     state.data = data
                     delete state.fetching
                 })
-            console.log('scheduled root rerender')
-            // this has no effect when we are still inside the autograph root...
-            setState(42) // schedule re-render autograph root
+            
+            // trigger a re-render for all autograph roots which are
+            // attached to this client
+            for(let id in state.callbacks) state.callbacks[id]();
         }
         throw state.fetching;
     }
 }
+
+
+
 
 
 ReactDOM.unstable_createRoot(document.getElementById('root'))
