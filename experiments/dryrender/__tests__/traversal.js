@@ -150,7 +150,7 @@ describe('basic render traversal', () => {
             callRender()
             return "thing"
         }
-        const node = <React.unstable_Profiler>
+        const node = <React.unstable_Profiler onRender={() => {}} id="asdf">
             <Thing />
         </React.unstable_Profiler>
         dryRender(node, null)

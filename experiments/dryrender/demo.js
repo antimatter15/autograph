@@ -164,20 +164,39 @@ function StatefulDemo(){
     return <button onClick={e => setState('derp')}>{state}</button>
 }
 
-function Dummy(){
-    // callRender()
-    return <StatefulDemo />
-}
-const LazyDummy = React.lazy(() => new Promise((resolve) => resolve({
-    'default': Dummy
-})))
-const node = <React.Suspense fallback={<div>loading...</div>}>
-    <LazyDummy />
-</React.Suspense>
+// function Dummy(){
+//     // callRender()
+//     return <StatefulDemo />
+// }
+// const LazyDummy = React.lazy(() => new Promise((resolve) => resolve({
+//     'default': Dummy
+// })))
+// const node = <React.Suspense fallback={<div>loading...</div>}>
+//     <LazyDummy />
+// </React.Suspense>
 
+
+const node = <div>
+        <div>abc</div>
+        {[
+            <div key='ylo'>merp</div>,
+            <StatefulDemo key='xyz' />
+        ]}
+        <div>wat</div>
+    </div>
 const component = renderer.create(node);
 let root = findFiberRoot(component.root._fiber);
 
+
+
+// expect(lastMessage).toBe('wumbo')
+dryRender(elementFromFiber(root.child), root.child)
+// expect(lastMessage).toBe('wumbo')
+act(() => component.root.findByType('button').props.onClick())
+
+// expect(lastMessage).toBe('derp')
+dryRender(elementFromFiber(root.child), root.child)
+// expect(lastMessage).toBe('derp')
 // expect(callRender.mock.calls.length).toBe(0)
 // dryRender(elementFromFiber(root.child), root.child)
 // expect(callRender.mock.calls.length).toBe(0)
@@ -186,19 +205,19 @@ let root = findFiberRoot(component.root._fiber);
 // expect(callRender.mock.calls.length).toBe(1)
 // dryRender(elementFromFiber(root.child), root.child)
 // expect(callRender.mock.calls.length).toBe(2)
-setTimeout(() => {
+// setTimeout(() => {
 
-    // expect(lastMessage).toBe('wumbo')
-    dryRender(elementFromFiber(root.child), root.child)
-    // expect(lastMessage).toBe('wumbo')
-    act(() => component.root.findByType('button').props.onClick())
+//     // expect(lastMessage).toBe('wumbo')
+//     dryRender(elementFromFiber(root.child), root.child)
+//     // expect(lastMessage).toBe('wumbo')
+//     act(() => component.root.findByType('button').props.onClick())
 
-    // expect(lastMessage).toBe('derp')
-    dryRender(elementFromFiber(root.child), root.child)
-    // expect(lastMessage).toBe('derp')
+//     // expect(lastMessage).toBe('derp')
+//     dryRender(elementFromFiber(root.child), root.child)
+//     // expect(lastMessage).toBe('derp')
 
-    debugger
-}, 10)
+//     debugger
+// }, 10)
 
 // const ContextDemo = React.createContext(451)
 // let lastMessage;

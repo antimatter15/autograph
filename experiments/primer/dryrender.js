@@ -87,7 +87,7 @@ export default function dryRender(node, fiber){
             _currentLegacyContext = originalLegacyContext;
         }
     }else if(typeof node.type === 'function'){
-        console.log('Functional component', node.type.name)
+        console.log('Functional component', node.type.name, fiber)
         let nextChildren;
         let legacyContext;
         if(fiber) _currentHookState = fiber.memoizedState;
@@ -185,8 +185,10 @@ const DryRenderHooksDispatcher = {
         let hook = nextHook()
         let value;
         if(hook) {
+            // TODO: we need to rewrite this so that this actually makes sense
+            
             // we use the latest state we can possibly have access to
-            if(hook.queue && hook.queue.last){
+            if(hook.queue && hook.queue.last && hook.queue.last.eagerState){
                 value = hook.queue.last.eagerState
             }else if(hook.queue){
                 value = hook.queue.lastRenderedState

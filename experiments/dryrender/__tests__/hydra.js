@@ -318,7 +318,7 @@ test('profiler rehydrate', () => {
     }
 
     const node = 
-        <React.unstable_Profiler>
+        <React.unstable_Profiler onRender={() => {}} id="asdf">
             <StatefulDemo />
         </React.unstable_Profiler>
 
@@ -462,6 +462,42 @@ test('fragment rehydrate', () => {
     dryRender(elementFromFiber(root.child), root.child)
     expect(lastMessage).toBe('derp')
 })
+
+
+
+
+test('misc rehydrate', () => {
+    let lastMessage;
+
+    function StatefulDemo(){
+        let [ state, setState ] = React.useState('wumbo')
+        lastMessage = state;
+        return <button onClick={e => setState('derp')}>{state}</button>
+    }
+
+
+    const node = <div>
+        <div>abc</div>
+        {[
+            <div key='ylo'>merp</div>,
+            <StatefulDemo key='xyz' />
+        ]}
+        <div>wat</div>
+    </div>
+
+    const component = renderer.create(node);
+    let root = findFiberRoot(component.root._fiber);
+
+    expect(lastMessage).toBe('wumbo')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('wumbo')
+    act(() => component.root.findByType('button').props.onClick())
+
+    expect(lastMessage).toBe('derp')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('derp')
+})
+
 
 
 
