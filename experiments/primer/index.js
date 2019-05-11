@@ -74,63 +74,124 @@ function elementFromFiber(fiber){
 }
 
 
-const clientMap = new Map()
+
+
+
+function useStateDurable(initialState){
+    // this is useState but it works in dreams with aborted initial renders...
+    // maybe use actualStartTime to determine if something has been reset?
+    // and key by rootFiber.type?
+    // and maybe additionally we should throw in the parentage? i.e. all the types of all the return fibers
+
+    // that means the only situation where this wouldn't work would be where you have multiple
+    // react roots which have otherwise identical trees being fed identical 
+    // well we can deal with that by also referencing the root stateNode, since that's got to be unique right
+
+
+    return useState(() => {
+
+
+
+
+
+    })
+}
+
 
 function usePrimer(client){
-    if(!clientMap.has(client)){
-        clientMap.set(client, {
-            fields: {},
-            data: {},
-            callbacks: {}
-        })
-    }
-    let state = clientMap.get(client);
-    let [ callbackID, triggerCallback ] = useState(() => Math.random().toString(36).slice(3))
+    let [ state, setState ] = useState(() => ({
+        fields: {},
+        data: {}
+    }))
 
     if(state.sentinel) return state.sentinel;
     if(state.fetching) throw state.fetching;
-    
     let rootFiber = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner.current
-    state.callbacks[callbackID.split('#')[0]] = [ rootFiber, () => {
-        console.log('rerender', callbackID)
-        triggerCallback(callbackID.split('#')[0] + '#' + Math.random())
-    } ]
-    console.log('render', callbackID)
+    debugger
 
+    if(typeof state === 'function') debugger;
     return field => {
         if(field in state.data) return state.data[field];
-        console.log('missing data', field, state.data)
         if(!state.fetching){
-            console.groupCollapsed('dry render')
             state.fields = {}
             state.sentinel = field => {
-                console.log('sentinel read', field)
+                // console.log(state)
                 state.fields[field] = 1
                 if(field in state.data) return state.data[field];
                 return 'hi'
             }
-            for(let id in state.callbacks){
-                let rootFiber = state.callbacks[id][0]
-                dryRender(elementFromFiber(rootFiber), rootFiber)    
-            }
-            
-            delete state.sentinel;
+            console.groupCollapsed('dry render')
+            dryRender(elementFromFiber(rootFiber), rootFiber)    
             console.groupEnd('dry render')
-
             state.fetching = client(Object.keys(state.fields))
                 .then(data => {
                     state.data = data
                     delete state.fetching
                 })
-            
-            // trigger a re-render for all autograph roots which are
-            // attached to this client
-            for(let id in state.callbacks) state.callbacks[id][1]();
-            state.callbacks = {}
+            setState({ ...state }) // clone object to force re-render
         }
         throw state.fetching;
     }
 }
+
+
+// const clientMap = new Map()
+
+// function usePrimer(client){
+//     if(!clientMap.has(client)){
+//         clientMap.set(client, {
+//             fields: {},
+//             data: {},
+//             callbacks: {}
+//         })
+//     }
+//     let state = clientMap.get(client);
+//     let [ callbackID, triggerCallback ] = useState(() => Math.random().toString(36).slice(3))
+
+//     if(state.sentinel) return state.sentinel;
+//     if(state.fetching) throw state.fetching;
+    
+//     let rootFiber = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner.current
+//     state.callbacks[callbackID.split('#')[0]] = [ rootFiber, () => {
+//         console.log('rerender', callbackID)
+//         triggerCallback(callbackID.split('#')[0] + '#' + Math.random())
+//     } ]
+//     console.log('render', callbackID)
+
+//     return field => {
+//         if(field in state.data) return state.data[field];
+//         console.log('missing data', field, state.data)
+//         if(!state.fetching){
+//             console.groupCollapsed('dry render')
+//             state.fields = {}
+//             state.sentinel = field => {
+//                 console.log('sentinel read', field)
+//                 state.fields[field] = 1
+//                 if(field in state.data) return state.data[field];
+//                 return 'hi'
+//             }
+//             for(let id in state.callbacks){
+//                 let rootFiber = state.callbacks[id][0]
+//                 dryRender(elementFromFiber(rootFiber), rootFiber)    
+//             }
+            
+//             delete state.sentinel;
+//             console.groupEnd('dry render')
+
+//             state.fetching = client(Object.keys(state.fields))
+//                 .then(data => {
+//                     state.data = data
+//                     delete state.fetching
+//                 })
+            
+//             // trigger a re-render for all autograph roots which are
+//             // attached to this client
+//             for(let id in state.callbacks) state.callbacks[id][1]();
+//             state.callbacks = {}
+//         }
+//         throw state.fetching;
+//     }
+// }
 
 
 

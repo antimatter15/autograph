@@ -9,3 +9,5 @@ We want this to support multiple clients and multiple Autographs with potentiall
     return <div>{query1.stuff} {query2.stuff}</div>
 
 In fact we actually want to support multiple instances of the same endpoint. Maybe we could store each update hook but we only fire them once. 
+
+

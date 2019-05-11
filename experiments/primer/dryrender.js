@@ -186,7 +186,7 @@ const DryRenderHooksDispatcher = {
         let value;
         if(hook) {
             // TODO: we need to rewrite this so that this actually makes sense
-            
+
             // we use the latest state we can possibly have access to
             if(hook.queue && hook.queue.last && hook.queue.last.eagerState){
                 value = hook.queue.last.eagerState
@@ -202,7 +202,11 @@ const DryRenderHooksDispatcher = {
     },
     
     useState: (initialState) => {
-        return DryRenderHooksDispatcher.useReducer(() => {}, initialState)
+        if (typeof initialState === 'function') {
+            return DryRenderHooksDispatcher.useReducer(() => {}, undefined, initialState)
+        }else{
+            return DryRenderHooksDispatcher.useReducer(() => {}, initialState)    
+        }        
     },
 
     // TODO: don't ignore deps
