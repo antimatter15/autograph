@@ -1,4 +1,12 @@
-# Amb
+# Quantum Superposition in Javascript
+
+
+
+
+
+
+
+
 
 Autograph depends on being able to faux-symbolically execute some code to determine dataflow dependencies. This is tricky when it comes to control flow, as not all branches can be explored. For example, consider the following code:
 

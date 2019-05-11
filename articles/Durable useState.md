@@ -57,3 +57,16 @@ It'd be nice if there were some way that this data were scoped to a single compo
         return <div>{data}</div>
     }
 
+
+This doesn't work. 
+
+The reason it doesn't work is that if we throw a promise during the first render of a component, React never saves the component's state. So when the thrown promise finally resolves and React tries to re-render App, it doesn't notice that it's already fetched the data, and tries to fetch again. 
+
+ 
+Here's where `useStateDurable` comes in. It's a kind of weirder version of `useState` that still works in aborted renders. 
+
+
+
+
+
+
