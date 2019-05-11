@@ -6,7 +6,8 @@ const Database = {
     message: 'hello world',
     42: 'merp',
     43: 'yolo',
-    44: 'derp'
+    44: 'derp',
+    time: () => Date.now()
 }
 
 function fetchData(fields){
@@ -15,34 +16,62 @@ function fetchData(fields){
         setTimeout(function(){
             let result = {}
             for(let field of fields){
-                result[field] = Database[field]
+                if(typeof Database[field] === 'function'){
+                    result[field] = Database[field]()
+                }else{
+                    result[field] = Database[field]    
+                }
             }
             resolve(result)
-        }, 1000)
+        }, 100)
     })
 }
 
 
 function App(){
+    return <div>
+        <React.Suspense fallback={<div>Loading...</div>}><Part1/></React.Suspense>
+        <React.Suspense fallback={<div>Loading...</div>}><Part2/></React.Suspense>
+    </div>
+}
+
+
+
+function Part1(){
     let get = usePrimer(fetchData)
     let [ x, setX ] = useState(42)
+
+    return <div>
+        {get('message')}<button onClick={e => setX(x + 1)}>{get(x) || x}</button>
+        <p>{get('time')}</p>
+    </div>
+    // return <Derp x={x} setX={setX} get={get} />
+}
+
+
+function Part2(){
+    let get = usePrimer(fetchData)
+    let [ x, setX ] = useState(55)
 
     // return <div>{get('message')}<button onClick={e => setX(x + 1)}>{get(x) || x}</button></div>
     return <Derp x={x} setX={setX} get={get} />
 }
 
-
 function Derp({ x, setX, get }){
-    return <div>{get('message')}<button onClick={e => setX(x + 1)}>{get(x) || x}</button></div>
+    return <div>
+        {get('message')}<button onClick={e => setX(x + 1)}>{get(x) || x}</button>
+        <p>{get('time')}</p>
+    </div>
 }
 
 
 function elementFromFiber(fiber){
+    if(!fiber) debugger;
+
     let props = { ...fiber.memoizedProps }
     if(fiber.key) props.key = fiber.key;
     return React.createElement(fiber.type, props)
 }
-
 
 
 const clientMap = new Map()
@@ -50,43 +79,45 @@ const clientMap = new Map()
 function usePrimer(client){
     if(!clientMap.has(client)){
         clientMap.set(client, {
-            fields: [],
+            fields: {},
             data: {},
             callbacks: {}
         })
     }
     let state = clientMap.get(client);
-    let [ callbackID, triggerCallback ] = useState(Math.random().toString(36).slice(3))
+    let [ callbackID, triggerCallback ] = useState(() => Math.random().toString(36).slice(3))
 
     if(state.sentinel) return state.sentinel;
     if(state.fetching) throw state.fetching;
-
-    state.callbacks[callbackID] = () => {
-        // callbacks are only fired once
-        delete state.callbacks[callbackID]
-        console.log('remaining callbacks', Object.keys(state.callbacks))
-        triggerCallback(callbackID)
-    };
-    // state.callbacks.push(cb)
-    console.log('adding callback', callbackID)
     
     let rootFiber = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner.current
+    state.callbacks[callbackID.split('#')[0]] = [ rootFiber, () => {
+        console.log('rerender', callbackID)
+        triggerCallback(callbackID.split('#')[0] + '#' + Math.random())
+    } ]
+    console.log('render', callbackID)
 
     return field => {
         if(field in state.data) return state.data[field];
         console.log('missing data', field, state.data)
         if(!state.fetching){
-            state.fields = []
+            console.groupCollapsed('dry render')
+            state.fields = {}
             state.sentinel = field => {
                 console.log('sentinel read', field)
-                state.fields.push(field)
+                state.fields[field] = 1
                 if(field in state.data) return state.data[field];
                 return 'hi'
             }
-            dryRender(elementFromFiber(rootFiber), rootFiber)
+            for(let id in state.callbacks){
+                let rootFiber = state.callbacks[id][0]
+                dryRender(elementFromFiber(rootFiber), rootFiber)    
+            }
+            
             delete state.sentinel;
+            console.groupEnd('dry render')
 
-            state.fetching = client(state.fields)
+            state.fetching = client(Object.keys(state.fields))
                 .then(data => {
                     state.data = data
                     delete state.fetching
@@ -94,7 +125,8 @@ function usePrimer(client){
             
             // trigger a re-render for all autograph roots which are
             // attached to this client
-            for(let id in state.callbacks) state.callbacks[id]();
+            for(let id in state.callbacks) state.callbacks[id][1]();
+            state.callbacks = {}
         }
         throw state.fetching;
     }
@@ -104,14 +136,14 @@ function usePrimer(client){
 
 
 
-ReactDOM.unstable_createRoot(document.getElementById('root'))
-.render(<React.Suspense fallback={<div>Loading...</div>}>
-    <App />
-</React.Suspense>)
-
-
-
-// ReactDOM.render(<React.Suspense fallback={<div>Loading...</div>}>
+// ReactDOM.unstable_createRoot(document.getElementById('root'))
+// .render(<React.Suspense fallback={<div>Loading...</div>}>
 //     <App />
-// </React.Suspense>, document.getElementById('root'))
+// </React.Suspense>)
+
+
+
+ReactDOM.render(
+    <App />
+, document.getElementById('root'))
 
