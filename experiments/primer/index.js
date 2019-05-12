@@ -30,15 +30,17 @@ function fetchData(fields){
 
 function App(){
     return <div>
-        <React.Suspense fallback={<div>Loading...</div>}><Part1/></React.Suspense>
-        <React.Suspense fallback={<div>Loading...</div>}><Part2/></React.Suspense>
+        <React.Suspense fallback={<div>Loading...</div>}>
+            <Part1/>
+        </React.Suspense>
     </div>
 }
 
 
 
 function Part1(){
-    let get = usePrimer(fetchData)
+    // let get = usePrimer(fetchData)
+    let get = React.useContext(PrimerContext)
     let [ x, setX ] = useState(42)
 
     return <div>
@@ -77,63 +79,140 @@ function elementFromFiber(fiber){
 
 
 
-function useStateDurable(initialState){
-    // this is useState but it works in dreams with aborted initial renders...
-    // maybe use actualStartTime to determine if something has been reset?
-    // and key by rootFiber.type?
-    // and maybe additionally we should throw in the parentage? i.e. all the types of all the return fibers
-
-    // that means the only situation where this wouldn't work would be where you have multiple
-    // react roots which have otherwise identical trees being fed identical 
-    // well we can deal with that by also referencing the root stateNode, since that's got to be unique right
 
 
-    return useState(() => {
+// function useStateDurable(initialState){
+//     // this is useState but it works in dreams with aborted initial renders...
+//     // maybe use actualStartTime to determine if something has been reset?
+//     // and key by rootFiber.type?
+//     // and maybe additionally we should throw in the parentage? i.e. all the types of all the return fibers
+
+//     // that means the only situation where this wouldn't work would be where you have multiple
+//     // react roots which have otherwise identical trees being fed identical 
+//     // well we can deal with that by also referencing the root stateNode, since that's got to be unique right
+
+//     let rootFiber = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner.current
+//     return useState(() => {
 
 
 
 
 
-    })
-}
+//     })
+// }
 
 
-function usePrimer(client){
-    let [ state, setState ] = useState(() => ({
-        fields: {},
-        data: {}
-    }))
+// function usePrimer(client){
+//     let [ state, setState ] = useState(() => ({
+//         fields: {},
+//         data: {}
+//     }))
 
-    if(state.sentinel) return state.sentinel;
-    if(state.fetching) throw state.fetching;
-    let rootFiber = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner.current
-    debugger
+//     if(state.sentinel) return state.sentinel;
+//     if(state.fetching) throw state.fetching;
+//     let rootFiber = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner.current
+//     debugger
 
-    if(typeof state === 'function') debugger;
-    return field => {
-        if(field in state.data) return state.data[field];
-        if(!state.fetching){
-            state.fields = {}
-            state.sentinel = field => {
-                // console.log(state)
-                state.fields[field] = 1
-                if(field in state.data) return state.data[field];
-                return 'hi'
-            }
-            console.groupCollapsed('dry render')
-            dryRender(elementFromFiber(rootFiber), rootFiber)    
-            console.groupEnd('dry render')
-            state.fetching = client(Object.keys(state.fields))
-                .then(data => {
-                    state.data = data
-                    delete state.fetching
-                })
-            setState({ ...state }) // clone object to force re-render
-        }
-        throw state.fetching;
-    }
-}
+//     if(typeof state === 'function') debugger;
+//     return field => {
+//         if(field in state.data) return state.data[field];
+//         if(!state.fetching){
+//             state.fields = {}
+//             state.sentinel = field => {
+//                 // console.log(state)
+//                 state.fields[field] = 1
+//                 if(field in state.data) return state.data[field];
+//                 return 'hi'
+//             }
+//             console.groupCollapsed('dry render')
+//             dryRender(elementFromFiber(rootFiber), rootFiber)    
+//             console.groupEnd('dry render')
+//             state.fetching = client(Object.keys(state.fields))
+//                 .then(data => {
+//                     state.data = data
+//                     delete state.fetching
+//                 })
+//             setState({ ...state }) // clone object to force re-render
+//         }
+//         throw state.fetching;
+//     }
+// }
 
+
+
+const PrimerContext = React.createContext(null)
+
+// function AutographRoot({ children, client }){
+//     let [ state, setState ] = useState(() => ({
+//         fields: {},
+//         data: {}
+//     }))
+//     let rootFiber = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner.current;
+//     if(state.fetching) throw state.fetching;
+
+//     return <PrimerContext.Provider value={state.sentinel ? state.sentinel : field => {
+//         if(field in state.data) return state.data[field];
+//         if(!state.fetching){
+//             state.fields = {}
+//             state.sentinel = field => {
+//                 // console.log(state)
+//                 state.fields[field] = 1
+//                 if(field in state.data) return state.data[field];
+//                 return 'hi'
+//             }
+//             console.groupCollapsed('dry render')
+//             // dryRender(elementFromFiber(rootFiber), rootFiber)    
+//             console.groupEnd('dry render')
+//             state.fetching = client(Object.keys(state.fields))
+//                 .then(data => {
+//                     state.data = data
+//                     delete state.fetching
+//                 })
+//             setState({ ...state }) // clone object to force re-render
+//         }
+//         throw state.fetching;
+//     }}>
+//         {children}
+//     </PrimerContext.Provider>    
+// }
+// class AutographRoot extends React.Component {
+//     constructor(){
+//         super()
+//         this.state = {
+//             fields: {},
+//             data: {}
+//         }
+//     }
+//     get(field){
+//         let state = this.state;
+//         if(field in state.data) return state.data[field];
+//         if(!state.fetching){
+//             state.fields = {}
+//             state.sentinel = field => {
+//                 state.fields[field] = 1
+//                 if(field in state.data) return state.data[field];
+//                 return 'hi'
+//             }
+//             console.groupCollapsed('dry render')
+//             dryRender(elementFromFiber(this.rootFiber), this.rootFiber)    
+//             state.fetching = this.props.client(Object.keys(state.fields))
+//                 .then(data => {
+//                     state.data = data
+//                     delete state.fetching
+//                 })
+//             this.setState({})
+//         }
+//         throw state.fetching;
+//     }
+//     render(){
+//         this.rootFiber = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner.current;
+//         return <PrimerContext.Provider value={this.state.sentinel ? this.state.sentinel : this.get.bind(this)}>
+//             {this.props.children}
+//         </PrimerContext.Provider>
+//     }
+// }
+
+// <Autograph></Autograph>
 
 // const clientMap = new Map()
 
