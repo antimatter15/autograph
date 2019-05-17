@@ -2,33 +2,41 @@
 
 Hooks and functional components.
 
-    function App(){
-        let query = useAutograph()
-        let data = query.findPerson({ id: 42 })
-        return <div>{data.first_name} {data.last_name}</div>
-    }
+- This is "ideal" but it requires us to do weird stuff like the `useStateDurable` pseudo-hook
 
-    ReactDOM.render(<Suspense fallback={<div>Loading...</div>}>
-        <App />
-    </Suspense>, document.getElementById('root'))
+```
+function App(){
+    let query = useAutograph()
+    let data = query.findPerson({ id: 42 })
+    return <div>{data.first_name} {data.last_name}</div>
+}
 
+ReactDOM.render(<Suspense fallback={<div>Loading...</div>}>
+    <App />
+</Suspense>, document.getElementById('root'))
+```
 
 Explicit autograph root and contexts.
 
-    function App(){
-        let query = useAutograph()
-        let data = query.findPerson({ id: 42 })
-        return <div>{data.first_name} {data.last_name}</div>
-    }
+- This is nice because we don't need to use `useStateDurable`
 
-    ReactDOM.render(<Suspense fallback={<div>Loading...</div>}>
-        <Autograph><App /></Autograph>
-    </Suspense>, document.getElementById('root'))
+```
+function App(){
+    let query = useAutograph()
+    let data = query.findPerson({ id: 42 })
+    return <div>{data.first_name} {data.last_name}</div>
+}
 
+ReactDOM.render(<Suspense fallback={<div>Loading...</div>}>
+    <Autograph><App /></Autograph>
+</Suspense>, document.getElementById('root'))
+```
 
 Autograph with embedded Suspense + Hooks
 
+- Since we almost always need a suspense with our autograph root, we can combine them together.
 
+```
     function App(){
         let query = useAutograph()
         let data = query.findPerson({ id: 42 })
@@ -38,7 +46,7 @@ Autograph with embedded Suspense + Hooks
     ReactDOM.render(<Autograph fallback={<div>Loading...</div>}>
         <App />
     </Autograph>, document.getElementById('root'))
-
+```
 
 Autograph with embedded Suspense + Class
 
@@ -69,6 +77,31 @@ Autograph Class HOC
     ReactDOM.render(<Suspense fallback={<div>Loading...</div>}>
         <App />
     </Suspense>, document.getElementById('root'))
+
+
+Autograph, with optional builtin Suspense?
+
+    <Autograph>{query => }</Autograph>
+    <Autograph fallback={<div>Loading...</div>}>{query => }</Autograph>
+    <Suspense fallback={<div>Loading...</div>}><Autograph fallback={null}>{query => }</Autograph></Suspense>
+
+
+    <Autograph context={AutographContext}><App /></Autograph>
+    <Autograph>{query => <AutographContext.Provider value={query}><App /></AutographContext.Provider>}</Autograph>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
