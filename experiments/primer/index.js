@@ -160,10 +160,10 @@ class Primer extends React.Component {
     }
 
     render(){
+        let rootFiber = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner.current
+
         if(!this.state){
             console.log('creating state', durableStates)
-
-            let rootFiber = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner.current;
             let path = getFiberPath(rootFiber),
                 state = getKV(durableStates, path)
 
@@ -184,29 +184,35 @@ class Primer extends React.Component {
         let client = this.props.client;
         let triggerUpdate = () => this.setState({ })
 
-        let rootFiber = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner.current
-        let query = state.sentinel ? state.sentinel : field => {
-            if(field in state.data) return state.data[field];
-            console.log('cache miss', state.data, field)
-            if(!state.fetching){
-                state.fields = {}
-                state.sentinel = field => {
-                    state.fields[field] = 1
-                    if(field in state.data) return state.data[field];
-                    return 'hi'
-                }
-                console.groupCollapsed('dry render')
-                dryRender(elementFromFiber(rootFiber), rootFiber)    
-                console.groupEnd('dry render')
-                delete state.sentinel
-                state.fetching = client(Object.keys(state.fields))
-                    .then(data => {
-                        state.data = data
-                        delete state.fetching
-                        triggerUpdate() // trigger autograph root re-render with new data
-                    })
+
+        let query;
+        if(state.inception){
+            query = field => {
+                state.fields[field] = 1
+                if(field in state.data) return state.data[field];
+                return 'hi'
             }
-            throw state.fetching;
+        }else{
+
+            query = field => {
+                if(field in state.data) return state.data[field];
+                console.log('cache miss', state.data, field)
+                if(!state.fetching){
+                    state.fields = {}
+                    state.inception = true;
+                    console.groupCollapsed('dry render')
+                    dryRender(elementFromFiber(rootFiber), rootFiber)    
+                    console.groupEnd('dry render')
+                    delete state.inception
+                    state.fetching = client(Object.keys(state.fields))
+                        .then(data => {
+                            state.data = data
+                            delete state.fetching
+                            triggerUpdate() // trigger autograph root re-render with new data
+                        })
+                }
+                throw state.fetching;
+            }
         }
         
         let children;
