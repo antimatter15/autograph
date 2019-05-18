@@ -35,14 +35,53 @@ function Meep(){
     </div>
 }
 
+function A(){
+    let [ n, setN ] = useState(0)
+    return <button onClick={e => setN(x => x + 1)}>Clicked {n} times</button>
+}
+
+function B(){
+    loadData()
+    return <div>loaded!</div>
+}
+
+function Suspense2(props){
+    let [ state, setState ] = React.useState(false);
+    
+    React.useEffect(() => {
+        setTimeout(() => setState(true), 100 * Math.random())
+    }, [])
+
+    return <React.Suspense 
+        fallback={props.fallback}>
+            {state ? props.children : null}
+        </React.Suspense>
+}
 
 ReactDOM.unstable_createRoot(document.getElementById('root'))
 .render(
-    <React.Suspense fallback={<div>test</div>}>
-        blah
-        <Meep></Meep>
-        <Meep></Meep>
-    </React.Suspense>)
+    <div>
+        Blarp
+        <Suspense2 fallback={<div>test</div>}>
+            blah
+            <A />
+        </Suspense2>
+
+        <Suspense2 fallback={<div>test</div>}>
+            <B />
+        </Suspense2>
+        
+    </div>)
+
+
+
+// ReactDOM.unstable_createRoot(document.getElementById('root'))
+// .render(
+//     <React.Suspense fallback={<div>test</div>}>
+//         blah
+//         <Meep></Meep>
+//         <Meep></Meep>
+//     </React.Suspense>)
 
 
 
