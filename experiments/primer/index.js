@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom'
 import dryRender from './dryrender'
 import useStateDurable from './durable'
 
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+
 
 const Database = {
     message1: 'hello world',
@@ -18,6 +21,8 @@ const Database = {
 function fetchData(fields){
     console.log('fetching fields', fields)
     return new Promise((resolve) => {
+        NProgress.start()
+
         setTimeout(function(){
             let result = {}
             for(let field of fields){
@@ -27,6 +32,8 @@ function fetchData(fields){
                     result[field] = Database[field]    
                 }
             }
+
+            NProgress.done()
             resolve(result)
         }, 1000)
     })
@@ -104,46 +111,6 @@ function elementFromFiber(fiber){
 }
 
 
-
-
-
-
-// function usePrimer(client){
-//     let state = useStateDurable(() => ({
-//         fields: {},
-//         data: {}
-//     }))
-//     let [ updateCount, setUpdateCount ] = useState(0)
-    
-//     if(state.sentinel) return state.sentinel;
-//     if(state.fetching) throw state.fetching;
-    
-//     let rootFiber = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner.current
-
-//     return field => {
-//         if(field in state.data) return state.data[field];
-//         if(!state.fetching){
-//             state.fields = {}
-//             state.sentinel = field => {
-//                 state.fields[field] = 1
-//                 if(field in state.data) return state.data[field];
-//                 return 'hi'
-//             }
-//             console.groupCollapsed('dry render')
-//             dryRender(elementFromFiber(rootFiber), rootFiber)    
-//             console.groupEnd('dry render')
-//             delete state.sentinel
-//             state.fetching = client(Object.keys(state.fields))
-//                 .then(data => {
-//                     state.data = data
-//                     delete state.fetching
-//                     setUpdateCount(x => x + 1) // trigger autograph root re-render with new data
-//                 })
-//         }
-//         throw state.fetching;
-//     }
-// }
-
 const PrimerContext = React.createContext(null)
 let durableStates = [];
 
@@ -193,7 +160,6 @@ class Primer extends React.Component {
                 return 'hi'
             }
         }else{
-
             query = field => {
                 if(field in state.data) return state.data[field];
                 console.log('cache miss', state.data, field)
@@ -206,6 +172,7 @@ class Primer extends React.Component {
                     delete state.inception
                     state.fetching = client(Object.keys(state.fields))
                         .then(data => {
+
                             state.data = data
                             delete state.fetching
                             triggerUpdate() // trigger autograph root re-render with new data
@@ -214,6 +181,10 @@ class Primer extends React.Component {
                 throw state.fetching;
             }
         }
+
+        // this is a way to read from the current state cache without suspending
+        // on cache misses. generally you do not want to use this. 
+        query.peek = field => state.data[field];
         
         let children;
         // children can be a function (render prop) or ordinary jsx
@@ -238,12 +209,39 @@ class Primer extends React.Component {
             // if we're explicitly disabling the automatic suspense boundary
             return children
         }else{
-            return <React.Suspense fallback={this.props.fallback || <div>Loading (default)...</div>}>{
+            // let fallback = this.props.fallback || ;
+            let fallback;
+
+            if(this.props.fallback){
+                fallback = this.props.fallback;
+            }else{
+                fallback = <div>Loading (default)...</div>
+            }
+
+            console.log(fallback)
+
+            return <React.Suspense fallback={fallback} >{
                 children
             }</React.Suspense>
         }
         
     }
+}
+
+
+function LoadingDemo(){
+    let get = usePrimer(fetchData)
+    // let get = React.useContext(PrimerContext)
+    let [ x, setX ] = useState(42)
+    let isLoading = get('_loading');
+
+    // note that hooks don't get loaded with the same value when running in the inline fallback mode
+
+    return <div>
+        {get('message1')}<button onClick={e => setX(x + 1)}>{isLoading ? '(loading)' : (get(x) || x)}</button>
+        <p>{get('time')}</p>
+    </div>
+    // return <Derp x={x} setX={setX} get={get} />
 }
 
 
@@ -299,7 +297,27 @@ class Meep extends React.Component {
 }
 
 
+function InlineFallback(props){
+    return <React.Suspense fallback={
+        <PrimerContext.Consumer>{
+            query => <PrimerContext.Provider value={field => {
+                if(field === '_loading') return true;
+                return query.peek(field) || null
+            }}>
+                {props.children}
+            </PrimerContext.Provider>
+        }</PrimerContext.Consumer>
+    }>{props.children}</React.Suspense>
+}
 
+
+
+function GlobalProgress(props){
+    return <React.Suspense fallback={<div>wat</div>} maxDuration={1000}>{props.children}</React.Suspense>
+}
+// function useIsLoading(){
+//     return React.useContext(LoadingContext)
+// }
 
 // ReactDOM.unstable_createRoot(document.getElementById('root'))
 // .render(<Meep>
@@ -309,7 +327,12 @@ class Meep extends React.Component {
 
 ReactDOM.unstable_createRoot(document.getElementById('root'))
 .render(<Primer client={fetchData}>
-    <Part1 />
+    <InlineFallback>
+        <LoadingDemo />
+    </InlineFallback>
+    <GlobalProgress>
+        <Part1 />
+    </GlobalProgress>
     <App />
 </Primer>)
 
