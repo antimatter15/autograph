@@ -13,6 +13,7 @@ export default function dryRender(node, fiber){
         for(let i = 0; i < node.length; i++){
             let child = node[i];
             // try {
+            if(!child) continue;
             dryRender(child, childFibers.get((child.key != null) ? child.key : i))
             // } catch (err) {
             //     console.error(err)
