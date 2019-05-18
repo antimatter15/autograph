@@ -1,49 +1,6 @@
 import React from 'react'
 
-
 let durableStates = [];
-
-function matchDurableKey(a, b){
-    return a.length === b.length && a.every((k, i) => 
-        k.every((x, j) => x === b[i][j]))
-}
-
-function getDurableState(key){
-    let index = durableStates.findIndex(([k, v]) => matchDurableKey(key, k));
-    if(index < 0){
-        return null;
-    }else{
-        return durableStates[index][1];    
-    }
-}
-
-function setDurableState(key, value){
-    let index = durableStates.findIndex(([k, v]) => matchDurableKey(key, k));
-    if(value !== null){
-        if(index != -1){
-            durableStates[index][1] = value;
-        }else{
-            durableStates.push([ key, value ])
-        }
-    }else{
-        if(index != -1){
-            durableStates.splice(index, 1);
-        }else{
-            // if we're removing something that doesn't exist, don't do anything
-        }
-    }
-}
-
-
-function getFiberPath(fiber){
-    let path = [];
-    while(fiber.return){
-        path.unshift([fiber.type, fiber.key || fiber.index])
-        fiber = fiber.return;
-    }
-    return path;
-}
-
 
 export default function useStateDurable(stateCreator){
     let rootFiber = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner.current;
@@ -51,23 +8,61 @@ export default function useStateDurable(stateCreator){
     let [ state, setState ] = React.useState(() => {
         cacheMiss = true;
         let path = getFiberPath(rootFiber),
-            state = getDurableState(path)
-        if(state){
+            state = getKV(durableStates, path)
+        // console.log(path)
+        if(state !== undefined){
             // console.log('restoring state', state)
             return state;
         }else{
             let newState = stateCreator() 
             // console.log('creating state', newState)
-            setDurableState(path, newState)
+            setKV(durableStates, path, newState)
             return newState
         }
     })
     React.useEffect(() => {
         if(cacheMiss){
             let path = getFiberPath(rootFiber);
-            setDurableState(path, null)    
+            delKV(durableStates, path)    
         }
         // console.log('removed state at path', cacheMiss, durableStates)
     })
     return state;
 }
+
+
+function getFiberPath(fiber){
+    let path = [];
+    while(fiber.return){
+        path.unshift(fiber.type, fiber.key || fiber.index)
+        fiber = fiber.return;
+    }
+    path.unshift(fiber.stateNode)
+    return path;
+}
+
+
+// this is basically an implementation of association lists
+// with arbitrary custom predicates. this is because javascript
+// maps don't support tuple keys. 
+
+function tupleEqual(a, b){
+    return a.length === b.length && a.every((k, i) => k === b[i])
+}
+
+function getKV(store, key, cmp = tupleEqual){
+    let index = store.findIndex(([k, v]) => cmp(key, k));
+    return index < 0 ? undefined : store[index][1]
+}
+
+function setKV(store, key, value, cmp = tupleEqual){
+    let index = store.findIndex(([k, v]) => cmp(key, k));
+    if(index != -1) store[index][1] = value;
+    else store.push([ key, value ]);
+}
+
+function delKV(store, key, cmp = tupleEqual){
+    let index = store.findIndex(([k, v]) => cmp(key, k));
+    if(index != -1) store.splice(index, 1);
+}
+
