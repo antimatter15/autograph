@@ -1,5 +1,5 @@
 import React  from 'react'
-import dryRender from './dryrender'
+import _dryRender from './dryrender'
 
 const PrimerContext = React.createContext(null)
 let durableStates = [];
@@ -10,8 +10,10 @@ export function usePrimer(){
 
 export class Primer extends React.Component {
     render(){
-        let rootFiber = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner.current
-        let state = ensureDurableState(this, rootFiber, () => ({
+        // THIS PART READS FROM REACT INTERNALS
+        let _rootFiber = this._reactInternalFiber;
+
+        let state = _ensureDurableState(this, _rootFiber, () => ({
             fields: {},
             data: {},
         }));
@@ -35,7 +37,7 @@ export class Primer extends React.Component {
                     state.fields = {}
                     state.inception = true;
                     console.groupCollapsed('dry render')
-                    dryRender(elementFromFiber(rootFiber), rootFiber)    
+                    _dryRender(_elementFromFiber(_rootFiber), _rootFiber)    
                     console.groupEnd('dry render')
                     delete state.inception
                     state.fetching = client(Object.keys(state.fields))
@@ -98,7 +100,7 @@ export class Primer extends React.Component {
 export default Primer;
 
 
-function elementFromFiber(fiber){
+function _elementFromFiber(fiber){
     if(!fiber) debugger;
 
     let props = { ...fiber.memoizedProps }
@@ -112,10 +114,10 @@ function RenderPropeller(props){
 }
 
 
-function ensureDurableState(instance, rootFiber, creator){
+function _ensureDurableState(instance, _rootFiber, creator){
     if(!instance.state){
         console.log('creating state', durableStates)
-        let path = getFiberPath(rootFiber),
+        let path = _getFiberPath(_rootFiber),
             state = getKV(durableStates, path)
 
         if(state !== undefined){
@@ -130,7 +132,7 @@ function ensureDurableState(instance, rootFiber, creator){
 }
 
 
-function getFiberPath(fiber){
+function _getFiberPath(fiber){
     let path = [];
     while(fiber.return){
         path.unshift(fiber.type, fiber.key || fiber.index)
@@ -167,15 +169,16 @@ function delKV(store, key, cmp = tupleEqual){
 
 
 export function InlineFallback(props){
+    let Context = props.context || PrimerContext;
     return <React.Suspense fallback={
-        <PrimerContext.Consumer>{
-            query => <PrimerContext.Provider value={field => {
+        <Context.Consumer>{
+            query => <Context.Provider value={field => {
                 if(field === '_loading') return true;
                 return query.peek(field) || null
             }}>
                 {props.children}
-            </PrimerContext.Provider>
-        }</PrimerContext.Consumer>
+            </Context.Provider>
+        }</Context.Consumer>
     }>{props.children}</React.Suspense>
 }
 
