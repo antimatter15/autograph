@@ -147,13 +147,15 @@ class Meep extends React.Component {
 
 
 ReactDOM.unstable_createRoot(document.getElementById('root'))
-.render(<Primer client={fetchData}>
-    <InlineFallback>
-        <LoadingDemo />
-    </InlineFallback>
-    <Part1 />
-    <App />
-</Primer>)
+.render(<div>
+    <Primer client={fetchData}>
+        <InlineFallback>
+            <LoadingDemo />
+        </InlineFallback>
+        <Part1 />
+        <App />
+    </Primer>
+</div>)
 
 
 

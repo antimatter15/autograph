@@ -2,6 +2,9 @@ import React from 'react';
 import * as ReactIs from 'react-is'
 import { Exception } from 'handlebars';
 
+// TODO: check out https://github.com/airbnb/enzyme/blob/master/packages/enzyme-adapter-react-16/src/ReactSixteenAdapter.js
+// TODO: add findCurrentFiberUsingSlowPath, because we're clearly getting the wrong fiber sometimes....
+
 const ALLOW_LEGACY_CONTEXT_API = true;
 
 let _currentLegacyContext = {}
@@ -13,6 +16,7 @@ export default function dryRender(node, fiber){
         for(let i = 0; i < node.length; i++){
             let child = node[i];
             // try {
+            // TODO: add test for when child is null/undefined
             if(!child) continue;
             dryRender(child, childFibers.get((child.key != null) ? child.key : i))
             // } catch (err) {

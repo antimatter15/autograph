@@ -1,3 +1,4 @@
+
 import React  from 'react'
 import _dryRender from './dryrender'
 
@@ -8,45 +9,17 @@ export function usePrimer(){
     return React.useContext(PrimerContext)
 }
 
-
-const tempStateMap = new Map()
-
-// TODO: think about what happens if `client` changes
 export class Primer extends React.Component {
-    constructor(props){
-        super()
-
-        // If suspense is used to deal with a promise thrown on the first
-        // render of some component, then React tends to re-create the 
-        // parent components. We need to be able to keep state even when
-        // React decides to re-create this element, so we cache our state
-        // in a map. This allows for consistency across the different 
-        // reincarnations of this instance. When the component is mounted,
-        // we safely remove the state from the cache, so that it can be 
-        // garbage collected later. 
-        
-        // Since client is used as a key for the state retrieval, we can't
-        // mount a single client object to multiple autograph roots. This 
-        // isn't a problem becaue we can easily create different client objects. 
-        
-        if(tempStateMap.has(props.client)){
-            this.state = tempStateMap.get(props.client)
-        }else{
-            this.state = { fields: {}, data: {} }
-            tempStateMap.set(props.client, this.state)
-        }
-    }
-
-    componentDidMount(){
-        if(tempStateMap.has(this.props.client)){
-            tempStateMap.delete(this.props.client)
-        }else{
-            throw new Error('only one client per thingy')
-        }
-    }
-
     render(){
-        let state = this.state;
+        // THIS PART READS FROM REACT INTERNALS
+        let _rootFiber = this._reactInternalFiber;
+
+        let state = _ensureDurableState(this, _rootFiber, () => ({
+            fields: {},
+            data: {},
+        }));
+
+        if(state.fetching) throw state.fetching;
         let query;
 
         if(state.inception){
@@ -58,10 +31,6 @@ export class Primer extends React.Component {
         }else{
             let client = this.props.client;
             let triggerUpdate = () => this.setState({ })
-            
-            // THIS PART READS FROM REACT INTERNALS
-            let _rootFiber = this._reactInternalFiber;
-
             query = field => {
                 if(field in state.data) return state.data[field];
                 console.log('cache miss', state.data, field)
@@ -114,11 +83,23 @@ export class Primer extends React.Component {
         }
 
         return children
+        
+    }
+    componentDidMount(){
+        // after the component has been mounted for the first time, we know
+        // that the state has been properly stored within the component and
+        // it will not be unnecessarily throw away, so we can delete it from the
+        // durable tuple-value store.
+        if(this.durablePath){
+            delKV(durableStates, this.durablePath)
+            delete this.durablePath
+        }
     }
 }
 
 
 export default Primer;
+
 
 function _elementFromFiber(fiber){
     if(!fiber) debugger;
@@ -133,6 +114,61 @@ function RenderPropeller(props){
     return props.children(props.query)
 }
 
+
+function _ensureDurableState(instance, _rootFiber, creator){
+    if(!instance.state){
+        console.log('creating state', durableStates)
+        let path = _getFiberPath(_rootFiber),
+            state = getKV(durableStates, path)
+
+        if(state !== undefined){
+            instance.state = state
+        }else{
+            instance.state = creator()
+            instance.durablePath = path
+            setKV(durableStates, path, instance.state)
+        }
+    }
+    return instance.state;
+}
+
+
+function _getFiberPath(fiber){
+    let path = [];
+    while(fiber.return){
+        path.unshift(fiber.type, fiber.key || fiber.index)
+        fiber = fiber.return;
+    }
+    path.unshift(fiber.stateNode)
+    return path;
+}
+
+
+// this is basically an implementation of association lists
+// with arbitrary custom predicates. this is because javascript
+// maps don't support tuple keys. 
+
+function tupleEqual(a, b){
+    return a.length === b.length && a.every((k, i) => k === b[i])
+}
+
+function getKV(store, key, cmp = tupleEqual){
+    let index = store.findIndex(([k, v]) => cmp(key, k));
+    return index < 0 ? undefined : store[index][1]
+}
+
+function setKV(store, key, value, cmp = tupleEqual){
+    let index = store.findIndex(([k, v]) => cmp(key, k));
+    if(index != -1) store[index][1] = value;
+    else store.push([ key, value ]);
+}
+
+function delKV(store, key, cmp = tupleEqual){
+    let index = store.findIndex(([k, v]) => cmp(key, k));
+    if(index != -1) store.splice(index, 1);
+}
+
+
 export function InlineFallback(props){
     let Context = props.context || PrimerContext;
     return <React.Suspense fallback={
@@ -146,4 +182,3 @@ export function InlineFallback(props){
         }</Context.Consumer>
     }>{props.children}</React.Suspense>
 }
-
