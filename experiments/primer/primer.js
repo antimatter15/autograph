@@ -9,40 +9,16 @@ export function usePrimer(){
 }
 
 export class Primer extends React.Component {
-    
-    componentDidMount(){
-        if(this.state && this.state.path){
-            delKV(durableStates, this.state.path)
-        }
-    }
-
     render(){
         let rootFiber = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner.current
+        let state = ensureDurableState(this, rootFiber, () => ({
+            fields: {},
+            data: {},
+        }));
 
-        if(!this.state){
-            console.log('creating state', durableStates)
-            let path = getFiberPath(rootFiber),
-                state = getKV(durableStates, path)
-
-            if(state !== undefined){
-                this.state = state
-            }else{
-                this.state = {
-                    fields: {},
-                    data: {},
-                    path: path
-                }
-                setKV(durableStates, path, this.state)
-            }
-        }
-
-        let state = this.state;
         if(state.fetching) throw state.fetching;
-        let client = this.props.client;
-        let triggerUpdate = () => this.setState({ })
-
-
         let query;
+
         if(state.inception){
             query = field => {
                 state.fields[field] = 1
@@ -50,6 +26,8 @@ export class Primer extends React.Component {
                 return 'hi'
             }
         }else{
+            let client = this.props.client;
+            let triggerUpdate = () => this.setState({ })
             query = field => {
                 if(field in state.data) return state.data[field];
                 console.log('cache miss', state.data, field)
@@ -62,7 +40,6 @@ export class Primer extends React.Component {
                     delete state.inception
                     state.fetching = client(Object.keys(state.fields))
                         .then(data => {
-
                             state.data = data
                             delete state.fetching
                             triggerUpdate() // trigger autograph root re-render with new data
@@ -73,14 +50,15 @@ export class Primer extends React.Component {
         }
 
         // this is a way to read from the current state cache without suspending
-        // on cache misses. generally you do not want to use this. 
+        // on cache misses. generally you do not want to use this without being careful
+
         query.peek = field => state.data[field];
         
         let children;
         // children can be a function (render prop) or ordinary jsx
         if(typeof this.props.children === 'function'){
             // use an external runner component so that it can read contexts from within
-            children = <Runner query={query}>{this.props.children}</Runner>
+            children = <RenderPropeller query={query}>{this.props.children}</RenderPropeller>
         }else{
             children = this.props.children;
             
@@ -95,26 +73,27 @@ export class Primer extends React.Component {
             children = <ContextProvider value={query}>{children}</ContextProvider>
         }
 
-        if(this.props.fallback === null){
-            // if we're explicitly disabling the automatic suspense boundary
-            return children
-        }else{
-            // let fallback = this.props.fallback || ;
-            let fallback;
-
-            if(this.props.fallback){
-                fallback = this.props.fallback;
-            }else{
-                fallback = <div>Loading (default)...</div>
-            }
-
-            return <React.Suspense fallback={fallback} >{
-                children
-            }</React.Suspense>
+        if(this.props.fallback !== null){
+            // add implicit suspense boundary unless explicitly disabled
+            let fallback = this.props.fallback || <div>Loading (default)...</div>;
+            children = <React.Suspense fallback={fallback}>{children}</React.Suspense>
         }
+
+        return children
         
     }
+    componentDidMount(){
+        // after the component has been mounted for the first time, we know
+        // that the state has been properly stored within the component and
+        // it will not be unnecessarily throw away, so we can delete it from the
+        // durable tuple-value store.
+        if(this.durablePath){
+            delKV(durableStates, this.durablePath)
+            delete this.durablePath
+        }
+    }
 }
+
 
 export default Primer;
 
@@ -128,9 +107,28 @@ function elementFromFiber(fiber){
 }
 
 
-function Runner(props){
+function RenderPropeller(props){
     return props.children(props.query)
 }
+
+
+function ensureDurableState(instance, rootFiber, creator){
+    if(!instance.state){
+        console.log('creating state', durableStates)
+        let path = getFiberPath(rootFiber),
+            state = getKV(durableStates, path)
+
+        if(state !== undefined){
+            instance.state = state
+        }else{
+            instance.state = creator()
+            instance.durablePath = path
+            setKV(durableStates, path, instance.state)
+        }
+    }
+    return instance.state;
+}
+
 
 function getFiberPath(fiber){
     let path = [];
