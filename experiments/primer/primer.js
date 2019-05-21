@@ -8,45 +8,37 @@ export function usePrimer(){
     return React.useContext(PrimerContext)
 }
 
-
-const tempStateMap = new Map()
-
 // TODO: think about what happens if `client` changes
 export class Primer extends React.Component {
     constructor(props){
         super()
 
-        // If suspense is used to deal with a promise thrown on the first
-        // render of some component, then React tends to re-create the 
-        // parent components. We need to be able to keep state even when
-        // React decides to re-create this element, so we cache our state
-        // in a map. This allows for consistency across the different 
-        // reincarnations of this instance. When the component is mounted,
-        // we safely remove the state from the cache, so that it can be 
-        // garbage collected later. 
-        
-        // Since client is used as a key for the state retrieval, we can't
-        // mount a single client object to multiple autograph roots. This 
-        // isn't a problem becaue we can easily create different client objects. 
-        
-        if(tempStateMap.has(props.client)){
-            this.state = tempStateMap.get(props.client)
-        }else{
-            this.state = { fields: {}, data: {} }
-            tempStateMap.set(props.client, this.state)
-        }
+        if(!props.client.state) 
+            props.client.state = {
+                fields: {},
+                data: {}
+            };
     }
 
     componentDidMount(){
-        if(tempStateMap.has(this.props.client)){
-            tempStateMap.delete(this.props.client)
-        }else{
+        let client = this.props.client;
+        let state = client.state;
+        if(state.mounted){
             throw new Error('only one client per thingy')
+        }else{
+            state.mounted = true;
         }
     }
 
+    componentWillUnmount(){
+        let client = this.props.client;
+        let state = client.state;
+        state.mounted = false;
+    }
+
     render(){
-        let state = this.state;
+        let client = this.props.client;
+        let state = client.state;
         let query;
 
         if(state.inception){
@@ -56,7 +48,7 @@ export class Primer extends React.Component {
                 return 'hi'
             }
         }else{
-            let client = this.props.client;
+            
             let triggerUpdate = () => this.setState({ })
             
             // THIS PART READS FROM REACT INTERNALS
