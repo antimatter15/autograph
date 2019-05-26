@@ -8,7 +8,7 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@types/graphql": "^14.0.3",
+    "@types/graphql": "^14.2.0",
     "@types/jest": "^23.3.5",
     "@types/react": "^16.4.18",
     "@types/react-dom": "^16.0.9",
