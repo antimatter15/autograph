@@ -1,0 +1,6 @@
+query DefaultQuery {
+    queryArtists {
+        name
+        __typename
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "queryArtists": [
+        {
+            "name": "Bob",
+            "__typename": "Artist"
+        },
+        {
+            "name": "Joe",
+            "__typename": "Artist"
+        },
+        {
+            "name": "Susan",
+            "__typename": "Artist"
+        }
+    ]
+}

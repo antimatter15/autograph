@@ -53,7 +53,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
 // (2) Desired languages:
 import 'monaco-editor/esm/vs/language/typescript/monaco.contribution';
 import 'monaco-editor/esm/vs/language/css/monaco.contribution';
-// import 'monaco-editor/esm/vs/language/json/monaco.contribution';
+import 'monaco-editor/esm/vs/language/json/monaco.contribution';
 import 'monaco-editor/esm/vs/language/html/monaco.contribution';
 // import 'monaco-editor/esm/vs/basic-languages/bat/bat.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/coffee/coffee.contribution.js';
@@ -66,6 +66,7 @@ import 'monaco-editor/esm/vs/basic-languages/css/css.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/go/go.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/handlebars/handlebars.contribution.js';
 import 'monaco-editor/esm/vs/basic-languages/html/html.contribution.js';
+import 'monaco-editor/esm/vs/basic-languages/graphql/graphql.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/ini/ini.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/java/java.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/less/less.contribution.js';
@@ -270,18 +271,18 @@ dimensions: {
         },
         {
         type:'component',
-        componentName: 'preview',
+        componentName: 'example',
         isClosable: false,
         title: 'Query (auto)',
-        componentState: { text: 'Component 3' }
+        componentState: { filename: 'query.gql' }
         },
 
         {
         type:'component',
-        componentName: 'preview',
+        componentName: 'example',
         isClosable: false,
         title: 'Data',
-        componentState: { text: 'Component 3' }
+        componentState: { filename: 'data.json' }
         },
             ]
         }
@@ -300,7 +301,9 @@ const fileModels = {
         , "typescript", monaco.Uri.parse("file:///app.tsx")),
     'app.html': monaco.editor.createModel(require('!!raw-loader!./sample/app.html').default, "html", monaco.Uri.parse("file:///app.html")),
     'app.css': monaco.editor.createModel(require('!!raw-loader!./sample/app.css').default, "css", monaco.Uri.parse("file:///app.css")),
-    'schema.ts': monaco.editor.createModel(require('!!raw-loader!./sample/schema.ts').default, "typescript", monaco.Uri.parse("file:///schema.ts"))
+    'schema.ts': monaco.editor.createModel(require('!!raw-loader!./sample/schema.ts').default, "typescript", monaco.Uri.parse("file:///schema.ts")),
+    'data.json': monaco.editor.createModel(require('!!raw-loader!./sample/data.json').default, "json", monaco.Uri.parse("file:///data.json")),
+    'query.gql': monaco.editor.createModel(require('!!raw-loader!./sample/query.gql').default, "graphql", monaco.Uri.parse("file:///query.gql"))
 }
 
 
