@@ -115,6 +115,7 @@ export var language = {
             // jsx
             [/<([\w\.]+)\s/,       { token: 'tag.tag-$1', bracket: '@open', next: '@tag.$1' }],
             [/<([\w\.]+)>/,       { token: 'tag.tag-$1', bracket: '@open', next: '@inner' }],
+            [/<([\w\.]+)\/>/,       { token: 'tag.tag-$1' }],
             
 
             // delimiters and operators
