@@ -91,9 +91,9 @@ import 'monaco-editor/esm/vs/basic-languages/html/html.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/swift/swift.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/vb/vb.contribution.js';
-// import 'monaco-editor/esm/vs/basic-languages/xml/xml.contribution.js';
+import 'monaco-editor/esm/vs/basic-languages/xml/xml.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution.js';
-// import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution';
+import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution';
 import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution';
 
 
@@ -127,17 +127,35 @@ self.MonacoEnvironment = {
 //   jsxFactory: 'JSXAlone.createElement',
 // })
 
+
+monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+  noSemanticValidation: true,
+  noSyntaxValidation: false
+});
+
 monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
   // jsx: 'react',
-  moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-  module: monaco.languages.typescript.ModuleKind.CommonJS,
+  // moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+  // module: monaco.languages.typescript.ModuleKind.CommonJS,
 
-  jsx: monaco.languages.typescript.JsxEmit.React,
+  // jsx: monaco.languages.typescript.JsxEmit.React,
+  // jsxFactory: 'React.createElement',
+  // reactNamespace: 'React',
+  // allowNonTsExtensions: true,
+  // allowJs: true,
+  // target: monaco.languages.typescript.ScriptTarget.Latest,
+
   jsxFactory: 'React.createElement',
-  reactNamespace: 'React',
-  allowNonTsExtensions: true,
-  allowJs: true,
-  target: monaco.languages.typescript.ScriptTarget.Latest,
+    reactNamespace: 'React',
+    jsx: monaco.languages.typescript.JsxEmit.React,
+    target: monaco.languages.typescript.ScriptTarget.ES2016,
+    allowNonTsExtensions: true,
+    moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+    experimentalDecorators: true,
+    noEmit: true,
+    allowJs: true,
+    typeRoots: ['node_modules/@types'],
+
   "allowSyntheticDefaultImports": true,
 });
 
@@ -234,7 +252,7 @@ dimensions: {
         {
         type:'component',
         componentName: 'example',
-        title: 'Types',
+        title: 'Types (auto)',
         isClosable: false,
         componentState: { filename: 'schema.ts' }
         },
@@ -242,7 +260,15 @@ dimensions: {
         type:'component',
         componentName: 'preview',
         isClosable: false,
-        title: 'Query',
+        title: 'Query (auto)',
+        componentState: { text: 'Component 3' }
+        },
+
+        {
+        type:'component',
+        componentName: 'preview',
+        isClosable: false,
+        title: 'Data',
         componentState: { text: 'Component 3' }
         },
             ]
