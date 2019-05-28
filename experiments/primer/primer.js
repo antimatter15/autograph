@@ -9,6 +9,9 @@ export function usePrimer(){
 }
 
 // TODO: think about what happens if `client` changes
+// TODO: think about how to deal with errors in rendering
+// TODO: think about how to deal with errors in fetching
+
 export class Primer extends React.Component {
     constructor(props){
         super()

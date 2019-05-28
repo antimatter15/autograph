@@ -7,8 +7,8 @@ module.exports = {
 		"app": './index.js',
 		"editor.worker": 'monaco-editor/esm/vs/editor/editor.worker.js',
 		// "json.worker": 'monaco-editor/esm/vs/language/json/json.worker',
-		// "css.worker": 'monaco-editor/esm/vs/language/css/css.worker',
-		// "html.worker": 'monaco-editor/esm/vs/language/html/html.worker',
+		"css.worker": 'monaco-editor/esm/vs/language/css/css.worker',
+		"html.worker": 'monaco-editor/esm/vs/language/html/html.worker',
 		"ts.worker": 'monaco-editor/esm/vs/language/typescript/ts.worker',
 	},
 	output: {
@@ -20,6 +20,10 @@ module.exports = {
 		rules: [{
 			test: /\.css$/,
 			use: [ 'style-loader', 'css-loader' ]
+		},
+		{
+			test: /\.less$/,
+			use: [ 'style-loader', 'css-loader', 'less-loader' ]
 		}]
 	},
 	plugins: [

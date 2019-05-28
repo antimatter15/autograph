@@ -1,3 +1,5 @@
+
+
 // https://blog.expo.io/building-a-code-editor-with-monaco-f84b3a06deaf
 
 
@@ -50,20 +52,20 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
 
 // (2) Desired languages:
 import 'monaco-editor/esm/vs/language/typescript/monaco.contribution';
-// import 'monaco-editor/esm/vs/language/css/monaco.contribution';
+import 'monaco-editor/esm/vs/language/css/monaco.contribution';
 // import 'monaco-editor/esm/vs/language/json/monaco.contribution';
-// import 'monaco-editor/esm/vs/language/html/monaco.contribution';
+import 'monaco-editor/esm/vs/language/html/monaco.contribution';
 // import 'monaco-editor/esm/vs/basic-languages/bat/bat.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/coffee/coffee.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/cpp/cpp.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/csharp/csharp.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/csp/csp.contribution.js';
-// import 'monaco-editor/esm/vs/basic-languages/css/css.contribution.js';
+import 'monaco-editor/esm/vs/basic-languages/css/css.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/dockerfile/dockerfile.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/fsharp/fsharp.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/go/go.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/handlebars/handlebars.contribution.js';
-// import 'monaco-editor/esm/vs/basic-languages/html/html.contribution.js';
+import 'monaco-editor/esm/vs/basic-languages/html/html.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/ini/ini.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/java/java.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/less/less.contribution.js';
@@ -97,21 +99,21 @@ import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution'
 
 
 self.MonacoEnvironment = {
-	getWorkerUrl: function (moduleId, label) {
-		// if (label === 'json') {
-		// 	return './json.worker.bundle.js';
-		// }
-		// if (label === 'css') {
-		// 	return './css.worker.bundle.js';
-		// }
-		// if (label === 'html') {
-		// 	return './html.worker.bundle.js';
-		// }
-		if (label === 'typescript' || label === 'javascript') {
-			return './ts.worker.bundle.js';
-		}
-		return './editor.worker.bundle.js';
-	}
+    getWorkerUrl: function (moduleId, label) {
+        // if (label === 'json') {
+        //  return './json.worker.bundle.js';
+        // }
+        if (label === 'css') {
+         return './css.worker.bundle.js';
+        }
+        if (label === 'html') {
+         return './html.worker.bundle.js';
+        }
+        if (label === 'typescript' || label === 'javascript') {
+            return './ts.worker.bundle.js';
+        }
+        return './editor.worker.bundle.js';
+    }
 }
 
 // monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
@@ -154,20 +156,144 @@ monaco.languages.typescript.typescriptDefaults.addExtraLib(
 
 
 // monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-// 	target: monaco.languages.typescript.ScriptTarget.ES2016,
-// 	allowNonTsExtensions: true,
-// 	moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+//  target: monaco.languages.typescript.ScriptTarget.ES2016,
+//  allowNonTsExtensions: true,
+//  moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
 // });
 
-monaco.editor.create(document.getElementById('container'), {
-	
-	model: monaco.editor.createModel([
+import GoldenLayout from 'golden-layout'
+import 'golden-layout/src/css/goldenlayout-base.css'
+import './layout.less'
 
-'import * as React from "react";',
-'',
-'export const HelloComponent = () => {',
-'  return <h2>Hello component !</h2>;',
-'};',
-	].join('\n'), "typescript", monaco.Uri.parse("file:///main.tsx")),
-	// language: 'typescript'
+var config = {
+settings: {
+showPopoutIcon: false,
+},
+dimensions: {
+        // borderWidth: 5,
+        // minItemHeight: 10,
+        // minItemWidth: 10,
+        headerHeight: 40,
+        // dragProxyWidth: 300,
+        // dragProxyHeight: 200
+    },
+  content: [{
+    type: 'row',
+    content: [
+        {
+            type: 'stack',
+            content: [
+        {
+        type:'component',
+        componentName: 'example',
+        title: 'app.tsx',
+        isClosable: false,
+        componentState: { filename: 'app.tsx' }
+        },
+        {
+        type:'component',
+        componentName: 'example',
+        title: 'schema.ts',
+        isClosable: false,
+        componentState: { filename: 'schema.ts' }
+        },
+      {
+        type:'component',
+        componentName: 'example',
+        title: 'app.css',
+        isClosable: false,
+        componentState: { filename: 'app.css' }
+        },
+        {
+        type:'component',
+        componentName: 'example',
+        title: 'app.html',
+        isClosable: false,
+        componentState: { filename: 'app.html' }
+        },]
+        },
+        
+      {
+        type:'component',
+        componentName: 'preview',
+        isClosable: false,
+        title: 'Preview',
+        componentState: { text: 'Component 3' }
+        }
+    ]
+  }]
+};
+
+var myLayout = new GoldenLayout( config );
+
+
+const fileModels = {
+    'app.tsx': monaco.editor.createModel([
+        'import * as React from "react";',
+        '',
+        'export const HelloComponent = () => {',
+        '  return <h2>Hello component !</h2>;',
+        '};',
+            ].join('\n'), "typescript", monaco.Uri.parse("file:///app.tsx")),
+    'app.html': monaco.editor.createModel([
+        '<!doctype html>',
+        '<html>',
+        '<body>',
+        
+        '</body>',
+        '</html>',
+        
+            ].join('\n'), "html", monaco.Uri.parse("file:///app.html")),
+    'app.css': monaco.editor.createModel([
+        'body {',
+        '',
+        '   font-family: Avenir;',
+        '}',
+            ].join('\n'), "css", monaco.Uri.parse("file:///app.css")),
+    'schema.ts': monaco.editor.createModel([
+        'export const blah = 42;',
+            ].join('\n'), "typescript", monaco.Uri.parse("file:///schema.ts"))
+}
+
+
+myLayout.registerComponent( 'preview', function( container, state ){
+    container.getElement().html( '<h2>' + state.text + '</h2>');
+})
+
+myLayout.registerComponent( 'example', function( container, state ){
+    console.log('creating something', state.filename)
+    monaco.editor.create(container.getElement()[0], {
+        model: fileModels[state.filename],
+        // language: 'typescript',
+
+          automaticLayout: true,
+          wordWrap: true
+    })
+
+  // 
+
+//   window.verilogViewer = monaco.editor.create(container.getElement()[0], {
+//       value: [
+//         'Verilog code output here...'
+//       ].join('\n'),
+//       language: 'verilogOrOutput',
+//       automaticLayout: true,
+//       wordWrap: true,
+//       readOnly: true
+//     })
+
+
+
+// monaco.editor.create(document.getElementById('container'), {
+    
+    // model: ,
+    // language: 'typescript'
+// });
+
+
+
 });
+
+myLayout.init();
+
+
