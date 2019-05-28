@@ -93,8 +93,20 @@ import 'monaco-editor/esm/vs/basic-languages/html/html.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/vb/vb.contribution.js';
 import 'monaco-editor/esm/vs/basic-languages/xml/xml.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution.js';
-import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution';
-import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution';
+// import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution';
+// import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution';
+
+
+
+import { registerLanguage } from 'monaco-editor/esm/vs/basic-languages/_.contribution.js';
+
+registerLanguage({
+    id: 'typescript',
+    extensions: ['.ts', '.tsx'],
+    aliases: ['TypeScript', 'ts', 'typescript'],
+    mimetypes: ['text/typescript'],
+    loader: function () { return import('./typescript-jsx.js'); }
+});
 
 
 
