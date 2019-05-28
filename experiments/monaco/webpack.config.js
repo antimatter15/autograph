@@ -1,5 +1,7 @@
 const path = require('path');
 // const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+// const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+
 
 module.exports = {
 	mode: 'production',
@@ -24,9 +26,21 @@ module.exports = {
 		{
 			test: /\.less$/,
 			use: [ 'style-loader', 'css-loader', 'less-loader' ]
-		}]
+		}],
+
+		 defaultRules: [{
+		    
+		      type: 'javascript/auto',
+		      resolve: {}
+		    },
+		    {
+		      test: /\.json$/i,
+		      type: 'json'
+		    }
+		  ]
 	},
 	plugins: [
+		// new MonacoWebpackPlugin()
 		// new UglifyJSPlugin()
 	],
 };

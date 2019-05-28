@@ -91,10 +91,10 @@ import 'monaco-editor/esm/vs/basic-languages/html/html.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/swift/swift.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/vb/vb.contribution.js';
-import 'monaco-editor/esm/vs/basic-languages/xml/xml.contribution.js';
+// import 'monaco-editor/esm/vs/basic-languages/xml/xml.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution.js';
-import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution';
-import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution';
+// import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution';
+// import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution';
 
 
 
@@ -171,6 +171,67 @@ monaco.languages.typescript.typescriptDefaults.addExtraLib(
 
 monaco.languages.typescript.typescriptDefaults.addExtraLib(
     require('raw-loader!./sample/autograph-mock.tsx').default, 'file:///node_modules/autograph/index.tsx');
+
+
+// import { registerLanguage } from 'monaco-editor/esm/vs/basic-languages/_.contribution.js';
+// registerLanguage();
+
+monaco.languages.register({
+    id: 'typescript',
+    extensions: ['.ts', '.tsx'],
+    aliases: ['TypeScript', 'ts', 'typescript'],
+    mimetypes: ['text/typescript'],
+    loader: function () { 
+        console.log('why is loader being called')
+     }
+});
+// _monaco.languages.onLanguage(languageId, function () {
+//     loadLanguage(languageId);
+// });
+
+
+import { loadWASM } from 'onigasm' // peer dependency of 'monaco-textmate'
+import { Registry } from 'monaco-textmate' // peer dependency
+import { wireTmGrammars } from 'monaco-editor-textmate'
+
+export async function liftOff() {
+    let data = await import('!!file-loader!onigasm/lib/onigasm.wasm')
+
+    // console.log(data)
+
+    await loadWASM(data.default) // See https://www.npmjs.com/package/onigasm#light-it-up
+
+    const registry = new Registry({
+        getGrammarDefinition: async (scopeName) => {
+            console.log('getting grammar', scopeName)
+            return {
+                format: 'plist',
+                content: require('raw-loader!./TypescriptReact.tmLanguage').default //''await (await fetch(`static/grammars/css.tmGrammar.json`)).text()
+            }
+        }
+    })
+
+    // map of monaco "language id's" to TextMate scopeNames
+    const grammars = new Map()
+    // grammars.set('css', 'source.css')
+    // grammars.set('html', 'text.html.basic')
+    grammars.set('typescript', 'source.ts')
+
+    await wireTmGrammars(monaco, registry, grammars)
+
+    // var editor = monaco.editor.create(document.getElementById('container'), {
+    //     value: [
+    //         'html, body {',
+    //         '    margin: 0;',
+    //         '}'
+    //     ].join('\n'),
+    //     language: 'css' // this won't work out of the box, see below for more info
+    // })
+}
+
+
+liftOff()
+
 
 
 // monaco.languages.typescript.typescriptDefaults.addExtraLib(
