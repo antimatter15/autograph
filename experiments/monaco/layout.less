@@ -11,10 +11,11 @@
 @color8: #999999; // Appears 1 time
 @color9: #bbbbbb; // Appears 1 time
 @color10: #888888; // Appears 1 time
+@background: #efefef;
 
 body {
   font-family: Avenir;
-  background: #efefef;
+  background: @background;
 }
 
 h1 {
@@ -208,7 +209,7 @@ h1 {
 .lm_maximised {
   // Pane Header (container of Tabs for each pane) can have different style when is Maximized
   .lm_header {
-    background-color: @color4;
+    background-color: @background;
   }
 
   // Pane controls are different in Maximized Mode, especially the old Icon "Maximise" that now has a different meaning, so "Minimize" (even if CSS Class did not change)

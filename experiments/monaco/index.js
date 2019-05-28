@@ -129,8 +129,8 @@ self.MonacoEnvironment = {
 
 monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
   // jsx: 'react',
-  // moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-  // module: monaco.languages.typescript.ModuleKind.CommonJS,
+  moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+  module: monaco.languages.typescript.ModuleKind.CommonJS,
 
   jsx: monaco.languages.typescript.JsxEmit.React,
   jsxFactory: 'React.createElement',
@@ -138,6 +138,7 @@ monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
   allowNonTsExtensions: true,
   allowJs: true,
   target: monaco.languages.typescript.ScriptTarget.Latest,
+  "allowSyntheticDefaultImports": true,
 });
 
 
@@ -145,6 +146,19 @@ monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
 
 monaco.languages.typescript.typescriptDefaults.addExtraLib(
     require('raw-loader!@types/react/index.d.ts').default, 'file:///node_modules/@types/react/index.d.ts');
+
+monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    require('raw-loader!@types/react-dom/index.d.ts').default, 'file:///node_modules/@types/react-dom/index.d.ts');
+
+
+monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    require('raw-loader!./sample/autograph-mock.tsx').default, 'file:///node_modules/autograph/index.tsx');
+
+
+// monaco.languages.typescript.typescriptDefaults.addExtraLib(
+//     require('!!raw-loader!./sample/schema.ts').default, 'file:///schema.ts');
+
+
 
 // monaco.languages.typescript.typescriptDefaults.addExtraLib(
 //     require('raw-loader!react/cjs/react.production.min.js').default, 'node_modules/react/index.js');
@@ -190,13 +204,7 @@ dimensions: {
         isClosable: false,
         componentState: { filename: 'app.tsx' }
         },
-        {
-        type:'component',
-        componentName: 'example',
-        title: 'schema.ts',
-        isClosable: false,
-        componentState: { filename: 'schema.ts' }
-        },
+        
       {
         type:'component',
         componentName: 'example',
@@ -212,14 +220,35 @@ dimensions: {
         componentState: { filename: 'app.html' }
         },]
         },
-        
-      {
+
+        {
+            type: 'stack',
+            content: [
+ {
         type:'component',
         componentName: 'preview',
         isClosable: false,
         title: 'Preview',
         componentState: { text: 'Component 3' }
+        },
+        {
+        type:'component',
+        componentName: 'example',
+        title: 'Types',
+        isClosable: false,
+        componentState: { filename: 'schema.ts' }
+        },
+        {
+        type:'component',
+        componentName: 'preview',
+        isClosable: false,
+        title: 'Query',
+        componentState: { text: 'Component 3' }
+        },
+            ]
         }
+        
+     
     ]
   }]
 };
@@ -228,31 +257,12 @@ var myLayout = new GoldenLayout( config );
 
 
 const fileModels = {
-    'app.tsx': monaco.editor.createModel([
-        'import * as React from "react";',
-        '',
-        'export const HelloComponent = () => {',
-        '  return <h2>Hello component !</h2>;',
-        '};',
-            ].join('\n'), "typescript", monaco.Uri.parse("file:///app.tsx")),
-    'app.html': monaco.editor.createModel([
-        '<!doctype html>',
-        '<html>',
-        '<body>',
-        
-        '</body>',
-        '</html>',
-        
-            ].join('\n'), "html", monaco.Uri.parse("file:///app.html")),
-    'app.css': monaco.editor.createModel([
-        'body {',
-        '',
-        '   font-family: Avenir;',
-        '}',
-            ].join('\n'), "css", monaco.Uri.parse("file:///app.css")),
-    'schema.ts': monaco.editor.createModel([
-        'export const blah = 42;',
-            ].join('\n'), "typescript", monaco.Uri.parse("file:///schema.ts"))
+    'app.tsx': monaco.editor.createModel(
+        require('!!raw-loader!./sample/app.tsx').default
+        , "typescript", monaco.Uri.parse("file:///app.tsx")),
+    'app.html': monaco.editor.createModel(require('!!raw-loader!./sample/app.html').default, "html", monaco.Uri.parse("file:///app.html")),
+    'app.css': monaco.editor.createModel(require('!!raw-loader!./sample/app.css').default, "css", monaco.Uri.parse("file:///app.css")),
+    'schema.ts': monaco.editor.createModel(require('!!raw-loader!./sample/schema.ts').default, "typescript", monaco.Uri.parse("file:///schema.ts"))
 }
 
 
@@ -267,7 +277,8 @@ myLayout.registerComponent( 'example', function( container, state ){
         // language: 'typescript',
 
           automaticLayout: true,
-          wordWrap: true
+          wordWrap: true,
+          fixedOverflowWidgets: true,
     })
 
   // 

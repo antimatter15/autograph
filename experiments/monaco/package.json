@@ -5,6 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "@types/react": "^16.8.18",
+    "@types/react-dom": "^16.8.4",
     "css-loader": "^2.1.1",
     "golden-layout": "^1.5.9",
     "less": "^3.9.0",
@@ -12,6 +13,7 @@
     "monaco-editor": "^0.17.0",
     "raw-loader": "^2.0.0",
     "react": "^16.8.6",
+    "react-dom": "^16.8.6",
     "style-loader": "^0.23.1",
     "webpack": "^4.32.2",
     "webpack-cli": "^3.3.2",
