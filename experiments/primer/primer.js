@@ -4,8 +4,10 @@ import _dryRender from './dryrender'
 const PrimerContext = React.createContext(null)
 let durableStates = [];
 
-export function usePrimer(){
-    return React.useContext(PrimerContext)
+export function usePrimer(loadingGroup){
+    let get = React.useContext(PrimerContext);
+
+    return field => get(field, loadingGroup)
 }
 
 // TODO: think about what happens if `client` changes
@@ -18,9 +20,10 @@ export class Primer extends React.Component {
 
         if(!props.client.state) 
             props.client.state = {
-                fields: {},
-                data: {},
-                error: null
+                queries: {
+
+                },
+                inception: false
             };
     }
 
@@ -42,24 +45,42 @@ export class Primer extends React.Component {
 
     render(){
         let client = this.props.client;
-        let state = client.state;
+        let galaxy = client.state;
         let query;
 
-        if(state.inception){
-            query = field => {
+
+        function getGroup(loadingGroup){
+            if(!(loadingGroup in galaxy.queries)){
+                galaxy.queries[loadingGroup] = {
+                    fields: {},
+                    lastFields: {},
+                    data: {},
+                    error: null,
+                    initial: true
+                }
+            }
+            return galaxy.queries[loadingGroup]
+        }
+
+        if(galaxy.inception){
+            query = (field, loadingGroup = 'default') => {
+                let state = getGroup(loadingGroup)
+                
                 state.fields[field] = 1
                 if(field in state.data) return state.data[field];
                 if(field === '_loading') return false;
+                if(field === '_error') return null;
                 return 'hi'
             }
         }else{
-            
             let triggerUpdate = () => this.setState({ })
             
             // THIS PART READS FROM REACT INTERNALS
             let _rootFiber = this._reactInternalFiber;
 
-            query = field => {
+            query = (field, loadingGroup = 'default') => {
+                let state = getGroup(loadingGroup)
+
                 if(field === '_loading') return !!state.fetching;
                 if(field === '_error') return state.error;
                 if(field in state.data) return state.data[field];
@@ -72,39 +93,49 @@ export class Primer extends React.Component {
                 }
 
                 if(!state.fetching){
-                    state.fields = {}
-                    state.inception = true;
+                    for(let q in galaxy.queries){
+                        let query = galaxy.queries[q];
+                        query.lastFields = query.fields;
+                        query.fields = {}
+                    }
+
+                    galaxy.inception = true;
                     console.groupCollapsed('dry render')
                     _dryRender(_elementFromFiber(_rootFiber), _rootFiber)    
                     console.groupEnd('dry render')
-                    delete state.inception
-                    state.fetching = client(Object.keys(state.fields))
-                        .then(data => {
-                            state.data = data
-                            delete state.fetching
-                            triggerUpdate() // trigger autograph root re-render with new data
-                        })
-                        .catch(err => {
-                            state.error = err
-                            delete state.fetching
-                            triggerUpdate() // trigger autograph root re-render with new data
-                        })
+                    galaxy.inception = false;
+
+
+                    for(let q in galaxy.queries){
+                        let query = galaxy.queries[q];
+                        if(!shallowCompare(query.lastFields, query.fields)){
+                            query.initial = false;
+                            query.fetching = client(Object.keys(query.fields))
+                                .then(data => {
+                                    query.data = data
+                                    delete query.fetching
+                                    triggerUpdate() // trigger autograph root re-render with new data
+                                })
+                                .catch(err => {
+                                    query.error = err
+                                    delete query.fetching
+                                    triggerUpdate() // trigger autograph root re-render with new data
+                                })
+                        }
+                    }
+
                     throw nextFrame()
 
                 }else{
                     console.error('we tried to fetsh stuff that isnt loaded', field)
                     return null
                 }
-                // throw state.fetching;
+                throw state.fetching;
 
             }
         }
 
-        // this is a way to read from the current state cache without suspending
-        // on cache misses. generally you do not want to use this without being careful
 
-        query.peek = field => state.data[field];
-        
         let children;
         // children can be a function (render prop) or ordinary jsx
         if(typeof this.props.children === 'function'){
@@ -134,6 +165,10 @@ export class Primer extends React.Component {
     }
 }
 
+function shallowCompare(a, b){
+    return JSON.stringify(a) === JSON.stringify(b)
+}
+
 function nextFrame(){
     return new Promise(resolve => requestAnimationFrame(resolve))
 }
@@ -156,18 +191,3 @@ function _elementFromFiber(fiber){
 function RenderPropeller(props){
     return props.children(props.query)
 }
-
-export function InlineFallback(props){
-    let Context = props.context || PrimerContext;
-    return <React.Suspense fallback={
-        <Context.Consumer>{
-            query => <Context.Provider value={field => {
-                if(field === '_loading') return true;
-                return query.peek(field) || null
-            }}>
-                {props.children}
-            </Context.Provider>
-        }</Context.Consumer>
-    }>{props.children}</React.Suspense>
-}
-

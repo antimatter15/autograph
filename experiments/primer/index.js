@@ -18,16 +18,23 @@ const Database = {
     time: () => Date.now()
 }
 
+let loadingCount = 0;
+
 function fetchData(fields){
     console.log('fetching fields', fields)
     return new Promise((resolve, reject) => {
-        NProgress.start()
+        if(loadingCount === 0){
+            NProgress.start()    
+        }
+        
+        loadingCount++
 
         setTimeout(function(){
+            if(--loadingCount == 0){
+                NProgress.done()    
+            }
 
-            NProgress.done()
-
-            if(Math.random() < 0.1) return reject(new Error('welp we randomly failed'))
+            // if(Math.random() < 0.1) return reject(new Error('welp we randomly failed'))
             let result = {}
             for(let field of fields){
                 if(typeof Database[field] === 'function'){
@@ -138,16 +145,54 @@ class Meep extends React.Component {
 
 
 function NoSuspense(){
-    let get = usePrimer(fetchData)
+    let get = usePrimer('A')
     let [ x, setX ] = useState(42)
 
     if(get('_error')) return <div>HELP HELP WE HAVE ERROR HELP</div>;
-    
+
     if(get('_loading')) return <div>Loaidng (no suspense)</div>;
 
     return <div>
         {get('message1')}<button onClick={e => setX(x + 1)}>{get(x) || x}</button>
         <p>{get('time')}</p>
+    </div>
+}
+
+
+function NoSuspense2(){
+    let get = usePrimer('B')
+    let [ x, setX ] = useState(42)
+
+    if(get('_error')) return <div>HELP HELP WE HAVE ERROR HELP</div>;
+    if(get('_loading')) return <div>Loaidng (no suspense)</div>;
+
+    return <div>
+        {get('message1')}<button onClick={e => setX(x + 1)}>{get(x) || x}</button>
+        <p>{get('time')}</p>
+    </div>
+}
+
+
+function NoSuspense3(){
+    let get1 = usePrimer('B')
+    let get2 = usePrimer('A')
+    let [ x, setX ] = useState(42)
+
+    if(get1('_error')) return <div>[GET 1] HELP HELP WE HAVE ERROR HELP</div>;
+    if(get1('_loading')) return <div>[GET 1] Loaidng (no suspense)</div>;
+
+    if(get2('_error')) return <div>[GET 2] HELP HELP WE HAVE ERROR HELP</div>;
+    if(get2('_loading')) return <div>[GET 2] Loaidng (no suspense)</div>;
+
+    return <div>
+        <div>
+            GET1: {get1('message1')}<button onClick={e => setX(x + 1)}>{get1(x) || x}</button>
+            <p>{get1('time')}</p>
+        </div>
+        <div>
+            GET2: {get2('message2')}<button onClick={e => setX(x + 1)}>{get2(x) || x}</button>
+            <p>{get2('time')}</p>
+        </div>
     </div>
 }
 
@@ -183,7 +228,8 @@ function NoSuspense(){
 
 ReactDOM.render(
     <Primer client={fetchData}>
-        <NoSuspense />
+        
+        <NoSuspense3 />
     </Primer>
 , document.getElementById('root'))
 
