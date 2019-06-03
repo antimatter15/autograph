@@ -19,7 +19,8 @@ export class Primer extends React.Component {
         if(!props.client.state) 
             props.client.state = {
                 fields: {},
-                data: {}
+                data: {},
+                error: null
             };
     }
 
@@ -48,6 +49,7 @@ export class Primer extends React.Component {
             query = field => {
                 state.fields[field] = 1
                 if(field in state.data) return state.data[field];
+                if(field === '_loading') return false;
                 return 'hi'
             }
         }else{
@@ -58,8 +60,17 @@ export class Primer extends React.Component {
             let _rootFiber = this._reactInternalFiber;
 
             query = field => {
+                if(field === '_loading') return !!state.fetching;
+                if(field === '_error') return state.error;
                 if(field in state.data) return state.data[field];
+                
                 console.log('cache miss', state.data, field)
+
+                if(state.error){
+                    console.warn('not fetchign because we last recieved an error')
+                    return null;
+                }
+
                 if(!state.fetching){
                     state.fields = {}
                     state.inception = true;
@@ -73,8 +84,19 @@ export class Primer extends React.Component {
                             delete state.fetching
                             triggerUpdate() // trigger autograph root re-render with new data
                         })
+                        .catch(err => {
+                            state.error = err
+                            delete state.fetching
+                            triggerUpdate() // trigger autograph root re-render with new data
+                        })
+                    throw nextFrame()
+
+                }else{
+                    console.error('we tried to fetsh stuff that isnt loaded', field)
+                    return null
                 }
-                throw state.fetching;
+                // throw state.fetching;
+
             }
         }
 
@@ -112,6 +134,13 @@ export class Primer extends React.Component {
     }
 }
 
+function nextFrame(){
+    return new Promise(resolve => requestAnimationFrame(resolve))
+}
+
+function delay(ms){
+    return new Promise((resolve) => setTimeout(resolve, ms))
+}
 
 export default Primer;
 

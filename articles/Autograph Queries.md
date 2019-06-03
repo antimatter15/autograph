@@ -148,10 +148,43 @@ Autograph, with optional builtin Suspense?
 
 
 
+## Autograph 6/1/2019
+
+    let client = Autograph.createClient(URL or Apollo Client or Urql Client, Schema Object [optional])
+
+    <AutographProvider client={client}><App /></AutographProvider>
 
 
+    <Autograph>{Query => ...}</Autograph>
+
+    let Query = useAutograph()
+
+    @withAutograph
+
+## Handling loading
+
+Perhaps we can detect when we're reading from `Query._loading`. in that case when we are fetching instead of suspending, we actually do render stuff. 
 
 
+- oh no we're missing data
+- do a dry render
+- find out that we've accessed `_loading` 
+- trigger a rerender where `_loading` is true
+- if we still try to retrieve forbidden/unloaded data then maybe we actually suspend?
+
+
+## Inline Fallback
+
+    <InlineFallback><Component /></InlineFallback>
+    @withInlineFallback
+
+- this allows an element to handle its loading. it can be used with decorators/higher order components
+
+unlike the weird former thing it's properly scoped... 
+
+Well to be totally fair neither is this one in pretty much the same way. If your siblings are missing a fallback or a suspense handler then you also don't have one...
+
+Not having suspense is an interesting idea...
 
 
 

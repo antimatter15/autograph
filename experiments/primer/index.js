@@ -20,10 +20,14 @@ const Database = {
 
 function fetchData(fields){
     console.log('fetching fields', fields)
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         NProgress.start()
 
         setTimeout(function(){
+
+            NProgress.done()
+
+            if(Math.random() < 0.1) return reject(new Error('welp we randomly failed'))
             let result = {}
             for(let field of fields){
                 if(typeof Database[field] === 'function'){
@@ -33,7 +37,6 @@ function fetchData(fields){
                 }
             }
 
-            NProgress.done()
             resolve(result)
         }, 1000)
     })
@@ -133,6 +136,21 @@ class Meep extends React.Component {
 
 
 
+
+function NoSuspense(){
+    let get = usePrimer(fetchData)
+    let [ x, setX ] = useState(42)
+
+    if(get('_error')) return <div>HELP HELP WE HAVE ERROR HELP</div>;
+    
+    if(get('_loading')) return <div>Loaidng (no suspense)</div>;
+
+    return <div>
+        {get('message1')}<button onClick={e => setX(x + 1)}>{get(x) || x}</button>
+        <p>{get('time')}</p>
+    </div>
+}
+
 // function GlobalProgress(props){
 //     return <React.Suspense fallback={<div>wat</div>} maxDuration={500}>{props.children}</React.Suspense>
 // }
@@ -146,24 +164,26 @@ class Meep extends React.Component {
 // </Meep>)
 
 
-ReactDOM.unstable_createRoot(document.getElementById('root'))
-.render(<div>
+// ReactDOM.unstable_createRoot(document.getElementById('root'))
+// .render(<div>
+//     <Primer client={fetchData}>
+//         <InlineFallback>
+//             <LoadingDemo />
+//         </InlineFallback>
+//         <Part1 />
+//         <App />
+//     </Primer>
+// </div>)
+
+
+
+
+
+
+
+ReactDOM.render(
     <Primer client={fetchData}>
-        <InlineFallback>
-            <LoadingDemo />
-        </InlineFallback>
-        <Part1 />
-        <App />
+        <NoSuspense />
     </Primer>
-</div>)
-
-
-
-
-
-
-
-// ReactDOM.render(
-//     <App />
-// , document.getElementById('root'))
+, document.getElementById('root'))
 
