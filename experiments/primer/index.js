@@ -21,7 +21,6 @@ const Database = {
 let loadingCount = 0;
 
 function fetchData(fields){
-    console.log('fetching fields', fields)
     return new Promise((resolve, reject) => {
         if(loadingCount === 0){
             NProgress.start()    
@@ -34,7 +33,7 @@ function fetchData(fields){
                 NProgress.done()    
             }
 
-            // if(Math.random() < 0.1) return reject(new Error('welp we randomly failed'))
+            if(Math.random() < 0.1) return reject(new Error('welp we randomly failed'))
             let result = {}
             for(let field of fields){
                 if(typeof Database[field] === 'function'){
@@ -145,11 +144,10 @@ class Meep extends React.Component {
 
 
 function NoSuspense(){
-    let get = usePrimer('A')
+    let get = usePrimer('1')
     let [ x, setX ] = useState(42)
 
     if(get('_error')) return <div>HELP HELP WE HAVE ERROR HELP</div>;
-
     if(get('_loading')) return <div>Loaidng (no suspense)</div>;
 
     return <div>
@@ -160,7 +158,7 @@ function NoSuspense(){
 
 
 function NoSuspense2(){
-    let get = usePrimer('B')
+    let get = usePrimer('2')
     let [ x, setX ] = useState(42)
 
     if(get('_error')) return <div>HELP HELP WE HAVE ERROR HELP</div>;
@@ -228,7 +226,8 @@ function NoSuspense3(){
 
 ReactDOM.render(
     <Primer client={fetchData}>
-        
+        <NoSuspense />
+        <NoSuspense2 />
         <NoSuspense3 />
     </Primer>
 , document.getElementById('root'))

@@ -48,7 +48,6 @@ export class Primer extends React.Component {
         let galaxy = client.state;
         let query;
 
-
         function getGroup(loadingGroup){
             if(!(loadingGroup in galaxy.queries)){
                 galaxy.queries[loadingGroup] = {
@@ -85,7 +84,7 @@ export class Primer extends React.Component {
                 if(field === '_error') return state.error;
                 if(field in state.data) return state.data[field];
                 
-                console.log('cache miss', state.data, field)
+                console.log('cache miss', field)
 
                 if(state.error){
                     console.warn('not fetchign because we last recieved an error')
@@ -105,10 +104,10 @@ export class Primer extends React.Component {
                     console.groupEnd('dry render')
                     galaxy.inception = false;
 
-
                     for(let q in galaxy.queries){
                         let query = galaxy.queries[q];
                         if(!shallowCompare(query.lastFields, query.fields)){
+                            console.log('fetching fields', q, Object.keys(query.fields))
                             query.initial = false;
                             query.fetching = client(Object.keys(query.fields))
                                 .then(data => {
@@ -123,15 +122,11 @@ export class Primer extends React.Component {
                                 })
                         }
                     }
-
                     throw nextFrame()
-
                 }else{
                     console.error('we tried to fetsh stuff that isnt loaded', field)
                     return null
                 }
-                throw state.fetching;
-
             }
         }
 
