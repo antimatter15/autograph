@@ -4,10 +4,10 @@ import _dryRender from './dryrender'
 const PrimerContext = React.createContext(null)
 let durableStates = [];
 
-export function usePrimer(loadingGroup){
+export function usePrimer(loadingGroup, enableSuspense){
     let get = React.useContext(PrimerContext);
 
-    return field => get(field, loadingGroup)
+    return field => get(field, loadingGroup, enableSuspense)
 }
 
 // TODO: think about what happens if `client` changes
@@ -63,6 +63,8 @@ export class Primer extends React.Component {
 
         if(galaxy.inception){
             query = (field, loadingGroup = 'default') => {
+                if(field === '_virtual') return true;
+
                 let state = getGroup(loadingGroup)
                 
                 state.fields[field] = 1
@@ -77,18 +79,24 @@ export class Primer extends React.Component {
             // THIS PART READS FROM REACT INTERNALS
             let _rootFiber = this._reactInternalFiber;
 
-            query = (field, loadingGroup = 'default') => {
+            query = (field, loadingGroup = 'default', enableSuspense = false) => {
                 let state = getGroup(loadingGroup)
 
                 if(field === '_loading') return !!state.fetching;
                 if(field === '_error') return state.error;
+                if(field === '_virtual') return false;
                 if(field in state.data) return state.data[field];
                 
                 console.log('cache miss', field)
 
+
                 if(state.error){
-                    console.warn('not fetchign because we last recieved an error')
-                    return null;
+                    if(enableSuspense){
+                        throw state.error;
+                    }else{
+                        console.warn('not fetchign because we last recieved an error')
+                        return null;
+                    }
                 }
 
                 if(!state.fetching){
@@ -122,8 +130,18 @@ export class Primer extends React.Component {
                                 })
                         }
                     }
-                    throw nextFrame()
+
+                    if(enableSuspense){
+                        throw state.fetching;
+                    }else{
+                        throw nextFrame()    
+                    }
+                    
                 }else{
+                    if(enableSuspense){
+                        throw state.fetching;
+                    }
+
                     console.error('we tried to fetsh stuff that isnt loaded', field)
                     return null
                 }

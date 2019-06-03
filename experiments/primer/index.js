@@ -194,6 +194,57 @@ function NoSuspense3(){
     </div>
 }
 
+
+function WithSuspense3(){
+    let get1 = usePrimer('B', true)
+    let get2 = usePrimer('A', true)
+    let [ x, setX ] = useState(42)
+
+    // if(get1('_error')) return <div>[GET 1] HELP HELP WE HAVE ERROR HELP</div>;
+    // if(get1('_loading')) return <div>[GET 1] Loaidng (no suspense)</div>;
+
+    // if(get2('_error')) return <div>[GET 2] HELP HELP WE HAVE ERROR HELP</div>;
+    // if(get2('_loading')) return <div>[GET 2] Loaidng (no suspense)</div>;
+
+    return <div>
+        <div>
+            GET1: {get1('message1')}<button onClick={e => setX(x + 1)}>{get1(x) || x}</button>
+            <p>{get1('time')}</p>
+        </div>
+        <div>
+            GET2: {get2('message2')}<button onClick={e => setX(x + 1)}>{get2(x) || x}</button>
+            <p>{get2('time')}</p>
+        </div>
+    </div>
+}
+
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    // Update state so the next render will show the fallback UI.
+    return { hasError: true };
+  }
+
+  // componentDidCatch(error, info) {
+  //   // You can also log the error to an error reporting service
+  //   logErrorToMyService(error, info);
+  // }
+
+  render() {
+    if (this.state.hasError) {
+      // You can render any custom fallback UI
+      return <h1>Something went wrong.</h1>;
+    }
+
+    return this.props.children; 
+  }
+}
+
 // function GlobalProgress(props){
 //     return <React.Suspense fallback={<div>wat</div>} maxDuration={500}>{props.children}</React.Suspense>
 // }
@@ -222,13 +273,20 @@ function NoSuspense3(){
 
 
 
-
-
-ReactDOM.render(
-    <Primer client={fetchData}>
+let dom =  <Primer client={fetchData}>
         <NoSuspense />
         <NoSuspense2 />
         <NoSuspense3 />
+        <hr />
+        <React.Suspense fallback={<div>(im loaing with a custom suspense fallback)</div>}>
+            <ErrorBoundary>
+                <WithSuspense3 />
+            </ErrorBoundary>
+        </React.Suspense>
     </Primer>
-, document.getElementById('root'))
 
+// ReactDOM.render(
+//    dom
+// , document.getElementById('root'))
+
+ReactDOM.unstable_createRoot(document.getElementById('root')).render(dom)
