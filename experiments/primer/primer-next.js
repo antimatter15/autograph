@@ -73,14 +73,17 @@ class PrimerLoadingGroup {
         this.callbacks = this.callbacks.filter(k => k !== callback)
     }
 
-    get(field, enableSuspense = false){
+    get(field, handleOptions = {}){
+        if(handleOptions === true){
+            handleOptions = { suspense: true, boundary: true }
+        }
         if(this.client.inception){
-            return this.getSentinel(field, enableSuspense)
+            return this.getSentinel(field, handleOptions)
         }else{
-            return this.getActual(field, enableSuspense)
+            return this.getActual(field, handleOptions)
         }
     }
-    getSentinel(field, enableSuspense){
+    getSentinel(field, handleOptions){
         if(field === '_dry') return true;
         if(field === '_loading') return false;
         if(field === '_error') return null;
@@ -89,18 +92,24 @@ class PrimerLoadingGroup {
         if(field in this.data) return this.data[field];
         return 'hi'
     }
-    getActual(field, enableSuspense){
+    getActual(field, handleOptions){
         if(field === '_dry') return false;
         if(field === '_loading') return !!this.fetching;
         if(field === '_error') return this.error;
         if(field in this.data) return this.data[field];
         
-        if(enableSuspense){
-            if(this.error) throw state.error;
+        if(handleOptions.boundary){
+            if(this.error) throw state.error;            
+        }else{
+            if(this.error) return null;
+        }
+
+        if(handleOptions.cacheOnly) return null;
+
+        if(handleOptions.suspense){
             if(!this.fetching) this.client.refetch();
             throw this.fetching;
         }else{
-            if(this.error) return null;
             if(!this.fetching){
                 this.client.refetch()
                 throw nextFrame()
@@ -130,7 +139,7 @@ class PrimerLoadingGroup {
 }
 
 // Hook
-export function usePrimer(loadingGroup = 'default', enableSuspense = false){
+export function usePrimer(loadingGroup = 'default', handleOptions){
     let client = React.useContext(PrimerContext);
     let loadingGroup = client.getLoadingGroup(loadingGroup);
     let [ version, setVersion ] = React.useState(0)
@@ -139,7 +148,7 @@ export function usePrimer(loadingGroup = 'default', enableSuspense = false){
         loadingGroup.subscribe(update)
         return () => loadingGroup.unsubscribe(update)
     }, [])
-    return field => loadingGroup.get(field, enableSuspense)
+    return field => loadingGroup.get(field, handleOptions)
 }
 
 // Render Prop
@@ -160,15 +169,15 @@ export class PrimerConsumer extends React.Component {
     }
     render(){
         let loadingGroup = this.context.getLoadingGroup(this.props.loadingGroup);
-        return this.props.children(field => loadingGroup.get(field, this.props.enableSuspense))
+        return this.props.children(field => loadingGroup.get(field, this.props.handleOptions))
     }
 }
 
 // HOC
-export function withPrimer(loadingGroup = 'default', enableSuspense = false){
+export function withPrimer(loadingGroup = 'default', handleOptions){
     return function(BaseComponent){
         function WithPrimer(props){
-            return <PrimerConsumer loadingGroup={loadingGroup} enableSuspense={enableSuspense}>
+            return <PrimerConsumer loadingGroup={loadingGroup} handleOptions={handleOptions}>
                 {query => <BaseComponent {...props} query={query} />}
             </PrimerConsumer>
         }
