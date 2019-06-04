@@ -7,9 +7,9 @@ const PrimerContext = React.createContext(null)
 class PrimerClient {
     inception = false;
     mounted = false;
-    loadingGroups = {};
+    loadingGroups = new Map();
     rootFiber = null;
-    options = {};
+    config = {};
     
     mount(){
         if(this.mounted) throw new Error('already mounted!');
@@ -19,17 +19,17 @@ class PrimerClient {
         if(!this.mounted) throw new Error('not mounted!');
         this.mounted = false;
     }
-    getLoadingGroup(id){
-        if(!(id in this.loadingGroups))
-            this.loadingGroups[id] = new PrimerLoadingGroup();
-        return this.loadingGroups[id]
+    getLoadingGroup(config){
+        if(!this.loadingGroups.has(config)){
+            this.loadingGroups.set(config, new PrimerLoadingGroup(client, config))
+        }
+        return this.loadingGroups.get(config)
     }
     refetch(){
         // prepare dry render
-        for(let loadingGroup of Object.values(this.loadingGroups)){
+        for(let loadingGroup of this.loadingGroups.values()){
             loadingGroup.lastFields = loadingGroup.fields;
             loadingGroup.fields = {}
-            loadingGroup.options = {}
         }
 
         // execute the dry render
@@ -40,7 +40,7 @@ class PrimerClient {
         this.inception = false;
 
         // trigger fetches for updated loading groups
-        for(let loadingGroup of Object.values(this.loadingGroups)){
+        for(let loadingGroup of this.loadingGroups.values()){
             if(!shallowCompare(loadingGroup.lastFields, loadingGroup.fields)){
                 loadingGroup.fetch()
             }
@@ -56,10 +56,11 @@ class PrimerLoadingGroup {
     error = null;
     client = null;
     fetching = false;
-    options = {}
+    config = {};
 
-    constructor(client){
+    constructor(client, config){
         this.client = client
+        this.config = config;
     }
 
     subscribe(callback){
@@ -68,12 +69,6 @@ class PrimerLoadingGroup {
     
     unsubscribe(callback){
         this.callbacks = this.callbacks.filter(k => k !== callback)
-    }
-
-    options(options = {}){
-        if(this.client.inception){
-            Object.assign(this.options, options)
-        }
     }
 
     get(field, enableSuspense = false){
@@ -112,7 +107,7 @@ class PrimerLoadingGroup {
         }
     }
     refetch(){
-        let options = { ...this.client.options, ...this.options };
+        let config = { ...this.client.config, ...this.config };
 
         this.fetching = client(Object.keys(this.fields))
             .then(data => {
@@ -133,10 +128,9 @@ class PrimerLoadingGroup {
 }
 
 // Hook
-export function usePrimer(loadingGroup = 'default', enableSuspense = false, options = {}){
+export function usePrimer(loadingGroup = 'default', enableSuspense = false){
     let client = React.useContext(PrimerContext);
     let loadingGroup = client.getLoadingGroup(loadingGroup);
-    loadingGroup.options(options)
     let [ version, setVersion ] = React.useState(0)
     React.useEffect(() => {
         let update = () => setVersion(k => k + 1)
@@ -164,16 +158,15 @@ export class PrimerConsumer extends React.Component {
     }
     render(){
         let loadingGroup = this.context.getLoadingGroup(this.props.loadingGroup);
-        loadingGroup.options(this.props.options)
         return this.props.children(field => loadingGroup.get(field, this.props.enableSuspense))
     }
 }
 
 // HOC
-export function withPrimer(loadingGroup = 'default', enableSuspense = false, options = {}){
+export function withPrimer(loadingGroup = 'default', enableSuspense = false){
     return function(BaseComponent){
         function WithPrimer(props){
-            return <PrimerConsumer loadingGroup={loadingGroup} enableSuspense={enableSuspense} options={options}>
+            return <PrimerConsumer loadingGroup={loadingGroup} enableSuspense={enableSuspense}>
                 {query => <BaseComponent {...props} query={query} />}
             </PrimerConsumer>
         }
@@ -186,7 +179,7 @@ export class Primer extends React.Component {
     render(){
         let client = this.props.client;
         client.rootFiber = this._reactInternalFiber;
-        client.options = this.props.options;
+        client.config = this.props.config;
         return <React.Suspense fallback={<div />}>
             <PrimerContext.Provider value={client}>
                 {this.props.children}
