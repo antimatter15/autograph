@@ -219,7 +219,26 @@ Durable State is a special react hook that stores data in an external cache and 
 <InlineFallback>
     <LoadingDemo />
 </InlineFallback>
+
+
+function LoadingDemo(){
+    let get = usePrimer(fetchData)
+    let [ x, setX ] = useState(42)
+    let isLoading = get('_loading');
+
+    return <div>
+        {get('message1')}<button onClick={e => setX(x + 1)}>{isLoading ? '(loading)' : (get(x) || x)}</button>
+        <p>{get('time')}</p>
+    </div>
+}
+
 ```
+
+This allows us to have a component act as its own loading indicator. This is done by wrapping our target component with something that consumes and subsequently re-emits the query object and also functions as a suspense boundary. 
+
+note that hooks don't get loaded with the same value when running in the inline fallback mode
+
+This is pretty weird because the behavior is actually dictated by how a component is mounted as opposed to somethign about the component itself. Ideally whether or not a component uses suspense ought to be something that can be determined for each particular component. 
 
 
 ## Minimal External State (May 21, 2019)
@@ -257,6 +276,9 @@ function NoSuspense(){
 }
 ```
 
+It still remains to be seen how to make this behavior harmonize with Suspense an Error boundaries if we want to be able to handle fetching errors and loading states with these mechanisms. 
+
+
 
 because of this as the default behavior, suspense never actually triggers for more than a single frame (it's only ever used to immediately abort and retry a render fiber). thus we don't actually need stable concurrentmode to ship this library.
 
@@ -290,9 +312,36 @@ function NoSuspense3(){
 }
 ```
 
+The only problem with this system is that the entire app gets re-rendered each time any query or loading group has a status change. this can likely be addressed with `shouldComponentUpdate` and `React.memo`. 
+
+However, maybe we should have `usePrimer` register some sort of update callback.
+
+## Suspense for Loading groups (June 3, 2019)
+
+```
+type Query = QueryS & {
+    _loading: boolean
+    _error: any
+}
+
+type QueryS {
+    __typename: string
+}
+
+let query: Query = usePrimer(loadingGroup)
+
+let querySuspense: QueryS = usePrimerS(loadingGroup)
+```
+
+This allows suspense and non-suspense apis to play nicely together. We have pretty much the ideal behavior where the default makes it easy to port things over from systems like Apollo and Relay. We have a version of suspense that can be opt-in one component at a time without adversely affecting siblings. 
+
+There should exist suspense and non-suspense version of the query endpoint. The non-suspense version includes `_error` and `_loading` properties. Suspense uses error boundaries and suspense placeholders respectively to handle these states. 
+
+
 
 ## Future?
 
-Should using suspense be global or with a subtree context flag?
 
-Maybe it should be an additional flag like loading group?
+- Mutations
+- An API for triggering reloads of specific queries
+- Some way of specifying query options (e.g. cache-only etc.)?
