@@ -3,11 +3,13 @@ import _dryRender from './dryrender'
 
 const PrimerContext = React.createContext(null)
 
+
 class PrimerClient {
     inception = false;
     mounted = false;
     loadingGroups = {};
     rootFiber = null;
+    options = {};
     
     mount(){
         if(this.mounted) throw new Error('already mounted!');
@@ -27,6 +29,7 @@ class PrimerClient {
         for(let loadingGroup of Object.values(this.loadingGroups)){
             loadingGroup.lastFields = loadingGroup.fields;
             loadingGroup.fields = {}
+            loadingGroup.options = {}
         }
 
         // execute the dry render
@@ -53,6 +56,7 @@ class PrimerLoadingGroup {
     error = null;
     client = null;
     fetching = false;
+    options = {}
 
     constructor(client){
         this.client = client
@@ -64,6 +68,12 @@ class PrimerLoadingGroup {
     
     unsubscribe(callback){
         this.callbacks = this.callbacks.filter(k => k !== callback)
+    }
+
+    options(options = {}){
+        if(this.client.inception){
+            Object.assign(this.options, options)
+        }
     }
 
     get(field, enableSuspense = false){
@@ -102,6 +112,8 @@ class PrimerLoadingGroup {
         }
     }
     refetch(){
+        let options = { ...this.client.options, ...this.options };
+
         this.fetching = client(Object.keys(this.fields))
             .then(data => {
                 this.data = data;
@@ -113,6 +125,7 @@ class PrimerLoadingGroup {
                 this.fetching = false;
                 this.changed()
             })
+        }
     }
     changed(){
         for(let cb of this.callbacks) cb();
@@ -120,10 +133,10 @@ class PrimerLoadingGroup {
 }
 
 // Hook
-export function usePrimer(loadingGroup = 'default', enableSuspense = false){
+export function usePrimer(loadingGroup = 'default', enableSuspense = false, options = {}){
     let client = React.useContext(PrimerContext);
     let loadingGroup = client.getLoadingGroup(loadingGroup);
-
+    loadingGroup.options(options)
     let [ version, setVersion ] = React.useState(0)
     React.useEffect(() => {
         let update = () => setVersion(k => k + 1)
@@ -151,15 +164,16 @@ export class PrimerConsumer extends React.Component {
     }
     render(){
         let loadingGroup = this.context.getLoadingGroup(this.props.loadingGroup);
+        loadingGroup.options(this.props.options)
         return this.props.children(field => loadingGroup.get(field, this.props.enableSuspense))
     }
 }
 
 // HOC
-export function withPrimer(loadingGroup = 'default', enableSuspense = false){
+export function withPrimer(loadingGroup = 'default', enableSuspense = false, options = {}){
     return function(BaseComponent){
         function WithPrimer(props){
-            return <PrimerConsumer loadingGroup={loadingGroup} enableSuspense={enableSuspense}>
+            return <PrimerConsumer loadingGroup={loadingGroup} enableSuspense={enableSuspense} options={options}>
                 {query => <BaseComponent {...props} query={query} />}
             </PrimerConsumer>
         }
@@ -172,7 +186,7 @@ export class Primer extends React.Component {
     render(){
         let client = this.props.client;
         client.rootFiber = this._reactInternalFiber;
-
+        client.options = this.props.options;
         return <React.Suspense fallback={<div />}>
             <PrimerContext.Provider value={client}>
                 {this.props.children}
