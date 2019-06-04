@@ -7,7 +7,7 @@ const PrimerContext = React.createContext(null)
 class PrimerClient {
     inception = false;
     mounted = false;
-    loadingGroups = new Map();
+    loadingGroups = {};
     rootFiber = null;
     config = {};
     
@@ -20,14 +20,16 @@ class PrimerClient {
         this.mounted = false;
     }
     getLoadingGroup(config){
-        if(!this.loadingGroups.has(config)){
-            this.loadingGroups.set(config, new PrimerLoadingGroup(client, config))
-        }
-        return this.loadingGroups.get(config)
+        if(typeof config === 'string') config = { id: config };
+        if(!(config.id in this.loadingGroups))
+            this.loadingGroups[config.id] = new PrimerLoadingGroup(client, config);
+        if(!shallowEqual(this.loadingGroups[config.id].config, config))
+            console.warn('Different loading group configurations share the same ID');
+        return this.loadingGroups[config.id]
     }
     refetch(){
         // prepare dry render
-        for(let loadingGroup of this.loadingGroups.values()){
+        for(let loadingGroup of Object.keys(this.loadingGroups)){
             loadingGroup.lastFields = loadingGroup.fields;
             loadingGroup.fields = {}
         }
@@ -40,7 +42,7 @@ class PrimerClient {
         this.inception = false;
 
         // trigger fetches for updated loading groups
-        for(let loadingGroup of this.loadingGroups.values()){
+        for(let loadingGroup of Object.keys(this.loadingGroups)){
             if(!shallowCompare(loadingGroup.lastFields, loadingGroup.fields)){
                 loadingGroup.fetch()
             }
