@@ -338,6 +338,47 @@ This allows suspense and non-suspense apis to play nicely together. We have pret
 There should exist suspense and non-suspense version of the query endpoint. The non-suspense version includes `_error` and `_loading` properties. Suspense uses error boundaries and suspense placeholders respectively to handle these states. 
 
 
+## Isolated Loading Group Rendering (June 3, 2019)
+
+The main problem with having multiple loading groups within a single autograph root is that every time something on the page (in any loading group) is fetched or reloaded, the entire page needed to be rendered. 
+
+Another issue is that if any of the components on the page had React.memo or shouldComponentUpdate, then new data wouldn't properly propagate down. 
+
+With this update we use the same trick that Redux-React and other state management systems use— which allows us to subscribe particular components to state updates. This update makes it so that children which are shadowed by `shouldComponentUpdate` will still update automatically when changes occur. 
+
+
+## Dry Flag (June 3, 2019)
+
+Similar to `_error` and `_loading` there's now `_dry` which is a pseudo-field which only works during certain conditions. 
+
+```
+function NoSuspense(){
+    let get = usePrimer()
+    let [ x, setX ] = useState(42)
+
+    if(get('_error')) return <div>HELP HELP WE HAVE ERROR HELP</div>;
+    if(get('_loading')) return <div>Loaidng (no suspense)</div>;
+    if(!get('_dry')){
+        console.log('do some side effect that shouldnt occur during the real thing')
+    }
+
+    return <div>
+        {get('message1')}<button onClick={e => setX(x + 1)}>{get(x) || x}</button>
+        <p>{get('time')}</p>
+    </div>
+}
+```
+
+Maybe we should consider switching it to something like `_real` which represents the inverse, because it's probably more likely that someone is interested in doing something when it isn't a dry run. 
+
+
+Current Features:
+- Uses only zero-delay suspense, which does not require concurrent mode, and goes back to React 16.6 (October 2018)
+- Only does a virtual render pass when it encounters missing data (similar to a page fault in CPUs) for practically zero performance overhead
+- Easy to port existing code that uses Relay or Apollo or URQL— loading states and error handling is trivial to port
+- Opt-in to concurrent mode and suspense for specific components 
+- Loading groups / queries allow different components to separately requiest queries, and updates can pierce `shouldComponentUpdate` and `memo`. 
+
 
 ## Future?
 
