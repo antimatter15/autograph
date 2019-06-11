@@ -10,6 +10,10 @@ class PrimerClient {
     loadingGroups = {};
     rootFiber = null;
     config = {};
+
+    constructor(config){
+        this.config = config;
+    }
     
     mount(){
         if(this.mounted) throw new Error('already mounted!');
@@ -73,22 +77,32 @@ class PrimerLoadingGroup {
         this.callbacks = this.callbacks.filter(k => k !== callback)
     }
 
-    get(field, handleOptions = {}){
+    createHandle(handleOptions = {}){
         if(handleOptions === true){
             handleOptions = { suspense: true, boundary: true }
         }
         if(this.client.inception){
-            return this.getSentinel(field, handleOptions)
+            return field => this.getSentinel(field, handleOptions)
         }else{
-            return this.getActual(field, handleOptions)
+            if(handleOptions.boundary && this.error){
+                throw this.error;
+            }
+            return field => this.getActual(field, handleOptions)
         }
     }
+
     getSentinel(field, handleOptions){
         if(field === '_dry') return true;
         if(field === '_loading') return false;
         if(field === '_error') return null;
 
-        this.fields[field] = 1
+        // cacheOnly means that it shouldn't be added
+        // to the list of fields that are to be fetched
+        
+        if(!handleOptions.cacheOnly){
+            this.fields[field] = 1    
+        }
+        
         if(field in this.data) return this.data[field];
         return 'hi'
     }
@@ -97,13 +111,8 @@ class PrimerLoadingGroup {
         if(field === '_loading') return !!this.fetching;
         if(field === '_error') return this.error;
         if(field in this.data) return this.data[field];
+        if(this.error) return null;
         
-        if(handleOptions.boundary){
-            if(this.error) throw state.error;            
-        }else{
-            if(this.error) return null;
-        }
-
         if(handleOptions.cacheOnly) return null;
 
         if(handleOptions.suspense){
@@ -141,14 +150,14 @@ class PrimerLoadingGroup {
 // Hook
 export function usePrimer(loadingGroup = 'default', handleOptions){
     let client = React.useContext(PrimerContext);
-    let loadingGroup = client.getLoadingGroup(loadingGroup);
+    let group = client.getLoadingGroup(loadingGroup);
     let [ version, setVersion ] = React.useState(0)
     React.useEffect(() => {
         let update = () => setVersion(k => k + 1)
-        loadingGroup.subscribe(update)
-        return () => loadingGroup.unsubscribe(update)
+        group.subscribe(update)
+        return () => group.unsubscribe(update)
     }, [])
-    return field => loadingGroup.get(field, handleOptions)
+    return group.createHandle(handleOptions)
 }
 
 // Render Prop
@@ -169,7 +178,7 @@ export class PrimerConsumer extends React.Component {
     }
     render(){
         let loadingGroup = this.context.getLoadingGroup(this.props.loadingGroup);
-        return this.props.children(field => loadingGroup.get(field, this.props.handleOptions))
+        return this.props.children(loadingGroup.createHandle(this.props.handleOptions))
     }
 }
 
@@ -190,7 +199,6 @@ export class Primer extends React.Component {
     render(){
         let client = this.props.client;
         client.rootFiber = this._reactInternalFiber;
-        client.config = this.props.config;
         return <React.Suspense fallback={<div />}>
             <PrimerContext.Provider value={client}>
                 {this.props.children}

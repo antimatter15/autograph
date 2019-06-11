@@ -373,6 +373,8 @@ Maybe we should consider switching it to something like `_real` which represents
 
 
 Current Features:
+- No need to manually write GraphQL queries
+- Automatically generate TypeScript bindings
 - Uses only zero-delay suspense, which does not require concurrent mode, and goes back to React 16.6 (October 2018)
 - Only does a virtual render pass when it encounters missing data (similar to a page fault in CPUs) for practically zero performance overhead
 - Easy to port existing code that uses Relay or Apollo or URQL— loading states and error handling is trivial to port
