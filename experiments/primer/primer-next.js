@@ -84,6 +84,13 @@ class PrimerLoadingGroup {
         if(this.client.inception){
             return field => this.getSentinel(field, handleOptions)
         }else{
+            
+            if(!schemaLoaded && !schemaFetcher){
+                schemaFetcher = loadSchema()
+            }
+            if(handleOptions.suspense && schemaFetcher){
+                throw schemaFetcher
+            }
             if(handleOptions.boundary && this.error){
                 throw this.error;
             }
@@ -108,7 +115,7 @@ class PrimerLoadingGroup {
     }
     getActual(field, handleOptions){
         if(field === '_dry') return false;
-        if(field === '_loading') return !!this.fetching;
+        if(field === '_loading') return !!(this.fetching || !this.schemaLoaded);
         if(field === '_error') return this.error;
         if(field in this.data) return this.data[field];
         if(this.error) return null;
@@ -126,6 +133,7 @@ class PrimerLoadingGroup {
             return null;
         }
     }
+
     refetch(){
         let config = { ...this.client.config, ...this.config };
 
@@ -140,7 +148,6 @@ class PrimerLoadingGroup {
                 this.fetching = false;
                 this.changed()
             })
-        }
     }
     changed(){
         for(let cb of this.callbacks) cb();
