@@ -107,6 +107,8 @@ class AutographQuery {
         // these are the fields that we need to fetch
         this.deps = {}
         this.lastDeps = {};
+        
+        this.version = 1;
     }
     
     subscribe(callback){
@@ -118,6 +120,7 @@ class AutographQuery {
     }
 
     notify(){
+        console.log('notify')
         for(let cb of this.callbacks) cb();
     }
 
@@ -134,6 +137,7 @@ class AutographQuery {
         console.groupCollapsed('GraphQL Query')
         console.log(gql)
         console.groupEnd('GraphQL Query')
+        this.version++
         this.dataPromise = this.client.fetchQuery(gql)
             .then(data => {
                 this.data = data;
@@ -160,7 +164,7 @@ class AutographQuery {
         }
 
         if(this.root.currentlyDryRendering){
-            return this._createAccessor(this.deps, queryRoot, { isDry: true, handleOptions })
+            return this._createAccessor(this.deps, queryRoot, { isDry: true, handleOptions, version: this.version })
         }else{
             if(!this.client.schemaData && !this.client.schemaPromise && !this.client.schemaError){
                 this.client.schemaPromise = new Promise(resolve => {
@@ -197,7 +201,7 @@ class AutographQuery {
             if(handleOptions.error && this.dataError){
                 throw this.dataError;
             }
-            return this._createAccessor(this.data, queryRoot, { isDry: false, handleOptions })
+            return this._createAccessor(this.data, queryRoot, { isDry: false, handleOptions, version: this.version })
         }
     }
 
@@ -217,7 +221,7 @@ class AutographQuery {
     }
     __createAccessor(path, type, state){
         let schema = this.client.schemaData;
-        let { isDry, handleOptions } = state;
+        let { isDry, handleOptions, version } = state;
 
         const subpath = obj => {
             if(isDry){
@@ -244,23 +248,31 @@ class AutographQuery {
             }
         }
 
-
         // if(handleOptions.cacheOnly) return null;
         if(!isDry && path === undefined && !(type.kind === '__NOSCHEMA' || schema.queryType.name === type.name)){
-            let triggerFetch = !this.dataPromise;
-            if(triggerFetch){
+
+            if(!this.dataPromise){
                 this.root.dryRender();
-                if(!this.dataPromise) throw new Error('Some sort of rendering or query generation problem!');
+                if(!this.dataPromise){
+                    console.log(path, type)
+                    throw new Error('Some sort of rendering or query generation problem!');
+                }
             }
 
             if(handleOptions.suspense){
                 throw this.dataPromise;
             }else{
-                if(triggerFetch){
+                // This trick for aborting a react render seems to have some problems
+                // when it comes to event handlers and element focus... 
+                if(this.version !== version){
                     throw nextFrame();
                 }
                 return null;
             }
+        }
+
+        if(!isDry && path === null && !(type.kind === '__NOSCHEMA' || schema.queryType.name === type.name)){
+            return null;
         }
         
 
@@ -336,10 +348,7 @@ class AutographQuery {
                     enumerable: false, 
                     value: isDry ? null : (this.client.schemaError || this.dataError )
                 })
-            }else if(!isDry && !path){
-                return null
             }
-
             
 
             return Object.freeze(handle);
@@ -496,7 +505,6 @@ export function convertGQLSchemaToTypescript(schema) {
                 ts += INDENT + '_dry?: boolean\n'
             }
             ts += '}\n\n'
-
         }else if(type.kind == 'INTERFACE'){
             if(type.description) 
                 ts += "/** " + type.description + " */\n";
@@ -636,6 +644,7 @@ export function createRoot(config){
         render(){
             if(!root.currentlyDryRendering){
                 root.mountedFiber = this._reactInternalFiber;
+                // console.log(root.mountedFiber)
             }
             return <React.Suspense fallback={<div />}>
                 <AutographContext.Provider value={root}>
@@ -707,8 +716,8 @@ function shallowCompare(a, b){
 function nextFrame(){
     return new Promise(resolve => { 
         // setTimeout(resolve, 0)
-        resolve()
-        // requestAnimationFrame(resolve) 
+        // resolve()
+        requestAnimationFrame(resolve) 
     })
 }
 

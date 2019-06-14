@@ -13,7 +13,8 @@ let done = false;
 let x = new Promise(resolve => setTimeout(resolve, 1000)).then(x => done = true)
 
 
-function App(){
+function App() {
+    console.log('render')
     let [text, setText] = React.useState('pikachu')
 
     let query: GQL.Query = useQuery();
@@ -21,30 +22,38 @@ function App(){
 
     let pokemon = query.pokemon({ name: text });
     // if(!done) throw x;
-    // console.log(query._dry, query._loading, pokemon)
+    console.log(query._dry, query._loading, pokemon)
     // if(!pokemon) return <div>No data!</div>
     // return 'hello'
     // console.log('render')
     return <div>
         <input key="thang" type="text" value={text} onChange={e => setText(e.target.value)} />
         <div>
-            { query._loading ? <div>Loading...</div> : ((pokemon ? <Pokedex pokemon={pokemon} /> : <div>No matching pokemon</div>)) }
+            {query._loading ? <div>Loading...</div> : ((pokemon ? <Pokedex pokemon={pokemon} /> : <div>No matching pokemon</div>))}
         </div>
     </div>
 }
 
-function Pokedex({ pokemon }){
+function Pokedex({ pokemon }: { pokemon: GQL.Pokemon }) {
     // console.log('pokedex', pokemon)
+    let [expand, setExpand] = React.useState(false)
+
     return <div>
         <h1>{pokemon.number} - {pokemon.name}</h1>
         <img src={D('@skip(if: false)', pokemon.image)} />
         <div>Types:</div>
-        <ul>{pokemon.types.map(k => 
+        <ul>{pokemon.types.map(k =>
             <li key={k}>{k}</li>)}</ul>
+
+        <a onClick={e => setExpand(x => !x)}>{expand ? '▲ Collapse' : '▶ Expand'}</a>
+        {expand && <ul>{pokemon.attacks.fast.map((k, i) =>
+            <li key={i}>Fast: {k.name} ({k.type})</li>)}
+            {pokemon.attacks.special.map((k, i) =>
+            <li key={i}>Special: {k.name} ({k.type})</li>)}</ul>}
     </div>
 }
 
-let dom =  <AutographRoot>
+let dom = <AutographRoot>
     <App />
 </AutographRoot>
 
