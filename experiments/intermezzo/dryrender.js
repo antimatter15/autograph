@@ -131,7 +131,7 @@ export default function dryRender(node, fiber){
         let nextChildren = node.type.render(node.props, node.ref);
         dryRender(nextChildren, fiber && fiber.child)
     }else{
-        throw new Exception('unhandled node type')
+        console.warn('unhandled node type', node.type)
     }
 }
 

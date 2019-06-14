@@ -114,7 +114,7 @@ class AutographQuery {
     
     subscribe(callback){
         this.callbacks.push(callback)
-        console.log('subscribe', this.callbacks.length)
+        // console.log('subscribe', this.callbacks.length)
 
         // trigger subscription callback when it mounts
         // because sometimes we have notify-notify-subscribe
@@ -127,14 +127,14 @@ class AutographQuery {
     
     unsubscribe(callback){
         this.callbacks = this.callbacks.filter(k => k !== callback)
-        console.log('unsubscribe', this.callbacks.length)
+        // console.log('unsubscribe', this.callbacks.length)
 
         // TODO: consider destroying query when all subscribers have gone
     }
 
     notify(){
         this.version++
-        console.log('notify', this.callbacks.length)
+        // console.log('notify', this.callbacks.length)
         for(let cb of this.callbacks) cb();
     }
 
@@ -262,8 +262,10 @@ class AutographQuery {
             }
         }
 
+
+        const isQueryRoot = type.kind === '__NOSCHEMA' || schema.queryType.name === type.name
         
-        if(!isDry && path === undefined && !(type.kind === '__NOSCHEMA' || schema.queryType.name === type.name)){
+        if(!isDry && path === undefined && !isQueryRoot){
             if(handleOptions.cacheOnly) return null;
 
             if(!this.dataPromise){
@@ -286,12 +288,12 @@ class AutographQuery {
             }
         }
 
-        if(!isDry && path === null && !(type.kind === '__NOSCHEMA' || schema.queryType.name === type.name)){
+        if(!isDry && path === null && !isQueryRoot){
             return null;
         }
         
 
-        if(type.kind === 'INTERFACE' || type.kind === 'OBJECT' || type.kind === '__NOSCHEMA'){
+        if(type.kind === 'INTERFACE' || type.kind === 'OBJECT' || isQueryRoot){
             let handle = {}
 
             if(schema){
@@ -327,19 +329,19 @@ class AutographQuery {
                         })
                     }
                 }
+
+                Object.defineProperty(handle, '__typename', { 
+                    enumerable: false, 
+                    get: () => {
+                        if(isDry){
+                            subpath({ type: 'PROP', name: '__typename' }).__get = true;    
+                        }
+                        return type.name
+                    }
+                })
             }
 
-            Object.defineProperty(handle, '__typename', { 
-                enumerable: false, 
-                get: () => {
-                    if(isDry){
-                        subpath({ type: 'PROP', name: '__typename' }).__get = true;    
-                    }
-                    return type.name
-                }
-            })
-
-            if(type.kind === '__NOSCHEMA' || schema.queryType.name === type.name){
+            if(isQueryRoot){
                 // allow functions to distinguish between the dry run and the real execution
                 // for instance to specifically gate side effects
                 Object.defineProperty(handle, '_dry', { 
@@ -456,7 +458,7 @@ export function useQuery(config = 'default', handleOptions){
         let update = () => setVersion(k => k + 1)
         query.subscribe(update)
         if(query.version !== originalVersion){
-            console.warn('Needed to do an additional render to catch up on stuff')
+            // console.warn('Needed to do an additional render to catch up on stuff')
             update();
         }
         return () => query.unsubscribe(update)
@@ -475,7 +477,7 @@ export class Query extends React.Component {
         let query = this.context.getQuery(this.props.config);
         query.subscribe(this.update)
         if(query.version !== this.lastVersion){
-            console.warn('Needed to do an additional render to catch up on stuff')
+            // console.warn('Needed to do an additional render to catch up on stuff')
             this.update();
         }
     }
@@ -489,10 +491,14 @@ export class Query extends React.Component {
         return this.props.children(query.createHandle(this.props.handleOptions))
     }
 }
+Query.defaultProps = {
+    config: 'default'
+}
 Query.contextType = AutographContext;
 
 // HOC
 export function withQuery(config = 'default', handleOptions){
+    // let mapper = [...arguments].reverse().find(k => typeof k === 'function')
     return function(BaseComponent){
         function WithQuery(props){
             return <Query config={config} handleOptions={handleOptions}>
@@ -598,12 +604,12 @@ export function convertGQLSchemaToTypescript(schema) {
     const INDENT = '    ' // 4 spaces
     let ts = ''
 
-    if(schema.queryType.name != 'Query'){
-        ts += 'type Query = ' + schema.queryType.name + '\n\n' 
+    if(schema.queryType.name != 'Query' && !schema.types.some(k => k.name === 'Query')){
+        ts += 'export type Query = ' + schema.queryType.name + '\n\n' 
     }
 
-    if(schema.mutationType && schema.mutationType.name != 'Mutation'){
-        ts += 'type Mutation = ' + schema.mutationType.name + '\n\n' 
+    if(schema.mutationType && schema.mutationType.name != 'Mutation' && !schema.types.some(k => k.name === 'Mutation')){
+        ts += 'export type Mutation = ' + schema.mutationType.name + '\n\n' 
     }
 
     ts += 'type GQLType = {\n'

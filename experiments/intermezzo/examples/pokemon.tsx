@@ -1,16 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import { createRoot, useQuery, D } from './autograph'
-import * as GQL from './schema'
+import { createRoot, useQuery, D } from '../autograph'
+import * as GQL from './pokemon.schema'
 
 const AutographRoot = createRoot({
     client: 'https://graphql-pokemon.now.sh/graphql'
 })
-
-
-let done = false;
-let x = new Promise(resolve => setTimeout(resolve, 1000)).then(x => done = true)
 
 
 function App() {
@@ -18,6 +14,9 @@ function App() {
     let [text, setText] = React.useState('pikachu')
 
     let query: GQL.Query = useQuery();
+
+    if(query._error) return <div>{query._error.toString()}</div>
+
     let pokemon = query.pokemon({ name: text });
     // console.log(query._dry, query._loading, pokemon)
     
