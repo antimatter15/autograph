@@ -4,7 +4,7 @@ import _dryRender from './dryrender'
 const PrimerContext = React.createContext(null)
 
 
-class PrimerClient {
+class PrimerRoot {
     inception = false;
     mounted = false;
     loadingGroups = {};
@@ -26,7 +26,7 @@ class PrimerClient {
     getLoadingGroup(config){
         if(typeof config === 'string') config = { id: config };
         if(!(config.id in this.loadingGroups))
-            this.loadingGroups[config.id] = new PrimerLoadingGroup(client, config);
+            this.loadingGroups[config.id] = new PrimerQuery(client, config);
         if(!shallowEqual(this.loadingGroups[config.id].config, config))
             console.warn('Different loading group configurations share the same ID');
         return this.loadingGroups[config.id]
@@ -54,7 +54,7 @@ class PrimerClient {
     }
 }
 
-class PrimerLoadingGroup {
+class PrimerQuery {
     fields = {};
     lastFields = {};
     data = {};
