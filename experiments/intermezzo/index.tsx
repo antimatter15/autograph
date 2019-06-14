@@ -14,18 +14,13 @@ let x = new Promise(resolve => setTimeout(resolve, 1000)).then(x => done = true)
 
 
 function App() {
-    console.log('render')
+    // console.log('render')
     let [text, setText] = React.useState('pikachu')
 
     let query: GQL.Query = useQuery();
-    // if(query._loading) return <div>Loading...</div>;
-
     let pokemon = query.pokemon({ name: text });
-    // if(!done) throw x;
-    console.log(query._dry, query._loading, pokemon)
-    // if(!pokemon) return <div>No data!</div>
-    // return 'hello'
-    // console.log('render')
+    // console.log(query._dry, query._loading, pokemon)
+    
     return <div>
         <input key="thang" type="text" value={text} onChange={e => setText(e.target.value)} />
         <div>
@@ -37,6 +32,7 @@ function App() {
 function Pokedex({ pokemon }: { pokemon: GQL.Pokemon }) {
     // console.log('pokedex', pokemon)
     let [expand, setExpand] = React.useState(false)
+
 
     return <div>
         <h1>{pokemon.number} - {pokemon.name}</h1>

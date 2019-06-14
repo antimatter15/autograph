@@ -10,6 +10,38 @@ const AutographContext = React.createContext(null)
 let lastHandleValue, lastHandlePointer;
 
 
+
+class AutographBasicClient {
+    constructor(url){
+        this.url = url;
+        // this.schemaPromise = null;
+        // this.schemaError = null;
+        // this.schemaData = null;
+    }
+
+    fetchSchema(){
+        return this.fetchQuery(SUCCINCT_INTROSPECTION_QUERY)
+            .then(data => data.__schema)
+    }
+
+    fetchQuery(query){
+        return fetch(this.url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({query: query})
+        })
+        .then(resp => resp.json())
+        .then(d => d.data)
+    }
+}
+
+
+
+
+
 class AutographModel {
     constructor(config){
         if(typeof config.client === 'string'){
@@ -63,37 +95,6 @@ class AutographModel {
 }
 
 
-class AutographBasicClient {
-    constructor(url){
-        this.url = url;
-        // this.schemaPromise = null;
-        // this.schemaError = null;
-        // this.schemaData = null;
-    }
-
-    fetchSchema(){
-        return this.fetchQuery(SUCCINCT_INTROSPECTION_QUERY)
-            .then(data => data.__schema)
-    }
-
-    fetchQuery(query){
-        return fetch(this.url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({query: query})
-        })
-        .then(resp => resp.json())
-        .then(d => d.data)
-    }
-}
-
-
-
-
-
 class AutographQuery {
     constructor(root, config){
         this.root = root;
@@ -113,14 +114,27 @@ class AutographQuery {
     
     subscribe(callback){
         this.callbacks.push(callback)
+        console.log('subscribe', this.callbacks.length)
+
+        // trigger subscription callback when it mounts
+        // because sometimes we have notify-notify-subscribe
+        // and then the app never updates. 
+
+        // this isn't ideal because it means additional rendering
+        // which isn't great if it's not really necessary. 
+        // requestAnimationFrame(callback)
     }
     
     unsubscribe(callback){
         this.callbacks = this.callbacks.filter(k => k !== callback)
+        console.log('unsubscribe', this.callbacks.length)
+
+        // TODO: consider destroying query when all subscribers have gone
     }
 
     notify(){
-        console.log('notify')
+        this.version++
+        console.log('notify', this.callbacks.length)
         for(let cb of this.callbacks) cb();
     }
 
@@ -167,6 +181,7 @@ class AutographQuery {
             return this._createAccessor(this.deps, queryRoot, { isDry: true, handleOptions, version: this.version })
         }else{
             if(!this.client.schemaData && !this.client.schemaPromise && !this.client.schemaError){
+                this.version++
                 this.client.schemaPromise = new Promise(resolve => {
                     this.client.fetchSchema()
                         .then(data => { 
@@ -208,7 +223,6 @@ class AutographQuery {
 
     _createAccessor(path, type, state){
         // this allows directives to work
-
         let obj = this.__createAccessor(path, type, state);
         if(state.isDry){
             lastHandleValue = obj;
@@ -248,8 +262,9 @@ class AutographQuery {
             }
         }
 
-        // if(handleOptions.cacheOnly) return null;
+        
         if(!isDry && path === undefined && !(type.kind === '__NOSCHEMA' || schema.queryType.name === type.name)){
+            if(handleOptions.cacheOnly) return null;
 
             if(!this.dataPromise){
                 this.root.dryRender();
@@ -393,9 +408,140 @@ class AutographQuery {
 }
 
 
-function accessLogToGraphQL(log) {
-    // options = Object.assign({}, DefaultGraphQLGeneratorOptions, options)
+// graphql query directive helper
+export function D(directive_string, value){
+    if(lastHandlePointer){
+        if(value === lastHandleValue){
+            // do something with lastHandlePointer
+            lastHandlePointer.__directive = directive_string;
+        }else{
+            console.warn('The Autograph directive helper D("@directive", value) ' + 
+                'must be applied directly to an Autograph value without any intervening ' + 
+                'logic or variables. \n Good: D("@client", query.field.stuff) \n '+
+                'Bad: let x = query.field.stuff; D("@client", x)')
+        }
+    }
+    return value;
+}
 
+// Provider
+export function createRoot(config){
+    let root = new AutographModel(config)
+    class AutographRootComponent extends React.Component {
+        componentDidMount(){ root.mount() }
+        componentWillUnmount(){ root.unmount() }
+        render(){
+            if(!root.currentlyDryRendering){
+                root.mountedFiber = this._reactInternalFiber;
+                // console.log(root.mountedFiber)
+            }
+            return <React.Suspense fallback={<div />}>
+                <AutographContext.Provider value={root}>
+                    {this.props.children}
+                </AutographContext.Provider>
+            </React.Suspense>
+        }
+    }
+    AutographRootComponent._root = root;
+    return AutographRootComponent;
+}
+
+// Hook
+export function useQuery(config = 'default', handleOptions){
+    let root = React.useContext(AutographContext);
+    let query = root.getQuery(config);
+    let originalVersion = query.version;
+    let [ version, setVersion ] = React.useState(0)
+    React.useEffect(() => {
+        let update = () => setVersion(k => k + 1)
+        query.subscribe(update)
+        if(query.version !== originalVersion){
+            console.warn('Needed to do an additional render to catch up on stuff')
+            update();
+        }
+        return () => query.unsubscribe(update)
+    }, [])
+    return query.createHandle(handleOptions)
+}
+
+// Render Prop
+export class Query extends React.Component {
+    constructor(){
+        super()
+        this.state = { version: 0 }
+        this.update = () => this.setState(s => ({ version: s.version + 1 }))
+    }
+    componentDidMount(){
+        let query = this.context.getQuery(this.props.config);
+        query.subscribe(this.update)
+        if(query.version !== this.lastVersion){
+            console.warn('Needed to do an additional render to catch up on stuff')
+            this.update();
+        }
+    }
+    componentWillUnmount(){
+        let query = this.context.getQuery(this.props.config);
+        query.unsubscribe(this.update)
+    }
+    render(){
+        let query = this.context.getQuery(this.props.config);
+        this.lastVersion = query.version;
+        return this.props.children(query.createHandle(this.props.handleOptions))
+    }
+}
+Query.contextType = AutographContext;
+
+// HOC
+export function withQuery(config = 'default', handleOptions){
+    return function(BaseComponent){
+        function WithQuery(props){
+            return <Query config={config} handleOptions={handleOptions}>
+                {query => <BaseComponent {...props} query={query} />}
+            </Query>
+        }
+        return WithQuery
+    }
+}
+
+
+
+// utils
+
+function shallowCompare(a, b){
+    return JSON.stringify(a) === JSON.stringify(b)
+}
+
+
+function nextFrame(){
+    return new Promise(resolve => { 
+        // setTimeout(resolve, 0)
+        // resolve()
+        requestAnimationFrame(resolve) 
+    })
+}
+
+
+function hashArguments(args) {
+    // This is a simple implementation of Dan Bernstein's djb2 non-cryptographic hash algorithm
+    // which should suffice to keep adjacent gql queries with different arguments from colliding
+    let json = JSON.stringify(args || {})
+    for(var i = 0, hash = 5381; i < json.length; i++)
+        hash = (((hash << 5) + hash) + json.charCodeAt(i)) | 0;
+    return Math.abs(hash).toString(36);
+}
+
+function _elementFromFiber(fiber){
+    if(!fiber) debugger;
+
+    let props = { ...fiber.memoizedProps }
+    if(fiber.key) props.key = fiber.key;
+    return React.createElement(fiber.type, props)
+}
+
+
+
+
+function accessLogToGraphQL(log) {
     const encodeValue = (obj) =>
         (typeof obj === 'object') ? 
             (Array.isArray(obj) ? 
@@ -579,7 +725,6 @@ function GQLType2TS(type) {
 }
 
 
-
 function IsGQLTypeNullable(type) {
     return type.kind != 'NON_NULL'
 }
@@ -618,127 +763,6 @@ class FixedPointArray extends Array {
 function invar(invariant, message){
     if(!invariant) throw new Error(message)
 }
-
-// graphql query directive helper
-export function D(directive_string, value){
-    if(lastHandlePointer){
-        if(value === lastHandleValue){
-            // do something with lastHandlePointer
-            lastHandlePointer.__directive = directive_string;
-        }else{
-            console.warn('The Autograph directive helper D("@directive", value) ' + 
-                'must be applied directly to an Autograph value without any intervening ' + 
-                'logic or variables. \n Good: D("@client", query.field.stuff) \n '+
-                'Bad: let x = query.field.stuff; D("@client", x)')
-        }
-    }
-    return value;
-}
-
-// Provider
-export function createRoot(config){
-    let root = new AutographModel(config)
-    class AutographRootComponent extends React.Component {
-        componentDidMount(){ root.mount() }
-        componentWillUnmount(){ root.unmount() }
-        render(){
-            if(!root.currentlyDryRendering){
-                root.mountedFiber = this._reactInternalFiber;
-                // console.log(root.mountedFiber)
-            }
-            return <React.Suspense fallback={<div />}>
-                <AutographContext.Provider value={root}>
-                    {this.props.children}
-                </AutographContext.Provider>
-            </React.Suspense>
-        }
-    }
-    AutographRootComponent._root = root;
-    return AutographRootComponent;
-}
-
-// Hook
-export function useQuery(config = 'default', handleOptions){
-    let root = React.useContext(AutographContext);
-    let query = root.getQuery(config);
-    let [ version, setVersion ] = React.useState(0)
-    React.useEffect(() => {
-        let update = () => setVersion(k => k + 1)
-        query.subscribe(update)
-        return () => query.unsubscribe(update)
-    }, [])
-    return query.createHandle(handleOptions)
-}
-
-// Render Prop
-export class Query extends React.Component {
-    constructor(){
-        super()
-        this.state = { version: 0 }
-        this.update = () => this.setState(s => ({ version: s.version + 1 }))
-    }
-    componentDidMount(){
-        let query = this.context.getQuery(this.props.config);
-        query.subscribe(this.update)
-    }
-    componentWillUnmount(){
-        let query = this.context.getQuery(this.props.config);
-        query.unsubscribe(this.update)
-    }
-    render(){
-        let query = this.context.getQuery(this.props.config);
-        return this.props.children(query.createHandle(this.props.handleOptions))
-    }
-}
-Query.contextType = AutographContext;
-
-// HOC
-export function withQuery(config = 'default', handleOptions){
-    return function(BaseComponent){
-        function WithQuery(props){
-            return <Query config={config} handleOptions={handleOptions}>
-                {query => <BaseComponent {...props} query={query} />}
-            </Query>
-        }
-        return WithQuery
-    }
-}
-
-
-
-// utils
-
-function shallowCompare(a, b){
-    return JSON.stringify(a) === JSON.stringify(b)
-}
-
-
-function nextFrame(){
-    return new Promise(resolve => { 
-        // setTimeout(resolve, 0)
-        // resolve()
-        requestAnimationFrame(resolve) 
-    })
-}
-
-
-function hashArguments(args) {
-    // This is a simple implementation of Dan Bernstein's djb2 non-cryptographic hash algorithm
-    // which should suffice to keep adjacent gql queries with different arguments from colliding
-    let json = JSON.stringify(args || {})
-    for(var i = 0, hash = 5381; i < json.length; i++)
-        hash = (((hash << 5) + hash) + json.charCodeAt(i)) | 0;
-    return Math.abs(hash).toString(36);
-}
-
-function _elementFromFiber(fiber){
-    if(!fiber) debugger;
-
-    let props = { ...fiber.memoizedProps }
-    if(fiber.key) props.key = fiber.key;
-    return React.createElement(fiber.type, props)
-}
-
 
 let SUCCINCT_INTROSPECTION_QUERY = `
   query IntrospectionQuery {
