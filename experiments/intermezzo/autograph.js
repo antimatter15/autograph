@@ -265,6 +265,13 @@ class AutographQuery {
 
         const isQueryRoot = type.kind === '__NOSCHEMA' || schema.queryType.name === type.name
         
+        if(!isDry){
+            const OwnerRef = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner;
+            if(!OwnerRef.current){
+                throw new Error('Getter methods can only be called from within a react render!')
+            }
+        }
+
         if(!isDry && path === undefined && !isQueryRoot){
             if(handleOptions.cacheOnly) return null;
 
@@ -281,6 +288,7 @@ class AutographQuery {
             }else{
                 // This trick for aborting a react render seems to have some problems
                 // when it comes to event handlers and element focus... 
+                
                 if(this.version !== version){
                     throw nextFrame();
                 }
@@ -302,16 +310,41 @@ class AutographQuery {
                 
                 for(let field of sub.fields){
                     if(field.args.length === 0){
-                        Object.defineProperty(handle, field.name, {
-                            get: () => {
-                                let next = subpath({ type: 'PROP', name: field.name });
-                                return this._createAccessor(next, field.type, state)
-                            }
-                        })
+                        if(!isDry && subpath({ type: 'PROP', name: field.name }) !== undefined){
+                            let next = subpath({ type: 'PROP', name: field.name });
+                            handle[field.name] = this._createAccessor(next, field.type, state)
+                        }else{
+                            Object.defineProperty(handle, field.name, {
+                                // configurable: true,
+                                get: () => {
+                                    let next = subpath({ type: 'PROP', name: field.name });
+                                    return this._createAccessor(next, field.type, state)
+                                }
+                            })
+
+                        }
                     }else{
-                        handle[field.name] = (args) => {
+                        // handle[field.name] = (args) => {
+                        //     let next = subpath({ type: 'METHOD', name: field.name, args: args || {} })
+                        //     return this._createAccessor(next, field.type, state)
+                        // }
+                        let run = (args) => {
                             let next = subpath({ type: 'METHOD', name: field.name, args: args || {} })
                             return this._createAccessor(next, field.type, state)
+                        }
+
+                        const SHOW_ARGUMENTS_DEV = true;
+
+                        if(SHOW_ARGUMENTS_DEV){
+                            let argStr = `{${field.args
+                                .map(k => k.name)
+                                // ensure that the names are within graphql spec to guard against code injection 
+                                // security issues
+                                .filter(k => /^[_A-Za-z][_0-9A-Za-z]*$/.test(k))
+                                .join(', ')}}`;
+                            handle[field.name] = eval(`(function(${argStr}){ return run(arguments[0])} )`)
+                        }else{
+                            handle[field.name] = run;
                         }
                     }
                 }
@@ -332,12 +365,13 @@ class AutographQuery {
 
                 Object.defineProperty(handle, '__typename', { 
                     enumerable: false, 
-                    get: () => {
-                        if(isDry){
-                            subpath({ type: 'PROP', name: '__typename' }).__get = true;    
-                        }
-                        return type.name
-                    }
+                    value: type.name
+                    // get: () => {
+                    //     if(isDry){
+                    //         subpath({ type: 'PROP', name: '__typename' }).__get = true;    
+                    //     }
+                    //     return type.name
+                    // }
                 })
             }
 
@@ -365,10 +399,31 @@ class AutographQuery {
                     enumerable: false, 
                     value: isDry ? null : (this.client.schemaError || this.dataError )
                 })
+
+
+                Object.defineProperty(handle, '_data', { 
+                    enumerable: false, 
+                    value: this.data 
+                })
             }
             
 
             return Object.freeze(handle);
+            // For developer experience, delete the getters after the render process
+            // has been completed?
+
+            // We could use proxies as well, but proxies get displayed in the
+            // chrome console in an ugly way, so that defeats the point
+
+            // Nevermind this doesn't work because some component might later
+            // access a field that should trigger a re-render...
+            // setTimeout(() => {
+            //     for(let prop of Object.getOwnPropertyNames(handle)){
+            //         let desc = Object.getOwnPropertyDescriptor(handle, prop);
+            //         if(desc.get) delete handle[prop];
+            //     }
+            // }, 0)
+            // return handle
         }
 
         if(type.kind === 'NON_NULL') return this._createAccessor(path, type.ofType, state);
@@ -437,7 +492,7 @@ export function createRoot(config){
                 root.mountedFiber = this._reactInternalFiber;
                 // console.log(root.mountedFiber)
             }
-            return <React.Suspense fallback={<div />}>
+            return <React.Suspense fallback={<div>Loading...</div>}>
                 <AutographContext.Provider value={root}>
                     {this.props.children}
                 </AutographContext.Provider>
@@ -519,10 +574,22 @@ function shallowCompare(a, b){
 
 
 function nextFrame(){
+    // console.log('before throw')
     return new Promise(resolve => { 
         // setTimeout(resolve, 0)
-        // resolve()
-        requestAnimationFrame(resolve) 
+        resolve()
+        // requestAnimationFrame(() => {
+        //     console.log('resolvin')
+        //     resolve()
+        //     console.log('resolved')
+        // }) 
+
+        // setTimeout(() => {
+        //     console.log('resolvin')
+        //     resolve()
+        //     console.log('resolved')
+        // }, 0)
+        
     })
 }
 

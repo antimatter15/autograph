@@ -382,6 +382,55 @@ Current Features:
 - Loading groups / queries allow different components to separately requiest queries, and updates can pierce `shouldComponentUpdate` and `memo`. 
 
 
+## Directives (June 13, 2019)
+
+```
+D('@skip(if: false)', query.getThing({}).otherThing.stuff)
+```
+
+Compiles to:
+```
+{
+    getThing {
+        otherThing {
+            stuff @skip(if: false)
+        }
+    }
+}
+```
+
+
+Directives can be applied to any part of the expression:
+
+```
+D('@skip(if: false)', query.getThing({})).otherThing.stuff
+```
+
+The corresponding GQL would be:
+```
+{
+    getThing @skip(if: false) {
+        otherThing {
+            stuff 
+        }
+    }
+}
+```
+
+
+Directives are a little bit weird because they need to wrap an expression directly as opposed to a variable that holds that value. 
+
+BAD:
+```
+let x = query.getThing({}).otherThing.stuff
+let y = D('@skip(if: false)', x)
+
+// use both x and y
+```
+
+This is because `D` actually mutates the query handle to record that that value has a directive attached. 
+
+
 ## Future?
 
 

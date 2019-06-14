@@ -15,6 +15,8 @@ function App() {
     if (query._error) return <div>{query._error.toString()}</div>
     if (query._loading) return <div>Loading....</div>;
 
+    console.log(query)
+
     return <center><table id="hnmain" border={0} cellPadding={0} cellSpacing={0} width="85%" bgcolor="#f6f6ef">
         <tbody><tr><td bgcolor="#ff6600"><table border={0} cellPadding={0} cellSpacing={0} width="100%" style={{ padding: '2px' }}><tbody><tr><td style={{ width: '18px', paddingRight: '4px' }}><a href="https://news.ycombinator.com"><img src="https://news.ycombinator.com/y18.gif" width={18} height={18} style={{ border: '1px white solid' }} /></a></td>
             <td style={{ lineHeight: '12pt', height: '10px' }}><span className="pagetop"><b className="hnname"><a href="news">GraphQL News</a></b>

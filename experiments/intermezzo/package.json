@@ -12,7 +12,8 @@
     "nprogress": "^0.2.0",
     "parcel": "^1.12.3",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "react-dom": "^16.8.6",
+    "setimmediate": "^1.0.5"
   },
   "devDependencies": {
     "typescript": "^3.5.2"
