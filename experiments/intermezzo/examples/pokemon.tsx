@@ -13,7 +13,7 @@ function App() {
     // console.log('render')
     let [text, setText] = React.useState('pikachu')
 
-    let query: GQL.Query = useQuery();
+    let query: GQL.Query = useQuery('Blah');
 
     if(query._error) return <div>{query._error.toString()}</div>
 
@@ -27,6 +27,7 @@ function App() {
         </div>
     </div>
 }
+
 
 function Pokedex({ pokemon }: { pokemon: GQL.Pokemon }) {
     // console.log('pokedex', pokemon)

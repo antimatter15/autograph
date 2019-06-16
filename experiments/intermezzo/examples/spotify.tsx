@@ -10,51 +10,42 @@ const AutographRoot = createRoot({
 
 
 function App() {
-    // console.log('render')
     let [text, setText] = React.useState('Coldplay')
-
     let query: GQL.Query = useQuery();
 
-    if(query._error) return <div>{query._error.toString()}</div>
+    if (query._error) return <div>{query._error.toString()}</div>
 
-    console.log(query)
-    
     let artists = query.queryArtists({ byName: text }) || [];
 
-    console.log(artists )
-    // console.log(query._dry, query._loading, pokemon)
-    
-    // if(query._loading) return <div>Loading...</div>
     return <div>
-        <input key="thang" onBlur={e => {
-        }}type="text" value={text} onChange={e => setText(e.target.value)} />
-       {query._loading ? <div>Loading...</div> : <table><tbody>
-           {artists.map(artist => <Artist artist={artist} key={artist.id} />)}
-           </tbody></table>}
+        <input key="thang" type="text" value={text} onChange={e => setText(e.target.value)} />
+        {query._loading ? <div>Loading...</div> : <table><tbody>
+            {artists.map(artist => <Artist artist={artist} key={artist.id} />)}
+        </tbody></table>}
     </div>
 }
 
-function Artist({ artist }: { artist: GQL.Artist }){
-    return <tr >
-    <td style={{verticalAlign: 'top'}}>
-        {artist.image ? <img src={artist.image} style={{ width: 200 }} /> : 'N/A' }</td>
-    <td style={{verticalAlign: 'top'}}><h2>{artist.name}</h2></td>
-<td style={{verticalAlign: 'top'}}>
-    <table>
-        <tbody>
-            {
-                artist.albums({}).map(album => <tr key={album.id}>
-                    <td>
-                    {album.image ? <img src={album.image} style={{ width: 100 }} /> : 'N/A'}
-                    </td>
-                    <td>
-                        {album.name}
-                    </td>
-                </tr>)
-            }
-        </tbody>
-    </table></td>
-   </tr>
+function Artist({ artist }: { artist: GQL.Artist }) {
+    return <tr>
+        <td style={{ verticalAlign: 'top' }}>
+            {artist.image ? <img src={artist.image} style={{ width: 200 }} /> : 'N/A'}</td>
+        <td style={{ verticalAlign: 'top' }}><h2>{artist.name}</h2></td>
+        <td style={{ verticalAlign: 'top' }}>
+            <table>
+                <tbody>
+                    {
+                        artist.albums({}).map(album => <tr key={album.id}>
+                            <td>
+                                {album.image ? <img src={album.image} style={{ width: 100 }} /> : 'N/A'}
+                            </td>
+                            <td>
+                                {album.name}
+                            </td>
+                        </tr>)
+                    }
+                </tbody>
+            </table></td>
+    </tr>
 }
 
 // let dataCache = {}
@@ -75,7 +66,7 @@ function Artist({ artist }: { artist: GQL.Artist }){
 //         }
 //         throw promises[text]
 //     }
-    
+
 //     return <div>
 //         <button onClick={e => setText('asdf')}>thing</button>
 //         <input key="thang" onBlur={e => {
@@ -90,24 +81,24 @@ function Artist({ artist }: { artist: GQL.Artist }){
 // </React.Suspense>
 
 
-class ErrorBoundary extends React.Component {
-    static getDerivedStateFromError(error) {
-      // Update state so the next render will show the fallback UI.
-      return { hasError: true };
-    }
+// class ErrorBoundary extends React.Component {
+//     static getDerivedStateFromError(error) {
+//         // Update state so the next render will show the fallback UI.
+//         return { hasError: true };
+//     }
 
-    componentDidCatch(err){
-        console.log(err)
-    }
+//     componentDidCatch(err) {
+//         console.log(err)
+//     }
 
-    render() {
-      return this.props.children; 
-    }
-  }
+//     render() {
+//         return this.props.children;
+//     }
+// }
 
 
 let dom = <AutographRoot>
-    <ErrorBoundary><App /></ErrorBoundary>
+    <App />
 </AutographRoot>
 
 ReactDOM.render(dom, document.getElementById('root'))

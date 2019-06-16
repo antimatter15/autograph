@@ -81,10 +81,15 @@ class AutographModel {
         console.groupCollapsed('Dry Render')
         _dryRender(_elementFromFiber(this.mountedFiber), this.mountedFiber)    
         console.groupEnd('Dry Render')
+        lastHandleValue = null;
+        lastHandlePointer = null;
         this.currentlyDryRendering = false;
 
         // fetch what needs to be fetched
         for(let query of Object.values(this.queries)){
+            if(!(JSON.stringify({ type: 'FEAT', name: '_error' }) in query.deps)){
+                console.warn(`It appears that the query "${query.config.id}" does not include an error handler.`)
+            }
             if(!shallowCompare(query.deps, query.lastDeps)){
                 query.refetch()
             }else{
@@ -203,10 +208,9 @@ class AutographQuery {
                 })
             }
 
-            // TODO: always load schema with suspense
+            // always load schema with suspense
             // because otherwise our loading indicators
             // can't generally be used in conjunction with later updates
-            // handleOptions.suspense && 
             if(this.client.schemaPromise){
                 throw this.client.schemaPromise;
             }
@@ -227,9 +231,6 @@ class AutographQuery {
         if(state.isDry){
             lastHandleValue = obj;
             lastHandlePointer = path;
-        }else{
-            lastHandleValue = null;
-            lastHandlePointer = null;
         }
         return obj;
     }
@@ -265,12 +266,7 @@ class AutographQuery {
 
         const isQueryRoot = type.kind === '__NOSCHEMA' || schema.queryType.name === type.name
         
-        if(!isDry){
-            const OwnerRef = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner;
-            if(!OwnerRef.current){
-                throw new Error('Getter methods can only be called from within a react render!')
-            }
-        }
+        if(!isDry) ensureDuringRender();
 
         if(!isDry && path === undefined && !isQueryRoot){
             if(handleOptions.cacheOnly) return null;
@@ -324,10 +320,6 @@ class AutographQuery {
 
                         }
                     }else{
-                        // handle[field.name] = (args) => {
-                        //     let next = subpath({ type: 'METHOD', name: field.name, args: args || {} })
-                        //     return this._createAccessor(next, field.type, state)
-                        // }
                         let run = (args) => {
                             let next = subpath({ type: 'METHOD', name: field.name, args: args || {} })
                             return this._createAccessor(next, field.type, state)
@@ -395,10 +387,21 @@ class AutographQuery {
                 })
 
                 // we may have to deal with either schema or data errors
-                Object.defineProperty(handle, '_error', { 
-                    enumerable: false, 
-                    value: isDry ? null : (this.client.schemaError || this.dataError )
-                })
+                
+                if(isDry){
+                    Object.defineProperty(handle, '_error', { 
+                        enumerable: false, 
+                        get(){
+                            path[JSON.stringify({ type: 'FEAT', name: '_error' })] = true;
+                            return null
+                        }
+                    })
+                }else{
+                    Object.defineProperty(handle, '_error', { 
+                        enumerable: false, 
+                        value: this.client.schemaError || this.dataError 
+                    })
+                }
 
 
                 Object.defineProperty(handle, '_data', { 
@@ -430,13 +433,10 @@ class AutographQuery {
 
         if(!isDry){
             // if there is data then we return it
-            // if(path !== undefined){
-                if(type.kind === 'LIST'){
-                    return path.map(data => this._createAccessor(data, type.ofType, state))
-                }
-                return path;
-            // }
-
+            if(type.kind === 'LIST'){
+                return path.map(data => this._createAccessor(data, type.ofType, state))
+            }
+            return path;
         }else{
             if(type.kind === 'LIST') return makeFixedArray(this._createAccessor(path, type.ofType, state));
             if(type.kind === 'UNION'){
@@ -462,6 +462,14 @@ class AutographQuery {
         }
     }
 
+}
+
+
+function ensureDuringRender(){
+    const OwnerRef = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner;
+    if(!OwnerRef.current){
+        throw new Error('Getter methods can only be called from within a react render!')
+    }
 }
 
 
@@ -577,12 +585,12 @@ function nextFrame(){
     // console.log('before throw')
     return new Promise(resolve => { 
         // setTimeout(resolve, 0)
-        resolve()
-        // requestAnimationFrame(() => {
-        //     console.log('resolvin')
-        //     resolve()
-        //     console.log('resolved')
-        // }) 
+        // resolve()
+        requestAnimationFrame(() => {
+            // console.log('resolvin')
+            resolve()
+            // console.log('resolved')
+        }) 
 
         // setTimeout(() => {
         //     console.log('resolvin')
@@ -658,13 +666,7 @@ function accessLogToGraphQL(log) {
         return gql;
     }
 
-    // if(options.operationType == 'query'){
     return convertRecursive(log, '')
-    // }else if(options.operationType == 'mutation'){
-    //     return 'mutation ' + convertRecursive(log, '')
-    // }else{
-    //     throw new Error(`Unsupported operation type "${options.operationType}"`)
-    // }
 }
 
 export function convertGQLSchemaToTypescript(schema) {
