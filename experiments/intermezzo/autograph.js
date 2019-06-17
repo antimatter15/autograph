@@ -279,17 +279,28 @@ class AutographQuery {
                 }
             }
 
-            if(handleOptions.suspense){
-                throw this.dataPromise;
+            // if we go from not-loading to loading then we abort the current render
+            // and then try again immediately (with the appropriate query loading state
+            // configured). otherwise we suspend for the duration of the data fetching 
+            // process because that means we're trying to use suspense. this allows us
+            // to use both the classic `query._loading` style guards as well as the 
+            // loading guards and falling back to suspense
+            if(this.version !== version){
+                throw nextFrame();
             }else{
-                // This trick for aborting a react render seems to have some problems
-                // when it comes to event handlers and element focus... 
-                
-                if(this.version !== version){
-                    throw nextFrame();
-                }
-                return null;
+                throw this.dataPromise;
             }
+            // if(handleOptions.suspense){
+            //     throw this.dataPromise;
+            // }else{
+            //     // This trick for aborting a react render seems to have some problems
+            //     // when it comes to event handlers and element focus... 
+                
+            //     if(this.version !== version){
+            //         throw nextFrame();
+            //     }
+            //     return null;
+            // }
         }
 
         if(!isDry && path === null && !isQueryRoot){

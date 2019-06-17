@@ -431,6 +431,32 @@ let y = D('@skip(if: false)', x)
 This is because `D` actually mutates the query handle to record that that value has a directive attached. 
 
 
+
+## Loading Guards (June 16, 2019)
+
+How should we handle loading states?
+
+We have a few options:
+
+- Use suspense fallbacks
+    - "Just Works" because we have a top level suspense boundary, but this also means that the entire page gets unmounted when things load which is pretty bad for default behavior.
+
+- Use render abort (throw nextFrame) and expect that the user handles `query._loading`
+    - The entire page doesn't turn into a loading screen, but it may flash
+    - Somewhat similar to how Apollo does it.
+
+- Loading guards (inline fallbacks for pieces that need to be loaded)
+    - You have to teach people a weird loading paradigm
+
+- Methods return undefined
+    - It's hard/annoying to distinguish between "loading" and loaded with null result
+
+- Methods return LOADING
+    - You have to write code that deals with the possibilty that anything could be loading.
+
+
+
+
 ## Future?
 
 

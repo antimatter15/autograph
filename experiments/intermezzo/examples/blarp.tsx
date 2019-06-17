@@ -1,55 +1,64 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
+import React from "react";
+import ReactDOM from "react-dom";
+import { unstable_next } from "scheduler"
 
+let dataCache = {},
+  promiseMap = {};
 
-
-let dataCache = {}
-let promises = {}
-
-function App2(){
-    let [text, setText] = React.useState('Coldplay')
-    // if(text !== 'Coldplay'){
-
-    // }
-    if(!(text in dataCache)){
-        if(!(text in promises)){
-            promises[text] = new Promise(resolve => {
-                dataCache[text] = 'wumbo'
-                setTimeout(resolve, 100)
-            })
-        }
-        throw promises[text]
+function readCache(key) {
+  if (!(key in dataCache)) {
+    if (!(key in promiseMap)) {
+      promiseMap[key] = new Promise(resolve => {
+        // setTimeout(resolve, 0);
+        requestAnimationFrame(resolve)
+        // resolve()
+      }).then(k => (dataCache[key] = "wumbo"));
     }
-    
-    return <div>
-        <button onClick={e => setText('asdf')}>thing</button>
-        <input key="thang" onBlur={e => {
-        // debugger
-    }}type="text" value={text} onChange={e => setText(e.target.value)} />
-
-</div>
+    throw promiseMap[key];
+  }
+  return dataCache[key];
 }
 
-let dom = <React.Suspense fallback={<div>my fallback</div>}>
-    <App2 />
-</React.Suspense>
+function MyApp() {
+  let [text, setText] = React.useState("Hello");
 
-// let dom =  <Primer client={fetchData}>
-//         <NoSuspense />
-//         <NoSuspense2 />
-//         <NoSuspense3 />
-//         <hr />
-//         <React.Suspense fallback={<div>(im loaing with a custom suspense fallback)</div>}>
-//             <ErrorBoundary>
-//                 <WithSuspense3 />
-//             </ErrorBoundary>
-//         </React.Suspense>
-//     </Primer>
+  readCache(text);
+//{React.version}
+  return (
+    <div>
+        
+      <input
+        type="text"
+        value={text}
+        onChange={e => {
+            unstable_next(() => {
+                setText(e.target.value);
+            })
+        }}
+      />
 
-// ReactDOM.render(
-//    dom
-// , document.getElementById('root'))
+      <button
+        onClick={e => {
+            unstable_next(() => {
+                setText("asdf");
+            })
+          
+        }}
+      >
+        Change to "asdf"
+      </button>
+    </div>
+  );
+}
 
-ReactDOM.unstable_createRoot(document.getElementById('root')).render(dom)
+let dom = (
+  <React.Suspense fallback={<div>my fallback</div>}>
+    <MyApp />
+  </React.Suspense>
+);
 
+// ReactDOM.unstable_createSyncRoot(document.getElementById("root")).render(dom, () => {
+//     console.log('rendered')
+// });
 
+ReactDOM.render(dom, document.getElementById('root'))

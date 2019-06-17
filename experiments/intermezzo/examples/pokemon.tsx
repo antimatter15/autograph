@@ -17,17 +17,32 @@ function App() {
 
     if(query._error) return <div>{query._error.toString()}</div>
 
-    let pokemon = query.pokemon({ name: text });
+    // let pokemon = query.pokemon({ name: text });
     // console.log(query._dry, query._loading, pokemon)
-    
+    // {((pokemon ? <Pokedex pokemon={pokemon} /> : <div>No matching pokemon</div>))}
     return <div>
         <input key="thang" type="text" value={text} onChange={e => setText(e.target.value)} />
         <div>
-            {query._loading ? <div>Loading...</div> : ((pokemon ? <Pokedex pokemon={pokemon} /> : <div>No matching pokemon</div>))}
+            {loading(() => {
+                let pokemon = query.pokemon({ name: text });
+                // if(pokemon === null) debugger;
+                return ((pokemon ? <Pokedex pokemon={pokemon} /> : <div>No matching pokemon</div>))
+            }, <div>Loading...</div>)}
         </div>
     </div>
 }
 
+function loading(render, fallback){
+    try {
+        return render()
+    } catch (err){
+        if(err instanceof Promise){
+            return fallback;
+        }else{
+            throw err;
+        }
+    }
+}
 
 function Pokedex({ pokemon }: { pokemon: GQL.Pokemon }) {
     // console.log('pokedex', pokemon)
@@ -42,10 +57,10 @@ function Pokedex({ pokemon }: { pokemon: GQL.Pokemon }) {
             <li key={k}>{k}</li>)}</ul>
 
         <a onClick={e => setExpand(x => !x)}>{expand ? '▲ Collapse' : '▶ Expand'}</a>
-        {expand && <ul>{pokemon.attacks.fast.map((k, i) =>
+        {expand && loading(() => <ul>{pokemon.attacks.fast.map((k, i) =>
             <li key={i}>Fast: {k.name} ({k.type})</li>)}
             {pokemon.attacks.special.map((k, i) =>
-            <li key={i}>Special: {k.name} ({k.type})</li>)}</ul>}
+        <li key={i}>Special: {k.name} ({k.type})</li>)}</ul>, <div>Loading...</div>)}
     </div>
 }
 
@@ -53,8 +68,8 @@ let dom = <AutographRoot>
     <App />
 </AutographRoot>
 
-ReactDOM.render(dom, document.getElementById('root'))
+// ReactDOM.render(dom, document.getElementById('root'))
 
 // global.ag = AutographRoot._root;
 
-// ReactDOM.unstable_createRoot(document.getElementById('root')).render(dom)
+ReactDOM.unstable_createRoot(document.getElementById('root')).render(dom)

@@ -11,8 +11,7 @@
     "@types/react-dom": "^16.8.4",
     "nprogress": "^0.2.0",
     "parcel": "^1.12.3",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
+    "prop-types": "^15.7.2",
     "setimmediate": "^1.0.5"
   },
   "devDependencies": {
