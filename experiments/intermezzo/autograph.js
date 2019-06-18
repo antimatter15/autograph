@@ -290,6 +290,9 @@ class AutographQuery {
             }else{
                 throw this.dataPromise;
             }
+
+
+            
             // if(handleOptions.suspense){
             //     throw this.dataPromise;
             // }else{
