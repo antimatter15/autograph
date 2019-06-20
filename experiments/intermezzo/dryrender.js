@@ -1,6 +1,5 @@
 import React from 'react';
 import * as ReactIs from 'react-is'
-import { Exception } from 'handlebars';
 
 // TODO: check out https://github.com/airbnb/enzyme/blob/master/packages/enzyme-adapter-react-16/src/ReactSixteenAdapter.js
 // TODO: add findCurrentFiberUsingSlowPath, because we're clearly getting the wrong fiber sometimes....

@@ -14,7 +14,6 @@ function App() {
     let query: GQL.Query = useQuery();
 
     if (query._error) return <div>{query._error.toString()}</div>
-
     let artists = query.queryArtists({ byName: text }) || [];
 
     return <div>

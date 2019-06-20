@@ -4,7 +4,7 @@ import _dryRender from './dryrender'
 
 // import NProgress from 'nprogress'
 // import 'nprogress/nprogress.css'
-
+console.log(React)
 
 const AutographContext = React.createContext(null)
 let lastHandleValue, lastHandlePointer;
@@ -315,7 +315,7 @@ class AutographQuery {
             let handle = {}
 
             if(schema){
-                let sub = schema.types.find(k => k.name == type.name)
+                let sub = schema.types.find(k => k.name === type.name)
                 if(!sub) throw new Error(`Unable to find type "${type.name}" in schema.`);
                 
                 for(let field of sub.fields){
@@ -357,8 +357,8 @@ class AutographQuery {
 
                 if(sub.kind === 'INTERFACE'){
                     for(let type of schema.types){
-                        if(type.kind != 'OBJECT') continue;
-                        if(!type.interfaces.some(k => k.name == sub.name)) continue;
+                        if(type.kind !== 'OBJECT') continue;
+                        if(!type.interfaces.some(k => k.name === sub.name)) continue;
 
                         Object.defineProperty(handle, 'as' + type.name, {
                             get: () => {
@@ -454,24 +454,24 @@ class AutographQuery {
         }else{
             if(type.kind === 'LIST') return makeFixedArray(this._createAccessor(path, type.ofType, state));
             if(type.kind === 'UNION'){
-                let sub = schema.types.find(k => k.name == type.name)
+                let sub = schema.types.find(k => k.name === type.name)
                 if(!sub) throw new Error(`Unable to find type "${type.name}" in schema.`);
                 return this._createAccessor(path, sub.possibleTypes[0], state)
             }
 
             path.__get = true;
-            if(type.name == 'ID') return 'Autograph ID';
-            if(type.name == 'String') return 'Autograph String';
-            if(type.name == 'Int') return 42;
-            if(type.name == 'Float') return 17.76;
-            if(type.name == 'Boolean') return true;
+            if(type.name === 'ID') return 'Autograph ID';
+            if(type.name === 'String') return 'Autograph String';
+            if(type.name === 'Int') return 42;
+            if(type.name === 'Float') return 17.76;
+            if(type.name === 'Boolean') return true;
             
-            if(type.kind == 'ENUM'){
-                let sub = schema.types.find(k => k.name == type.name)
+            if(type.kind === 'ENUM'){
+                let sub = schema.types.find(k => k.name === type.name)
                 if(!sub) throw new Error(`Unable to find type "${type.name}" in schema.`);
                 return sub.enumValues[0].name
             }
-            if(type.kind == 'SCALAR') return { __gqlScalarName: type.name }
+            if(type.kind === 'SCALAR') return { __gqlScalarName: type.name }
             throw new Error(`Unable to handle ${type.kind} named "${type.name}"`)
         }
     }
@@ -482,7 +482,11 @@ class AutographQuery {
 function ensureDuringRender(){
     const OwnerRef = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner;
     if(!OwnerRef.current){
-        throw new Error('Getter methods can only be called from within a react render!')
+        // console.log(console.log(new Error))
+        if(/beginWork|performUnitOfWork|renderRoot/.test((new Error).stack)){
+            throw new Error('Autograph query can only be navigated within a react render! You may have multiple versions of React running on this page.')
+        }
+        throw new Error('Autograph query can only be navigated within a react render!')
     }
 }
 
@@ -514,11 +518,15 @@ export function createRoot(config){
                 root.mountedFiber = this._reactInternalFiber;
                 // console.log(root.mountedFiber)
             }
-            return <React.Suspense fallback={<div>Loading...</div>}>
-                <AutographContext.Provider value={root}>
-                    {this.props.children}
-                </AutographContext.Provider>
-            </React.Suspense>
+            return React.createElement(React.Suspense, { fallback: "Loading..." },
+                React.createElement(AutographContext.Provider, { value: root }, 
+                    this.props.children))
+
+            // return <React.Suspense fallback={<div>Loading...</div>}>
+            //     <AutographContext.Provider value={root}>
+            //         {this.props.children}
+            //     </AutographContext.Provider>
+            // </React.Suspense>
         }
     }
     AutographRootComponent._root = root;
@@ -550,8 +558,14 @@ export class Query extends React.Component {
         this.state = { version: 0 }
         this.update = () => this.setState(s => ({ version: s.version + 1 }))
     }
+    getQuery(){
+        if(!this.context){
+            throw new Error('Unable to read Autograph context value. Did you forget to add an Autograph provider to your React tree?')
+        }
+        return this.context.getQuery(this.props.config);
+    }
     componentDidMount(){
-        let query = this.context.getQuery(this.props.config);
+        let query = this.getQuery();
         query.subscribe(this.update)
         if(query.version !== this.lastVersion){
             // console.warn('Needed to do an additional render to catch up on stuff')
@@ -559,11 +573,10 @@ export class Query extends React.Component {
         }
     }
     componentWillUnmount(){
-        let query = this.context.getQuery(this.props.config);
-        query.unsubscribe(this.update)
+        this.getQuery().unsubscribe(this.update)
     }
     render(){
-        let query = this.context.getQuery(this.props.config);
+        let query = this.getQuery();
         this.lastVersion = query.version;
         return this.props.children(query.createHandle(this.props.handleOptions))
     }
@@ -578,9 +591,11 @@ export function withQuery(config = 'default', handleOptions){
     // let mapper = [...arguments].reverse().find(k => typeof k === 'function')
     return function(BaseComponent){
         function WithQuery(props){
-            return <Query config={config} handleOptions={handleOptions}>
-                {query => <BaseComponent {...props} query={query} />}
-            </Query>
+            // return <Query config={config} handleOptions={handleOptions}>
+            //     {query => <BaseComponent {...props} query={query} />}
+            // </Query>
+            return React.createElement(Query, { config: config, handleOptions: handleOptions }, 
+                query => React.createElement(BaseComponent, { ...props, query: query }))
         }
         return WithQuery
     }
@@ -660,19 +675,19 @@ function accessLogToGraphQL(log) {
         for(let key of Object.keys(log)) {
             if(key === '__directive') continue;
             let info = JSON.parse(key)
-            if(info.type == 'METHOD'){
+            if(info.type === 'METHOD'){
                 gql += indent(prefix + info.name + '___' + hashArguments(info.args) + ': ' + info.name + 
                         (Object.keys(info.args).length > 0 ? ('(' + encodeKV(info.args) + ')') : '') + ' ' + convertRecursive(log[key]))  + '\n'
-            }else if(info.type == 'PROP'){
+            }else if(info.type === 'PROP'){
                 gql += indent((prefix ? (prefix + info.name + ': ') : '') + info.name + ' ' + convertRecursive(log[key])) + '\n'
-            }else if(info.type == 'AS'){
+            }else if(info.type === 'AS'){
                 gql += indent('... on ' + info.name + ' ' + convertRecursive(log[key], '__AS_' + info.name + '___')) + '\n'
-            }else if(info.type == 'FEAT'){
+            }else if(info.type === 'FEAT'){
                 // ignore these
             }else throw new Error(`Encountered unexpected navigation type "${info.type}"`)
         }
 
-        if(Object.keys(log).length == 0){
+        if(Object.keys(log).length === 0){
             gql += indent((prefix ? (prefix + '__typename: ') : '') + '__typename') + '\n'
         }
 
@@ -683,15 +698,15 @@ function accessLogToGraphQL(log) {
     return convertRecursive(log, '')
 }
 
-export function convertGQLSchemaToTypescript(schema) {
+function convertGQLSchemaToTypescript(schema) {
     const INDENT = '    ' // 4 spaces
     let ts = ''
 
-    if(schema.queryType.name != 'Query' && !schema.types.some(k => k.name === 'Query')){
+    if(schema.queryType.name !== 'Query' && !schema.types.some(k => k.name === 'Query')){
         ts += 'export type Query = ' + schema.queryType.name + '\n\n' 
     }
 
-    if(schema.mutationType && schema.mutationType.name != 'Mutation' && !schema.types.some(k => k.name === 'Mutation')){
+    if(schema.mutationType && schema.mutationType.name !== 'Mutation' && !schema.types.some(k => k.name === 'Mutation')){
         ts += 'export type Mutation = ' + schema.mutationType.name + '\n\n' 
     }
 
@@ -712,8 +727,8 @@ export function convertGQLSchemaToTypescript(schema) {
     }
 
     for(let type of schema.types){
-        if(BUILTIN_TYPES.indexOf(type.name) != -1) continue;
-        if(type.kind == 'OBJECT'){
+        if(BUILTIN_TYPES.indexOf(type.name) !== -1) continue;
+        if(type.kind === 'OBJECT'){
             if(type.description) 
                 ts += "/** " + type.description + " */\n";
             ts += 'export type ' + type.name + ' = GQLType & {\n'
@@ -730,7 +745,7 @@ export function convertGQLSchemaToTypescript(schema) {
                 }
             }
 
-            if(type.name == schema.queryType.name){
+            if(type.name === schema.queryType.name){
                 ts += '\n'
                 ts += INDENT + "/** Check this to determine whether the query is loading */\n"
                 ts += INDENT + '_loading?: boolean\n'
@@ -740,7 +755,7 @@ export function convertGQLSchemaToTypescript(schema) {
                 ts += INDENT + '_dry?: boolean\n'
             }
             ts += '}\n\n'
-        }else if(type.kind == 'INTERFACE'){
+        }else if(type.kind === 'INTERFACE'){
             if(type.description) 
                 ts += "/** " + type.description + " */\n";
 
@@ -756,14 +771,14 @@ export function convertGQLSchemaToTypescript(schema) {
             // and a query hero() which returns type Character, we can then call
             // hero.asDroid.primaryFunction and compile that into an inline fragment
             for(let obj of schema.types){
-                if(obj.kind != 'OBJECT') continue;
-                if(!obj.interfaces.some(interf => interf.name == type.name)) continue;
+                if(obj.kind !== 'OBJECT') continue;
+                if(!obj.interfaces.some(interf => interf.name === type.name)) continue;
                 ts += INDENT + "/** Use `as" + obj.name + "` to access fields on the underlying concrete type. */\n"
                 ts += INDENT + 'as' + obj.name + ': ' + obj.name + '\n'
             }
             ts += '}\n\n'
-        }else if(type.kind == 'SCALAR'){
-            if(type.name == 'String' || type.name == 'Boolean') continue;
+        }else if(type.kind === 'SCALAR'){
+            if(type.name === 'String' || type.name === 'Boolean') continue;
             if(type.description) 
                 ts += "/** " + type.description + " */\n";
             if(type.name in SCALAR_MAP){
@@ -771,16 +786,16 @@ export function convertGQLSchemaToTypescript(schema) {
             }else{
                 ts += 'export type ' + type.name + ' = any\n\n'
             }
-        }else if(type.kind == 'UNION'){
+        }else if(type.kind === 'UNION'){
             if(type.description) 
                 ts += "/** " + type.description + " */\n";
             ts += 'export type ' + type.name + ' = ' + type.possibleTypes.map(type => GQLType2TS(type)).join(' | ') + '\n\n'
-        }else if(type.kind == 'ENUM'){
+        }else if(type.kind === 'ENUM'){
             if(type.description) 
                 ts += "/** " + type.description + " */\n";
             // TODO: determine whether this is the right way to think about enums
             ts += 'export type ' + type.name + ' = ' + type.enumValues.map(val => JSON.stringify(val.name)).join(' | ') + '\n\n'
-        }else if(type.kind == 'INPUT_OBJECT'){
+        }else if(type.kind === 'INPUT_OBJECT'){
             if(type.description) 
                 ts += "/** " + type.description + " */\n";
 
@@ -799,23 +814,23 @@ export function convertGQLSchemaToTypescript(schema) {
 }
 
 function GQLType2TS(type) {
-    if(type.kind == 'LIST')
+    if(type.kind === 'LIST')
         return GQLType2TS(type.ofType ) + '[]';
-    if(type.kind == 'NON_NULL') return GQLType2TS(type.ofType );
-    if(type.name == 'String') return 'string';
-    if(type.name == 'Boolean') return 'boolean';
-    if(type.kind == 'SCALAR') return type.name;
-    if(type.kind == 'UNION') return type.name;
-    if(type.kind == 'OBJECT') return type.name;
-    if(type.kind == 'INPUT_OBJECT') return type.name;
-    if(type.kind == 'ENUM') return type.name;
-    if(type.kind == 'INTERFACE') return type.name;
+    if(type.kind === 'NON_NULL') return GQLType2TS(type.ofType );
+    if(type.name === 'String') return 'string';
+    if(type.name === 'Boolean') return 'boolean';
+    if(type.kind === 'SCALAR') return type.name;
+    if(type.kind === 'UNION') return type.name;
+    if(type.kind === 'OBJECT') return type.name;
+    if(type.kind === 'INPUT_OBJECT') return type.name;
+    if(type.kind === 'ENUM') return type.name;
+    if(type.kind === 'INTERFACE') return type.name;
     throw new Error(`Unable to handle type "${type.kind}" named "${type.name}"`)
 }
 
 
 function IsGQLTypeNullable(type) {
-    return type.kind != 'NON_NULL'
+    return type.kind !== 'NON_NULL'
 }
 
 // For arrays, we bypass the result of filter so that it always returns the same
@@ -853,7 +868,7 @@ function invar(invariant, message){
     if(!invariant) throw new Error(message)
 }
 
-let SUCCINCT_INTROSPECTION_QUERY = `
+export const SUCCINCT_INTROSPECTION_QUERY = `
   query IntrospectionQuery {
     __schema {
       queryType { name }
