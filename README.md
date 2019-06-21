@@ -1,5 +1,7 @@
 # Autograph
 
+[![CircleCI](https://circleci.com/gh/antimatter15/autograph/tree/master.svg?style=svg&circle-token=9cf70317fa05c1ddefda8f8e4a8e626270c982a3)](https://circleci.com/gh/antimatter15/autograph/tree/master)
+
 Using GraphQL is often quite repetitive and repetitive. You have to declare your schemas, implement your resolvers, write your queries, and destructure the results of your queries. You end up writing the same thing in different forms several times, each time using slightly different syntax. Here's what it looks like to use Apollo to query a server for some basic information about currencies:
 
 ```jsx

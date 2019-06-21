@@ -1,15 +1,25 @@
 # Use the latest 2.1 version of CircleCI pipeline processing engine, see https://circleci.com/docs/2.0/configuration-reference/
 version: 2.1
 
-# Use a package of configuration called an orb, see https://circleci.com/docs/2.0/orb-intro/
-orbs:
-  # Declare a dependency on the welcome-orb
-  welcome: circleci/welcome-orb@0.3.1
+jobs:
+  deploy-website:
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:8.11.1
 
-# Orchestrate or schedule a set of jobs, see https://circleci.com/docs/2.0/workflows/
+    steps:
+      - checkout
+      - run:
+          name: Deploying to GitHub Pages
+          command: |
+            git config --global user.email "antimatter15@users.noreply.github.com"
+            git config --global user.name "Kevin Kwok"
+            echo "machine github.com login antimatter15 password $GITHUB_TOKEN" > ~/.netrc
+            cd website && yarn install && GIT_USER=antimatter15 yarn run publish-gh-pages
+
 workflows:
-  # Name the workflow "Welcome"
-  Welcome:
-    # Run the welcome/run job in its own container
+  version: 2
+  build_and_deploy:
     jobs:
-      - welcome/run
+      - deploy-website:
+        filters: *filter-only-master
