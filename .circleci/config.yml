@@ -1,9 +1,6 @@
 # Use the latest 2.1 version of CircleCI pipeline processing engine, see https://circleci.com/docs/2.0/configuration-reference/
 version: 2.1
 
-orbs:
-  codecov: codecov/codecov@1.0.2
-
 jobs:
 
   test:
@@ -28,8 +25,16 @@ jobs:
           name: Run Tests
           command: yarn test
 
-      - codecov/upload:
-          file: 'coverage'
+      - run:
+          name: Upload Coverage Results
+          command: |
+            curl -s https://codecov.io/bash | bash -s -- \
+              -t "${CODECOV_TOKEN}" \
+              -n "${CIRCLE_BUILD_NUM}" \
+              -y ".codecov.yml" \
+              -f "coverage/lcov.info" \
+              -F "" \
+              -Z || echo 'Codecov upload failed'
 
   deploy-website:
     docker:
