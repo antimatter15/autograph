@@ -9,8 +9,11 @@
         "title": "API",
         "sidebar_label": "API"
       },
-      "doc2": {
-        "title": "document number 2"
+      "evolution": {
+        "title": "Evolution of Autograph"
+      },
+      "tutorial": {
+        "title": "Getting Started"
       }
     },
     "links": {
