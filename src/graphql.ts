@@ -1,6 +1,7 @@
 import { hashArguments } from "./util/util";
 
 export default function accessLogToGraphQL(log) {
+    // TODO: instead of encoding the value inline, store it to be sent as a variable. 
     const encodeValue = (obj) =>
         (typeof obj === 'object') ? 
             (Array.isArray(obj) ? 
