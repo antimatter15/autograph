@@ -16,22 +16,19 @@ export function shallowCompare(a, b){
 
 
 export function nextFrame(){
-    // console.log('before throw')
     return new Promise(resolve => { 
-        // setTimeout(resolve, 0)
-        // resolve()
-        requestAnimationFrame(() => {
-            // console.log('resolvin')
-            resolve()
-            // console.log('resolved')
-        }) 
-
-        // setTimeout(() => {
-        //     console.log('resolvin')
-        //     resolve()
-        //     console.log('resolved')
-        // }, 0)
-        
+        if(typeof process !== 'undefined' && process.nextTick){
+            process.nextTick(resolve)
+        }else{
+            requestAnimationFrame(() => {
+                resolve()
+            })   
+        }
     })
 }
 
+
+
+export function invar(invariant, message){
+    if(!invariant) throw new Error(message)
+}
