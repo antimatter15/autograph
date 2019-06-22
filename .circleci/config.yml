@@ -2,6 +2,30 @@
 version: 2.1
 
 jobs:
+
+  test:
+    working_directory: ~/
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          keys:
+            - yarn-packages-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install Dependencies
+          command: yarn install --frozen-lockfile
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+      - run:
+          name: Run Tests
+          command: yarn test
+
+
   deploy-website:
     docker:
       # specify the version you desire here
@@ -21,6 +45,7 @@ workflows:
   version: 2
   build_and_deploy:
     jobs:
+      - test
       - deploy-website:
         filters:
            branches:
