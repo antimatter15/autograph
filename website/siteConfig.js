@@ -73,6 +73,12 @@ const siteConfig = {
   },
   */
 
+  algolia: {
+    apiKey: '54be4fd9951c5488782ff92be33d9861',
+    indexName: 'autograph',
+    algoliaOptions: {} // Optional, if provided by Algolia
+  },
+
   // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
   copyright: `Copyright © ${new Date().getFullYear()} Kevin Kwok (antimatter15@gmail.com)`,
 
