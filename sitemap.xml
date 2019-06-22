@@ -4,9 +4,6 @@
 <url> <loc>https://autograph.dev/index</loc> <changefreq>weekly</changefreq> <priority>0.5</priority> <xhtml:link rel="alternate" hreflang="en" href="https://autograph.dev/en/index" /> </url>
 <url> <loc>https://autograph.dev/users</loc> <changefreq>weekly</changefreq> <priority>0.5</priority> <xhtml:link rel="alternate" hreflang="en" href="https://autograph.dev/en/users" /> </url>
 <url> <loc>https://autograph.dev/blog/2017/04/10/blog-post-two</loc> <changefreq>weekly</changefreq> <priority>0.3</priority> </url>
-<url> <loc>https://autograph.dev/docs/doc1</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://autograph.dev/docs/doc1" /> </url>
+<url> <loc>https://autograph.dev/docs/api</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://autograph.dev/docs/api" /> </url>
 <url> <loc>https://autograph.dev/docs/doc2</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://autograph.dev/docs/doc2" /> </url>
-<url> <loc>https://autograph.dev/docs/doc3</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://autograph.dev/docs/doc3" /> </url>
-<url> <loc>https://autograph.dev/docs/doc4</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://autograph.dev/docs/doc4" /> </url>
-<url> <loc>https://autograph.dev/docs/doc5</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://autograph.dev/docs/doc5" /> </url>
 </urlset>
