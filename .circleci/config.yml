@@ -4,7 +4,7 @@ version: 2.1
 jobs:
 
   test:
-    working_directory: ~/
+    working_directory: ~/repo
     docker:
       - image: circleci/node:8
     steps:
