@@ -5,6 +5,94 @@
     "previous": "Previous",
     "tagline": "Never manually another GraphQL query",
     "docs": {
+      "api-classes-autograph-autographbasicclient": {
+        "title": "AutographBasicClient",
+        "sidebar_label": "AutographBasicClient"
+      },
+      "api-classes-autograph-autographmodel": {
+        "title": "AutographModel",
+        "sidebar_label": "AutographModel"
+      },
+      "api-classes-autograph-autographquery": {
+        "title": "AutographQuery",
+        "sidebar_label": "AutographQuery"
+      },
+      "api-classes-autograph-query": {
+        "title": "Query",
+        "sidebar_label": "Query"
+      },
+      "api-classes-util-fixarray-fixedpointarray": {
+        "title": "FixedPointArray",
+        "sidebar_label": "FixedPointArray"
+      },
+      "api-interfaces-dryrender-dryrender-hookstate": {
+        "title": "HookState",
+        "sidebar_label": "HookState"
+      },
+      "api-modules---tests---graphql-module": {
+        "title": "__tests__/graphql Module",
+        "sidebar_label": "__tests__/graphql"
+      },
+      "api-modules---tests---typescript-module": {
+        "title": "__tests__/typescript Module",
+        "sidebar_label": "__tests__/typescript"
+      },
+      "api-modules-autograph-module": {
+        "title": "autograph Module",
+        "sidebar_label": "autograph"
+      },
+      "api-modules-dryrender---tests---context-module": {
+        "title": "dryrender/__tests__/context Module",
+        "sidebar_label": "dryrender/__tests__/context"
+      },
+      "api-modules-dryrender---tests---hooks-module": {
+        "title": "dryrender/__tests__/hooks Module",
+        "sidebar_label": "dryrender/__tests__/hooks"
+      },
+      "api-modules-dryrender---tests---hydra-module": {
+        "title": "dryrender/__tests__/hydra Module",
+        "sidebar_label": "dryrender/__tests__/hydra"
+      },
+      "api-modules-dryrender---tests---lazy-module": {
+        "title": "dryrender/__tests__/lazy Module",
+        "sidebar_label": "dryrender/__tests__/lazy"
+      },
+      "api-modules-dryrender---tests---traversal-module": {
+        "title": "dryrender/__tests__/traversal Module",
+        "sidebar_label": "dryrender/__tests__/traversal"
+      },
+      "api-modules-dryrender-dryrender-module": {
+        "title": "dryrender/dryrender Module",
+        "sidebar_label": "dryrender/dryrender"
+      },
+      "api-modules-graphql-module": {
+        "title": "graphql Module",
+        "sidebar_label": "graphql"
+      },
+      "api-modules-typescript-module": {
+        "title": "typescript Module",
+        "sidebar_label": "typescript"
+      },
+      "api-modules-util---tests---fixarray-module": {
+        "title": "util/__tests__/fixarray Module",
+        "sidebar_label": "util/__tests__/fixarray"
+      },
+      "api-modules-util---tests---util-module": {
+        "title": "util/__tests__/util Module",
+        "sidebar_label": "util/__tests__/util"
+      },
+      "api-modules-util-fixarray-module": {
+        "title": "util/fixarray Module",
+        "sidebar_label": "util/fixarray"
+      },
+      "api-modules-util-util-module": {
+        "title": "util/util Module",
+        "sidebar_label": "util/util"
+      },
+      "api-readme": {
+        "title": "autograph",
+        "sidebar_label": "autograph"
+      },
       "api": {
         "title": "API",
         "sidebar_label": "API"
@@ -24,7 +112,8 @@
     },
     "categories": {
       "Getting Started": "Getting Started",
-      "Documentation": "Documentation"
+      "Documentation": "Documentation",
+      "API": "API"
     }
   },
   "pages-strings": {

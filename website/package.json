@@ -3,12 +3,16 @@
     "examples": "docusaurus-examples",
     "start": "docusaurus-start",
     "build": "docusaurus-build",
+    "make-docs": "typedoc --theme markdown ../src/ --out ../docs/api --tsconfig ../tsconfig.json",
     "publish-gh-pages": "docusaurus-publish",
     "write-translations": "docusaurus-write-translations",
     "version": "docusaurus-version",
     "rename-version": "docusaurus-rename-version"
   },
   "devDependencies": {
-    "docusaurus": "^1.11.1"
+    "docusaurus": "^1.11.1",
+    "typedoc": "0.13",
+    "typedoc-plugin-docusaurus": "^1.0.14",
+    "typescript": "^3.5.2"
   }
 }

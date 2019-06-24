@@ -258,18 +258,18 @@ const DryRenderHooksDispatcher = {
     },
 
     // TODO: don't ignore deps
-    useMemo: <T> (factory: () => T, deps?: readonly any[]): T => {
+    useMemo: (factory: (() => any), deps?: any[]): any => {
         nextHook()
         return factory()
     },
 
-    useCallback: (callback: (...args: any[]) => void, deps?: readonly any[]) => {
+    useCallback: (callback: ((...args: any[]) => void), deps?:  any[]) => {
         return DryRenderHooksDispatcher.useMemo(() => callback, deps)
     },
 
-    useEffect: (effect: React.EffectCallback, deps?: readonly any[]) => { nextHook() },
-    useImperativeHandle: (ref: any, init: any, deps?: readonly any[]) => { nextHook() },
-    useLayoutEffect: (effect: React.EffectCallback, deps?: readonly any[]) => { nextHook() },
+    useEffect: (effect: React.EffectCallback, deps?:  any[]) => { nextHook() },
+    useImperativeHandle: (ref: any, init: any, deps?:  any[]) => { nextHook() },
+    useLayoutEffect: (effect: React.EffectCallback, deps?:  any[]) => { nextHook() },
     useRef: () => {
         nextHook()
         return { current: null }

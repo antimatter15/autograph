@@ -1,6 +1,15 @@
 {
   "docs": {
     "Getting Started": ["doc2"],
-    "Documentation": ["api"]
+    "Documentation": ["api"],
+    "API": [
+        "api-modules-autograph-module",
+        "api-modules-graphql-module",
+        "api-modules-dryrender-dryrender-module",
+        "api-modules-typescript-module",
+        "api-modules-util-fixarray-module",
+        "api-modules-util-util-module"
+
+    ]
   }
 }

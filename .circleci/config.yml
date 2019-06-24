@@ -49,7 +49,7 @@ jobs:
             git config --global user.email "antimatter15@users.noreply.github.com"
             git config --global user.name "Kevin Kwok"
             echo "machine github.com login antimatter15 password $GITHUB_TOKEN" > ~/.netrc
-            cd website && yarn install && GIT_USER=antimatter15 CUSTOM_COMMIT_MESSAGE="[skip ci]" yarn run publish-gh-pages
+            cd website && yarn install && yarn run make-docs && GIT_USER=antimatter15 CUSTOM_COMMIT_MESSAGE="[skip ci]" yarn run publish-gh-pages
 
 workflows:
   version: 2
