@@ -519,16 +519,16 @@ function ensureDuringRender(){
 
 
 // graphql query directive helper
-export function D(directive_string, value){
+export function Directive(directive_string, value){
     if(lastHandlePointer){
         if(value === lastHandleValue){
             // do something with lastHandlePointer
             lastHandlePointer.__directive = directive_string;
         }else{
-            console.warn('The Autograph directive helper D("@directive", value) ' + 
+            console.warn('The Autograph directive helper Directive("@client", value) ' + 
                 'must be applied directly to an Autograph value without any intervening ' + 
-                'logic or variables. \n Good: D("@client", query.field.stuff) \n '+
-                'Bad: let x = query.field.stuff; D("@client", x)')
+                'logic or variables. \n Good: Directive("@client", query.field.stuff) \n '+
+                'Bad: let x = query.field.stuff; Directive("@client", x)')
         }
     }
     return value;

@@ -69,7 +69,7 @@ workflows:
     jobs:
       - test
       - deploy-website:
-        filters:
-           branches:
-             only:
-               - master
+          filters:
+             branches:
+               only:
+                 - master
