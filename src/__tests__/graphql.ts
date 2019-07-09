@@ -2,10 +2,10 @@ import accessLogToGraphQL from '../graphql'
 
 test('Empty Log', () => {
     expect(accessLogToGraphQL({})).toMatchInlineSnapshot(`
-                                                                                                                "{
-                                                                                                                  __typename
-                                                                                                                }"
-                                                        `)
+        "{
+          __typename
+        }"
+    `)
 })
 
 test('Property', () => {
@@ -14,12 +14,12 @@ test('Property', () => {
             '{"type": "PROP", "name": "users"}': {},
         })
     ).toMatchInlineSnapshot(`
-                                                                                                        "{
-                                                                                                          users {
-                                                                                                            __typename
-                                                                                                          }
-                                                                                                        }"
-                                                    `)
+        "{
+          users {
+            __typename
+          }
+        }"
+    `)
 })
 
 test('Property Field', () => {
@@ -32,12 +32,12 @@ test('Property Field', () => {
             },
         })
     ).toMatchInlineSnapshot(`
-                                                                                                "{
-                                                                                                  users {
-                                                                                                    name 
-                                                                                                  }
-                                                                                                }"
-                                                `)
+        "{
+          users {
+            name 
+          }
+        }"
+    `)
 })
 
 test('Property Field (with Directive)', () => {
@@ -51,12 +51,12 @@ test('Property Field (with Directive)', () => {
             },
         })
     ).toMatchInlineSnapshot(`
-                                                                                        "{
-                                                                                          users @skip{
-                                                                                            name 
-                                                                                          }
-                                                                                        }"
-                                            `)
+        "{
+          users @skip{
+            name 
+          }
+        }"
+    `)
 })
 
 test('Property Field (with Directive 2)', () => {
@@ -70,12 +70,12 @@ test('Property Field (with Directive 2)', () => {
             },
         })
     ).toMatchInlineSnapshot(`
-                                                                                "{
-                                                                                  users {
-                                                                                    name @skip
-                                                                                  }
-                                                                                }"
-                                        `)
+        "{
+          users {
+            name @skip
+          }
+        }"
+    `)
 })
 
 test('Property Method', () => {
@@ -88,12 +88,12 @@ test('Property Method', () => {
             },
         })
     ).toMatchInlineSnapshot(`
-                                                                        "{
-                                                                          users {
-                                                                            name___7xk9a7: name(capitalize: true) 
-                                                                          }
-                                                                        }"
-                                    `)
+        "{
+          users {
+            name___7xk9a7: name(capitalize: true) 
+          }
+        }"
+    `)
 })
 
 test('Property Method (No args)', () => {
@@ -107,12 +107,12 @@ test('Property Method (No args)', () => {
             '{"type": "FEAT"}': {},
         })
     ).toMatchInlineSnapshot(`
-                        "{
-                          users {
-                            name___3horh: name 
-                          }
-                        }"
-            `)
+        "{
+          users {
+            name___3horh: name 
+          }
+        }"
+    `)
 })
 
 test('Property Method (Array)', () => {
@@ -125,12 +125,12 @@ test('Property Method (Array)', () => {
             },
         })
     ).toMatchInlineSnapshot(`
-                                                                "{
-                                                                  users {
-                                                                    name___7708j7: name(whitelist: [\\"Steve\\", \\"Charles\\"]) 
-                                                                  }
-                                                                }"
-                                `)
+        "{
+          users {
+            name___7708j7: name(whitelist: [\\"Steve\\", \\"Charles\\"]) 
+          }
+        }"
+    `)
 })
 
 test('Property Method (Object)', () => {
@@ -143,12 +143,12 @@ test('Property Method (Object)', () => {
             },
         })
     ).toMatchInlineSnapshot(`
-                                                        "{
-                                                          users {
-                                                            name___nk8ia2: name(rename: {Steve: \\"Charles\\"}) 
-                                                          }
-                                                        }"
-                            `)
+        "{
+          users {
+            name___nk8ia2: name(rename: {Steve: \\"Charles\\"}) 
+          }
+        }"
+    `)
 })
 
 test('Inline Fragment', () => {
@@ -167,18 +167,18 @@ test('Inline Fragment', () => {
             },
         })
     ).toMatchInlineSnapshot(`
-                                "{
-                                  users {
-                                    ... on Human {
-                                      __AS_Human___name___nk8ia2: name(rename: {Steve: \\"Charles\\"}) 
-                                      __AS_Human___name: name 
-                                      __AS_Human___flumbo: flumbo {
-                                        __typename
-                                      }
-                                    }
-                                  }
-                                }"
-                `)
+        "{
+          users {
+            ... on Human {
+              __AS_Human___name___nk8ia2: name(rename: {Steve: \\"Charles\\"}) 
+              __AS_Human___name: name 
+              __AS_Human___flumbo: flumbo {
+                __typename
+              }
+            }
+          }
+        }"
+    `)
 })
 
 test('Inline Fragment (empty)', () => {
@@ -189,14 +189,14 @@ test('Inline Fragment (empty)', () => {
             },
         })
     ).toMatchInlineSnapshot(`
-                "{
-                  users {
-                    ... on Human {
-                      __AS_Human_____typename: __typename
-                    }
-                  }
-                }"
-        `)
+        "{
+          users {
+            ... on Human {
+              __AS_Human_____typename: __typename
+            }
+          }
+        }"
+    `)
 })
 
 test('Unsupported Types', () => {
