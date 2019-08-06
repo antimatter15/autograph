@@ -534,6 +534,24 @@ export function Directive(directive_string, value){
     return value;
 }
 
+
+function Loading(fn: () => JSX.Element): JSX.Element;
+function Loading(fallback: JSX.Element, fn: () => JSX.Element): JSX.Element;
+export function Loading(...args): JSX.Element {
+    let fallback = typeof args[0] === 'function' ? 
+        <div>Loading...</div> : 
+        args[0];
+    try {
+        return args[args.length - 1]()
+    } catch (err) {
+        if(err instanceof Promise){
+            return fallback
+        }else{
+            throw err;
+        }
+    }
+}
+
 // Provider
 export function createRoot(config): any{
     let root = new AutographModel(config)
