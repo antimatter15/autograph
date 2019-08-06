@@ -535,14 +535,26 @@ export function Directive(directive_string, value){
 }
 
 
-function Loading(fn: () => JSX.Element): JSX.Element;
-function Loading(fallback: JSX.Element, fn: () => JSX.Element): JSX.Element;
-export function Loading(...args): JSX.Element {
-    let fallback = typeof args[0] === 'function' ? 
-        <div>Loading...</div> : 
-        args[0];
+// function Loading(fn: () => JSX.Element): JSX.Element;
+// function Loading(fallback: JSX.Element, fn: () => JSX.Element): JSX.Element;
+// export function Loading(...args): JSX.Element {
+//     let fallback = typeof args[0] === 'function' ? 
+//         <div>Loading...</div> : 
+//         args[0];
+//     try {
+//         return args[args.length - 1]()
+//     } catch (err) {
+//         if(err instanceof Promise){
+//             return fallback
+//         }else{
+//             throw err;
+//         }
+//     }
+// }
+
+export function Loading(fn: () => JSX.Element, fallback: JSX.Element = <div>Loading...</div>): JSX.Element {
     try {
-        return args[args.length - 1]()
+        return fn()
     } catch (err) {
         if(err instanceof Promise){
             return fallback
