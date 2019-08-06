@@ -37,9 +37,9 @@ export default function convertGQLSchemaToTypescript(schema) {
                 if(field.description) 
                     ts += INDENT + "/** " + field.description + " */\n"
                 if(field.args.length > 0){
-                    ts += INDENT + field.name + (IsGQLTypeNullable(field.type) ? '?' : '') + '(args: { ' + 
+                    ts += INDENT + field.name + '(args: { ' + 
                         field.args.map(arg => arg.name + (IsGQLTypeNullable(arg.type) ? '?: ' : ': ') + GQLType2TS(arg.type)).join(', ') + 
-                        ' }): ' + GQLType2TS(field.type) + '\n'
+                        ' }): ' + GQLType2TS(field.type) + (IsGQLTypeNullable(field.type) ? ' | undefined' : '') + '\n'
                 }else{
                     ts += INDENT + field.name +  (IsGQLTypeNullable(field.type) ? '?: ' : ': ') + GQLType2TS(field.type) + '\n'
                 }
