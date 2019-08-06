@@ -67,6 +67,7 @@ export const SUCCINCT_INTROSPECTION_QUERY = `
     fields(includeDeprecated: true) {
       name
       description
+      deprecationReason
       args { ...InputValue }
       type { ...TypeRef }
     }
