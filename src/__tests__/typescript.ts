@@ -8,6 +8,7 @@ export async function parseGraphQL(ast: any): Promise<any> {
         commentDescriptions: true,
     })
     let data = (await graphql(doc, SUCCINCT_INTROSPECTION_QUERY)) as any
+    if(data.errors) throw data.errors[0];
     return data.data.__schema
 }
 
