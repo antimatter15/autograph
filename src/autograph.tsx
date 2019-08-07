@@ -63,6 +63,7 @@ class AutographModel {
     queries: {[key: string]: AutographQuery};
     mountedFiber: any;
     config: {[key: string]: any}
+    lastFetchError: any
 
     constructor(config){
         if(typeof config.client === 'string'){
@@ -206,11 +207,11 @@ class AutographQuery {
 
     createHandle(handleOptions: {
         error?: boolean
-        suspense?: boolean
+        // suspense?: boolean
         boundary?: boolean
     } = {}){
         if(handleOptions === true){
-            handleOptions = { suspense: true, boundary: true }
+            handleOptions = { boundary: true }
         }
 
         // get the graphql query root
@@ -258,42 +259,46 @@ class AutographQuery {
             if(handleOptions.error && this.dataError){
                 throw this.dataError;
             }
-            return this._createAccessor(this.data, queryRoot, { isDry: false, handleOptions, version: this.version })
+            return this._createAccessor(this.data, queryRoot, { 
+                isDry: false, 
+                handleOptions, 
+                version: this.version,
+            })
         }
     }
 
 
-    _createAccessor(path, type, state){
+    _createAccessor(data, type, state, path: Array<string> = []){
         // this allows directives to work
-        let obj = this.__createAccessor(path, type, state);
+        let obj = this.__createAccessor(data, type, state, path);
         if(state.isDry){
             lastHandleValue = obj;
-            lastHandlePointer = path;
+            lastHandlePointer = data;
         }
         return obj;
     }
-    __createAccessor(path, type, state){
+    __createAccessor(data, type, state, path){
         let schema = this.client.schemaData;
         let { isDry, handleOptions, version } = state;
 
         const subpath = obj => {
             if(isDry){
                 let key = JSON.stringify(obj)
-                return path[key] || (path[key] = {})
+                return data[key] || (data[key] = {})
             }else{
-                if(path){
+                if(data){
                     if(obj.type === 'AS'){
                         let n = {};
-                        for(let key in path){
+                        for(let key in data){
                             if(key.startsWith('__AS_' + obj.name)){
-                                n[key.slice(key.indexOf('___') + 3)] = path[key]
+                                n[key.slice(key.indexOf('___') + 3)] = data[key]
                             }
                         }
                         return n;
                     }else if(obj.type === 'PROP'){
-                        return path[obj.name]
+                        return data[obj.name]
                     }else if(obj.type === 'METHOD'){
-                        return path[obj.name + '___' + hashArguments(obj.args)]
+                        return data[obj.name + '___' + hashArguments(obj.args)]
                     }
                 }
                 
@@ -306,13 +311,13 @@ class AutographQuery {
         
         if(!isDry) ensureDuringRender();
 
-        if(!isDry && path === undefined && !isQueryRoot){
+        if(!isDry && data === undefined && !isQueryRoot){
             if(handleOptions.cacheOnly) return null;
 
             if(!this.dataPromise){
                 this.root.dryRender();
                 if(!this.dataPromise){
-                    console.log(path, type)
+                    console.log(data, type)
                     throw new Error('Some sort of rendering or query generation problem!');
                 }
             }
@@ -323,6 +328,16 @@ class AutographQuery {
             // process because that means we're trying to use suspense. this allows us
             // to use both the classic `query._loading` style guards as well as the 
             // loading guards and falling back to suspense
+
+            this.root.lastFetchError = new Error(`No loading boundary found while fetching query.${path.join('.')}. This may cause the entire application to unmount while the data is loading. To fix this consider adding one of the following: \n\n` +
+            `\n` +
+            `Add a loading guard to a component before you access data: 
+            if(query._loading) return <div>Loading...</div>\n\n` +
+            `Add an inline Loading placeholder around a certain subtree: 
+            <Loading fallback={<div>Loading...</div>}>{() => }</Loading>\n\n` + 
+            `Wrap your component in a suspense boundary: 
+            <React.Suspense fallback={<div>Loading...</div>}></React.Suspense>\n`)
+
             if(this.version !== version){
                 throw nextFrame();
             }else{
@@ -330,7 +345,7 @@ class AutographQuery {
             }
         }
 
-        if(!isDry && path === null && !isQueryRoot){
+        if(!isDry && data === null && !isQueryRoot){
             return null;
         }
         
@@ -346,13 +361,13 @@ class AutographQuery {
                     if(field.args.length === 0){
                         if(!isDry && subpath({ type: 'PROP', name: field.name }) !== undefined){
                             let next = subpath({ type: 'PROP', name: field.name });
-                            handle[field.name] = this._createAccessor(next, field.type, state)
+                            handle[field.name] = this._createAccessor(next, field.type, state, [ ...path, field.name ])
                         }else{
                             Object.defineProperty(handle, field.name, {
                                 // configurable: true,
                                 get: () => {
                                     let next = subpath({ type: 'PROP', name: field.name });
-                                    return this._createAccessor(next, field.type, state)
+                                    return this._createAccessor(next, field.type, state, [ ...path, field.name ])
                                 }
                             })
 
@@ -360,7 +375,7 @@ class AutographQuery {
                     }else{
                         let run = (args) => {
                             let next = subpath({ type: 'METHOD', name: field.name, args: args || {} })
-                            return this._createAccessor(next, field.type, state)
+                            return this._createAccessor(next, field.type, state, [ ...path, field.name ])
                         }
 
                         const SHOW_ARGUMENTS_DEV = true;
@@ -387,7 +402,7 @@ class AutographQuery {
                         Object.defineProperty(handle, 'as' + type.name, {
                             get: () => {
                                 let next = subpath({ type: 'AS', name: type.name })
-                                return this._createAccessor(next, type, state)
+                                return this._createAccessor(next, type, state, [ ...path, 'as' + type.name ])
                             }
                         })
                     }
@@ -430,7 +445,7 @@ class AutographQuery {
                     Object.defineProperty(handle, '_error', { 
                         enumerable: false, 
                         get(){
-                            path[JSON.stringify({ type: 'FEAT', name: '_error' })] = true;
+                            data[JSON.stringify({ type: 'FEAT', name: '_error' })] = true;
                             return null
                         }
                     })
@@ -467,23 +482,23 @@ class AutographQuery {
             // return handle
         }
 
-        if(type.kind === 'NON_NULL') return this._createAccessor(path, type.ofType, state);
+        if(type.kind === 'NON_NULL') return this._createAccessor(data, type.ofType, state, path);
 
         if(!isDry){
             // if there is data then we return it
             if(type.kind === 'LIST'){
-                return path.map(data => this._createAccessor(data, type.ofType, state))
+                return data.map((x) => this._createAccessor(x, type.ofType, state, path))
             }
-            return path;
+            return data;
         }else{
-            if(type.kind === 'LIST') return makeFixedArray([this._createAccessor(path, type.ofType, state)]);
+            if(type.kind === 'LIST') return makeFixedArray([this._createAccessor(data, type.ofType, state, path)]);
             if(type.kind === 'UNION'){
                 let sub = schema.types.find(k => k.name === type.name)
                 if(!sub) throw new Error(`Unable to find type "${type.name}" in schema.`);
-                return this._createAccessor(path, sub.possibleTypes[0], state)
+                return this._createAccessor(data, sub.possibleTypes[0], state, path)
             }
 
-            path.__get = true;
+            data.__get = true;
             if(type.name === 'ID') return 'Autograph ID';
             if(type.name === 'String') return 'Autograph String';
             if(type.name === 'Int') return 42;
@@ -582,9 +597,33 @@ export function Eager(x: boolean): boolean {
     return eager.eager(x)
 }
 
+
+function RootSuspenseFallback({ root }){
+    let initialMount = !root.mounted;
+    React.useEffect(() => {
+        // Ignore the fallback on the initial mount.
+        if(initialMount) return undefined;
+
+        // The root fallback mounts when the user has
+        // failed to manually specify some loading behavior
+        // for some component or subtree. Here we should
+        // surface which component led to this problem. 
+        let t = setTimeout(() => {
+            console.warn(root.lastFetchError)
+        }, 0)
+        
+        // React may quickly mount and subsequently
+        // unmount a loading fallback. When this happens
+        // a loading handler is being specified. 
+        return () => clearTimeout(t);
+    })
+    return <div />
+}
+
 // Provider
 export function createRoot(config): any{
     let root = new AutographModel(config)
+
     class AutographRootComponent extends React.Component {
         componentDidMount(){ root.mount() }
         componentWillUnmount(){ root.unmount() }
@@ -597,7 +636,7 @@ export function createRoot(config): any{
             //     React.createElement(AutographContext.Provider, { value: root } as any, 
             //         this.props.children))
 
-            return <React.Suspense fallback={<div>Loading...</div>}>
+            return <React.Suspense fallback={<RootSuspenseFallback root={root} />}>
                 <AutographContext.Provider value={root as any}>
                     {this.props.children}
                 </AutographContext.Provider>
@@ -687,10 +726,5 @@ export function withQuery(config = 'default', handleOptions){
         return WithQuery
     }
 }
-
-
-
-// utils
-
 
 
