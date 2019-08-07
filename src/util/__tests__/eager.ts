@@ -182,3 +182,33 @@ test('nested branches 1', () => {
 })
 
 
+test('for loop', () => {
+    let results: Array<string> = []
+    explore(() => {
+        let conds = ''
+        for(let i = 0; i < 4; i++){
+            conds += eager(false) ? 'A' : 'B'
+        }
+        results.push(conds)
+    })
+    expect(results).toEqual( [ 
+        "BBBB",
+        "ABBB",
+        "BABB",
+        "BBAB",
+        "BBBA",
+        "AABB",
+        "ABAB",
+        "ABBA",
+        "BAAB",
+        "BABA",
+        "BBAA",
+        "AAAB",
+        "AABA",
+        "ABAA",
+        "BAAA",
+        "AAAA",
+    ])
+})
+
+
