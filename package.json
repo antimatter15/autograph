@@ -24,6 +24,7 @@
     "graphql-tag": "^2.10.1",
     "graphql-tools": "^4.0.5",
     "jest": "^24.8.0",
+    "parcel": "^1.12.3",
     "prettier": "^1.18.2",
     "react-dom": "^16.8.6",
     "react-test-renderer": "^16.8.6",
@@ -32,6 +33,6 @@
   },
   "scripts": {
     "test": "jest",
-    "dev": "parcel 'demo/*/*.html'"
+    "dev": "parcel --port 8008 'demo/*/*.html'"
   }
 }

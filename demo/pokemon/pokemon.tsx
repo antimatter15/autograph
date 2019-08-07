@@ -100,7 +100,7 @@ function Pokedex({ pokemon }: { pokemon: GQL.Pokemon }) {
     </div>
 }
 
-const App = AppNoLoader;
+const App = AppEarlyReturn;
 
 ReactDOM.render(<AutographRoot>
     <App />
