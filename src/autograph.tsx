@@ -15,14 +15,22 @@ let lastHandleValue, lastHandlePointer;
 
 
 
-class AutographBasicClient {
+type BasicClientConfig = {
     url: string;
+    headers?: { [name: string]: string }
+}
+export class AutographBasicClient {
+    config: BasicClientConfig;
 
-    constructor(url: string){
-        this.url = url;
-        // this.schemaPromise = null;
-        // this.schemaError = null;
-        // this.schemaData = null;
+    constructor(config: string | BasicClientConfig){
+        if(typeof config === 'string'){
+            this.config = {
+                url: config,
+                headers: {}
+            } 
+        }else{
+            this.config = config;
+        }
     }
 
     fetchSchema(){
@@ -31,11 +39,12 @@ class AutographBasicClient {
     }
 
     fetchQuery(query){
-        return fetch(this.url, {
+        return fetch(this.config.url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
+                ...this.config.headers
             },
             body: JSON.stringify({query: query})
         })
