@@ -546,35 +546,21 @@ export function Directive(directive_string, value){
     return value;
 }
 
-
-// function Loading(fn: () => JSX.Element): JSX.Element;
-// function Loading(fallback: JSX.Element, fn: () => JSX.Element): JSX.Element;
-// export function Loading(...args): JSX.Element {
-//     let fallback = typeof args[0] === 'function' ? 
-//         <div>Loading...</div> : 
-//         args[0];
-//     try {
-//         return args[args.length - 1]()
-//     } catch (err) {
-//         if(err instanceof Promise){
-//             return fallback
-//         }else{
-//             throw err;
-//         }
-//     }
-// }
-
-// export function Loading(fn: () => JSX.Element, fallback: JSX.Element = <div>Loading...</div>): JSX.Element {
-//     try {
-//         return fn()
-//     } catch (err) {
-//         if(err instanceof Promise){
-//             return fallback
-//         }else{
-//             throw err;
-//         }
-//     }
-// }
+// Essentially the same thing as the <Loading> render prop but with a slightly different API
+export function Get(fn: () => any, defaultValue: any = undefined): any {
+    if(typeof fn !== 'function'){
+        throw new Error(`The first argument to "Get" should be a function (with no arguments) returning some value.`)
+    }
+    try {
+        return fn()
+    } catch (err) {
+        if(err instanceof Promise){
+            return defaultValue
+        }else{
+            throw err;
+        }
+    }
+}
 
 // <Loading>{() => }</Loading>
 // Functionally it's a micro-suspense boundary
@@ -582,15 +568,7 @@ export function Loading(props: {
         children: () => JSX.Element,
         fallback?: JSX.Element
     }): JSX.Element {
-    try {
-        return props.children()
-    } catch(err) {
-        if(err instanceof Promise){
-            return props.fallback || <div>Loading...</div>
-        }else{
-            throw err
-        }
-    }
+    return Get(props.children, props.fallback || <div>Loading...</div>)
 }
 
 export function Eager(x: boolean): boolean {
