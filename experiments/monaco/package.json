@@ -10,6 +10,7 @@
     "golden-layout": "^1.5.9",
     "less": "^3.9.0",
     "less-loader": "^5.0.0",
+    "lodash": "^4.17.15",
     "monaco-editor": "^0.17.0",
     "raw-loader": "^2.0.0",
     "react": "^16.8.6",
