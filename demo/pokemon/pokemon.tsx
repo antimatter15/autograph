@@ -7,7 +7,7 @@ const AutographRoot = createRoot({
     client: 'https://graphql-pokemon.now.sh/graphql'
 })
 
-function App() {
+function AppLoadingGuard() {
     let [text, setText] = React.useState('pikachu')
     let query: GQL.Query = useQuery('Blah');
 
@@ -15,14 +15,67 @@ function App() {
     return <div>
         <input key="thang" type="text" value={text} onChange={e => setText(e.target.value)} />
         <div>
-            {Loading(() => {
+            <Loading>{() => {
                 let pokemon = query.pokemon({ name: text });
-                // if(pokemon === null) debugger;
                 return ((pokemon ? <Pokedex pokemon={pokemon} /> : <div>No matching pokemon</div>))
-            })}
+            }}</Loading>
         </div>
     </div>
 }
+
+function AppEarlyReturn() {
+    let [text, setText] = React.useState('pikachu')
+    return <div>
+        <input key="thang" type="text" value={text} onChange={e => setText(e.target.value)} />
+        <PokemonSearcherEarlyReturn text={text} />
+    </div>
+}
+
+function PokemonSearcherEarlyReturn({ text }){
+    let query: GQL.Query = useQuery('Blah');
+    if(query._error) return <div>{query._error.toString()}</div>
+    if(query._loading) return <div>searching the pokedex....</div>
+    let pokemon = query.pokemon({ name: text });
+    if(!pokemon) return <div>No matching pokemon</div>
+    return  <Pokedex pokemon={pokemon} />
+}
+
+
+function AppSuspense() {
+    let [text, setText] = React.useState('pikachu')
+    return <div>
+        <input key="thang" type="text" value={text} onChange={e => setText(e.target.value)} />
+        <React.Suspense fallback={<div>Querying pokedex</div>}>
+            <PokemonSearcherSuspense text={text} />
+        </React.Suspense>
+    </div>
+}
+
+function PokemonSearcherSuspense({ text }){
+    let query: GQL.Query = useQuery('Blah');
+    if(query._error) return <div>{query._error.toString()}</div>
+    let pokemon = query.pokemon({ name: text });
+    if(!pokemon) return <div>No matching pokemon</div>
+    return  <Pokedex pokemon={pokemon} />
+}
+
+
+
+function AppNoLoader() {
+    let [text, setText] = React.useState('pikachu')
+    let query: GQL.Query = useQuery('Blah');
+
+    if(query._error) return <div>{query._error.toString()}</div>
+    let pokemon = query.pokemon({ name: text });
+
+    return <div>
+        <input key="thang" type="text" value={text} onChange={e => setText(e.target.value)} />
+        <div>
+            {(pokemon ? <Pokedex pokemon={pokemon} /> : <div>No matching pokemon</div>)}
+        </div>
+    </div>
+}
+
 
 
 function Pokedex({ pokemon }: { pokemon: GQL.Pokemon }) {
@@ -38,13 +91,16 @@ function Pokedex({ pokemon }: { pokemon: GQL.Pokemon }) {
             <li key={k}>{k}</li>)}</ul>
 
         <a onClick={e => setExpand(x => !x)}>{expand ? '▲ Collapse' : '▶ Expand'}</a>
-        {Eager(expand) && Loading(() => <ul>{pokemon.attacks.fast.map((k, i) =>
-            <li key={i}>Fast: {k.name} ({k.type})</li>)}
-            {pokemon.attacks.special.map((k, i) =>
-        <li key={i}>Special: {k.name} ({k.type})</li>)}</ul>, <div>Loading attacks...</div>)}
+        {Eager(expand) && <Loading fallback={<div>Loading attacks...</div>}>{
+            () => <ul>{pokemon.attacks.fast.map((k, i) =>
+                <li key={i}>Fast: {k.name} ({k.type})</li>)}
+                {pokemon.attacks.special.map((k, i) =>
+            <li key={i}>Special: {k.name} ({k.type})</li>)}</ul>
+        }</Loading>}
     </div>
 }
 
+const App = AppNoLoader;
 
 ReactDOM.render(<AutographRoot>
     <App />
