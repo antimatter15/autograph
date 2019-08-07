@@ -328,20 +328,6 @@ class AutographQuery {
             }else{
                 throw this.dataPromise;
             }
-
-
-            
-            // if(handleOptions.suspense){
-            //     throw this.dataPromise;
-            // }else{
-            //     // This trick for aborting a react render seems to have some problems
-            //     // when it comes to event handlers and element focus... 
-                
-            //     if(this.version !== version){
-            //         throw nextFrame();
-            //     }
-            //     return null;
-            // }
         }
 
         if(!isDry && path === null && !isQueryRoot){
@@ -563,18 +549,34 @@ export function Directive(directive_string, value){
 //     }
 // }
 
-export function Loading(fn: () => JSX.Element, fallback: JSX.Element = <div>Loading...</div>): JSX.Element {
+// export function Loading(fn: () => JSX.Element, fallback: JSX.Element = <div>Loading...</div>): JSX.Element {
+//     try {
+//         return fn()
+//     } catch (err) {
+//         if(err instanceof Promise){
+//             return fallback
+//         }else{
+//             throw err;
+//         }
+//     }
+// }
+
+// <Loading>{() => }</Loading>
+// Functionally it's a micro-suspense boundary
+export function Loading(props: { 
+        children: () => JSX.Element,
+        fallback?: JSX.Element
+    }): JSX.Element {
     try {
-        return fn()
-    } catch (err) {
+        return props.children()
+    } catch(err) {
         if(err instanceof Promise){
-            return fallback
+            return props.fallback || <div>Loading...</div>
         }else{
-            throw err;
+            throw err
         }
     }
 }
-
 
 export function Eager(x: boolean): boolean {
     return eager.eager(x)
