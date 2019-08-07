@@ -662,9 +662,6 @@ export class Query extends React.Component<{
         return this.props.children(query.createHandle(this.props.handleOptions))
     }
 }
-// Query.defaultProps = {
-//     config: 'default'
-// }
 Query.contextType = AutographContext;
 
 // HOC

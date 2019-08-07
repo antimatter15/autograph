@@ -66,6 +66,8 @@ export default function convertGQLSchemaToTypescript(schema) {
             for(let field of type.fields){
                 if(field.description) 
                     ts += INDENT + "/** " + field.description + " */\n"
+                if(field.deprecationReason)
+                    ts += INDENT + "/** @deprecated " + field.deprecationReason + " */\n";
                 ts += INDENT + field.name +  (IsGQLTypeNullable(field.type) ? '?: ' : ': ') + GQLType2TS(field.type) + '\n'
             }
 
