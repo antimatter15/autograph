@@ -32,6 +32,6 @@
   },
   "scripts": {
     "test": "jest",
-    "dev": "parcel 'src/demo/*/*.html'"
+    "dev": "parcel 'demo/*/*.html'"
   }
 }

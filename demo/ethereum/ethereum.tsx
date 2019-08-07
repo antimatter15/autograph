@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import { createRoot, useQuery, D, withQuery, Query } from '../../autograph'
+import { createRoot, useQuery, D, withQuery, Query } from '../../src/autograph'
 import * as GQL from './ethereum.schema'
 
 const AutographRoot = createRoot({

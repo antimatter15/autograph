@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { createRoot, Loading, useQuery, Directive } from '../../autograph'
+import { createRoot, Loading, useQuery, Directive } from '../../src/autograph'
 import * as GQL from './pokemon.schema'
 
 const AutographRoot = createRoot({

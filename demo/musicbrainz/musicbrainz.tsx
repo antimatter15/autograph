@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import { createRoot, useQuery, Directive, withQuery, Query, AutographBasicClient } from '../../autograph'
+import { createRoot, useQuery, Directive, withQuery, Query, AutographBasicClient } from '../../src/autograph'
 import * as GQL from './musicbrainz.schema'
 
 const AutographRoot = createRoot({

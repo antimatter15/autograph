@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import { createRoot, useQuery, Directive, withQuery, Query } from '../../autograph'
+import { createRoot, useQuery, Directive, withQuery, Query } from '../../src/autograph'
 import * as GQL from './swapi.schema'
 
 const AutographRoot = createRoot({

@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import { createRoot, useQuery, D } from '../../autograph'
+import { createRoot, useQuery, D } from '../../src/autograph'
 import * as GQL from './gqlhub.schema'
 import "./hackernews.css"
 

@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import { createRoot, useQuery, Loading } from '../../autograph'
+import { createRoot, useQuery, Loading } from '../../src/autograph'
 import * as GQL from './spotify.schema'
 
 const AutographRoot = createRoot({
