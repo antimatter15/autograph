@@ -4,7 +4,7 @@ import makeFixedArray from './util/fixarray';
 import { hashArguments, shallowCompare, nextFrame } from './util/util';
 import accessLogToGraphQL, { SUCCINCT_INTROSPECTION_QUERY } from './graphql';
 import convertGQLSchemaToTypescript from './typescript';
-
+import * as eager from './util/eager'
 
 // import NProgress from 'nprogress'
 // import 'nprogress/nprogress.css'
@@ -100,7 +100,9 @@ class AutographModel {
         // execute the dry render
         this.currentlyDryRendering = true;
         console.groupCollapsed('Dry Render')
-        _dryRender(elementFromFiber(this.mountedFiber), this.mountedFiber)    
+        eager.explore(() => {
+            _dryRender(elementFromFiber(this.mountedFiber), this.mountedFiber)    
+        })
         console.groupEnd()
         lastHandleValue = null;
         lastHandlePointer = null;
@@ -571,6 +573,11 @@ export function Loading(fn: () => JSX.Element, fallback: JSX.Element = <div>Load
             throw err;
         }
     }
+}
+
+
+export function Eager(x: boolean): boolean {
+    return eager.eager(x)
 }
 
 // Provider

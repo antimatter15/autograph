@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { createRoot, Loading, useQuery, Directive } from '../../src/autograph'
+import { createRoot, Loading, useQuery, Directive, Eager } from '../../src/autograph'
 import * as GQL from './pokemon.schema'
 
 const AutographRoot = createRoot({
@@ -38,7 +38,7 @@ function Pokedex({ pokemon }: { pokemon: GQL.Pokemon }) {
             <li key={k}>{k}</li>)}</ul>
 
         <a onClick={e => setExpand(x => !x)}>{expand ? '▲ Collapse' : '▶ Expand'}</a>
-        {expand && Loading(() => <ul>{pokemon.attacks.fast.map((k, i) =>
+        {Eager(expand) && Loading(() => <ul>{pokemon.attacks.fast.map((k, i) =>
             <li key={i}>Fast: {k.name} ({k.type})</li>)}
             {pokemon.attacks.special.map((k, i) =>
         <li key={i}>Special: {k.name} ({k.type})</li>)}</ul>, <div>Loading attacks...</div>)}

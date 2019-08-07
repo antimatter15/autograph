@@ -1,5 +1,13 @@
 import { eager, explore } from "../eager";
 
+test('no branch', () => {
+    let execs = 0;
+    explore(() => {
+        execs++;
+    })
+    expect(execs).toBe(1)
+})
+
 test('basic test', () => {
     let yes_count = 0,
         no_count = 0;
@@ -31,15 +39,6 @@ test('nested explore', () => {
     })
     expect(yes_count).toBe(1)
     expect(no_count).toBe(1)
-})
-
-
-test('no branch', () => {
-    let execs = 0;
-    explore(() => {
-        execs++;
-    })
-    expect(execs).toBe(1)
 })
 
 
