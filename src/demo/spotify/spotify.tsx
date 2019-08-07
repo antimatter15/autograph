@@ -11,21 +11,47 @@ const AutographRoot = createRoot({
 
 function App() {
     let [text, setText] = React.useState('Coldplay')
-    let query: GQL.Query = useQuery();
-
-    if (query._error) return <div>{query._error.toString()}</div>
     
+
     return <div>
         <input key="thang" type="text" value={text} onChange={e => setText(e.target.value)} />
         
-        {Loading(() => {
-            let artists = query.queryArtists({ byName: text }) || [];
-            return <table><tbody>
-                {artists.map(artist => <Artist artist={artist} key={artist.id} />)}
-            </tbody></table>
-        })}
+        <ArtistList text={text} />
     </div>
 }
+
+
+function ArtistList({ text }){
+    let query: GQL.Query = useQuery();
+
+    if (query._error) return <div>{query._error.toString()}</div>
+    if(query._loading) return <div>Loading artists....</div>
+
+    let artists = query.queryArtists({ byName: text })! || [];
+    
+    return <table><tbody>
+        {artists.map(artist => <Artist artist={artist} key={artist.id} />)}
+    </tbody></table>
+}
+
+
+// function App() {
+//     let [text, setText] = React.useState('Coldplay')
+//     let query: GQL.Query = useQuery();
+
+//     if (query._error) return <div>{query._error.toString()}</div>
+    
+//     return <div>
+//         <input key="thang" type="text" value={text} onChange={e => setText(e.target.value)} />
+        
+//         {Loading(() => {
+//             let artists = query.queryArtists({ byName: text }) || [];
+//             return <table><tbody>
+//                 {artists.map(artist => <Artist artist={artist} key={artist.id} />)}
+//             </tbody></table>
+//         })}
+//     </div>
+// }
 
 function Artist({ artist }: { artist: GQL.Artist }) {
     return <tr>
