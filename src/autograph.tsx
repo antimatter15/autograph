@@ -601,7 +601,7 @@ export function createRoot(config): any{
 }
 
 // Hook
-export function useQuery(config = 'default', handleOptions){
+export function useQuery(config = 'default', handleOptions: any = {}){
     let root: AutographModel = React.useContext(AutographContext) as any;
     if(!root) 
         throw new Error('Unable to read Autograph context value. Did you forget to add an Autograph provider to your React tree?');
@@ -623,7 +623,7 @@ export function useQuery(config = 'default', handleOptions){
 
 // Render Prop
 export class Query extends React.Component<{
-    config: any,
+    config?: any,
     children: (e: any) => JSX.Element,
     handleOptions?: any
 }, {
@@ -631,7 +631,9 @@ export class Query extends React.Component<{
 }> {
     update: any;
     lastVersion: number;
-
+    static defaultProps = {
+        config: 'default'
+    };
     constructor(props){
         super(props)
         this.state = { version: 0 }
