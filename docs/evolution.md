@@ -456,6 +456,107 @@ We have a few options:
 - Methods return LOADING
     - You have to write code that deals with the possibilty that anything could be loading.
 
+## Loading API (August 6, 2019)
+
+The `Loading` API went through a few changes.
+
+The first implementation was `Loading(fallback, fn)` with an optional fallback as the first argument. This has the advantage that the fallback is specified first (rather than having a short bit of code dangling somewhere far away at the end). However, optional first arguments are pretty weird and slightly confusing. 
+
+```js
+<div>{Loading(() => <div>
+    <h1>{query.shop.name}</h1>
+</div>)}</div>
+
+// fallback first
+<div>{Loading(<div>loading stuff...</div>, () => <div>
+    <h1>{query.shop.name}</h1>
+</div>)}</div>
+```
+
+The next implementation was the more traditional optional second argument format `Loading(fn, fallback)`. The whole behavior of `Loading` is still a bit weird as a function that returns a React component (i.e. it poses the obvious question of why it isn't an actual React component with a render prop itself). 
+
+```js
+// this is the same as the first variant
+<div>{Loading(() => <div>
+    <h1>{query.shop.name}</h1>
+</div>)}</div>
+
+// fallback second
+<div>{Loading(() => <div>
+    <h1>{query.shop.name}</h1>
+</div>, <div>loading stuff...</div>)}</div>
+```
+
+
+This takes us to the final implementation, where `Loading` is a simple React component with a render prop. This is more verbose than the others, as you have to start and end the call with the XML-style tags, and the fallback is specified with `fallback={}`. However, it retains the advantage that the fallback is specified in the front (rather than at the tail). And it avoids the weirdness of a non-component function that returns React components. 
+
+
+```js
+// render prop
+<div><Loading>{() => <div>
+    <h1>{query.shop.name}</h1>
+</div>)}</Loading></div>
+
+// render prop with fallback
+<div><Loading fallback={<div>loading stuff...</div>}>{() => <div>
+    <h1>{query.shop.name}</h1>
+</div>)}</Loading></div>
+```
+
+
+The one disadvantage of the render prop approach is that it doesn't work for arbitrary non-react values. For instance, we may want to have
+
+```js
+let thing = loading(() => query.something.whatever, [])
+```
+
+
+## Eager (August 6, 2019)
+
+Eager is just the continuation of the `amb` experiment. It's meant to enable easy GraphQL prefetching with Autograph. 
+
+Consider the following code:
+
+```js
+function Pokedex({ pokemon }: { pokemon: GQL.Pokemon }) {
+    let [expand, setExpand] = React.useState(false)
+    
+    return <div>
+        <h1>{pokemon.name}</h1>
+        <a onClick={e => setExpand(x => !x)}>{expand ? '▲ Collapse' : '▶ Expand'}</a>
+        {expand && <Loading>{() => <img src={pokemon.image} />}</Loading>}
+    </div>
+}
+```
+
+Here we don't fetch `pokemon.image` until the `Expand` button is clicked. This can cause an unwanted loading state. 
+
+With `Eager` we can prefetch `pokemon.image` by simply wrapping it around `expand`
+
+```js
+function Pokedex({ pokemon }: { pokemon: GQL.Pokemon }) {
+    let [expand, setExpand] = React.useState(false)
+    
+    return <div>
+        <h1>{pokemon.name}</h1>
+        <a onClick={e => setExpand(x => !x)}>{expand ? '▲ Collapse' : '▶ Expand'}</a>
+        {Eager(expand) && <Loading>{() => <img src={pokemon.image} />}</Loading>}
+    </div>
+}
+```
+
+During the dry rendering phase, we track the occasions where `Eager` is called and automatically re-run the function with `Eager` returning the negated boolean value. 
+
+## Loading Schemes (August 7, 2019)
+
+There will be 3 ways to handle loading in Autograph: Early returns, Loading Guards, and Suspense. 
+
+Early Returns will be the technique that will be easiest to port from Apollo or Relay code. 
+
+Loading Guards are essentially lightweight anonymous Suspense blocks.
+
+Suspense is suspenseful!
+
 
 
 
