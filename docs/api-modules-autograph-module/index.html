@@ -78,6 +78,7 @@
 <h3><a class="anchor" aria-hidden="true" id="functions"></a><a href="#functions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Functions</h3>
 <ul>
 <li><a href="/docs/api-modules-autograph-module#directive">Directive</a></li>
+<li><a href="/docs/api-modules-autograph-module#eager">Eager</a></li>
 <li><a href="/docs/api-modules-autograph-module#loading">Loading</a></li>
 <li><a href="/docs/api-modules-autograph-module#createroot">createRoot</a></li>
 <li><a href="/docs/api-modules-autograph-module#ensureduringrender">ensureDuringRender</a></li>
@@ -89,7 +90,7 @@
 <p><a id="basicclientconfig"></a></p>
 <h3><a class="anchor" aria-hidden="true" id="basicclientconfig"></a><a href="#basicclientconfig" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>BasicClientConfig</h3>
 <p><strong>Τ BasicClientConfig</strong>:  <em><code>object</code></em></p>
-<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/c675367/src/autograph.tsx#L18">autograph.tsx:18</a></em></p>
+<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/e49b7b2/src/autograph.tsx#L18">autograph.tsx:18</a></em></p>
 <h4><a class="anchor" aria-hidden="true" id="type-declaration"></a><a href="#type-declaration" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Type declaration</h4>
 <p>«Optional»  headers: <code>undefined</code>⎮<code>object</code></p>
 <p>url: <code>string</code></p>
@@ -98,23 +99,23 @@
 <p><a id="autographcontext"></a></p>
 <h3><a class="anchor" aria-hidden="true" id="const-autographcontext"></a><a href="#const-autographcontext" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>«Const» AutographContext</h3>
 <p><strong>●  AutographContext</strong>:  <em><code>Context</code>.&lt;<code>null</code>&gt;</em>  =  React.createContext(null)</p>
-<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/c675367/src/autograph.tsx#L13">autograph.tsx:13</a></em></p>
+<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/e49b7b2/src/autograph.tsx#L13">autograph.tsx:13</a></em></p>
 <hr>
 <p><a id="lasthandlepointer"></a></p>
 <h3><a class="anchor" aria-hidden="true" id="let-lasthandlepointer"></a><a href="#let-lasthandlepointer" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>«Let» lastHandlePointer</h3>
 <p><strong>●  lastHandlePointer</strong>:  <em><code>any</code></em></p>
-<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/c675367/src/autograph.tsx#L14">autograph.tsx:14</a></em></p>
+<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/e49b7b2/src/autograph.tsx#L14">autograph.tsx:14</a></em></p>
 <hr>
 <p><a id="lasthandlevalue"></a></p>
 <h3><a class="anchor" aria-hidden="true" id="let-lasthandlevalue"></a><a href="#let-lasthandlevalue" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>«Let» lastHandleValue</h3>
 <p><strong>●  lastHandleValue</strong>:  <em><code>any</code></em></p>
-<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/c675367/src/autograph.tsx#L14">autograph.tsx:14</a></em></p>
+<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/e49b7b2/src/autograph.tsx#L14">autograph.tsx:14</a></em></p>
 <hr>
 <h2><a class="anchor" aria-hidden="true" id="functions-1"></a><a href="#functions-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Functions</h2>
 <p><a id="directive"></a></p>
 <h3><a class="anchor" aria-hidden="true" id="directive"></a><a href="#directive" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Directive</h3>
 <p>► <strong>Directive</strong>(directive_string: <em><code>any</code></em>, value: <em><code>any</code></em>): <code>any</code></p>
-<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/c675367/src/autograph.tsx#L531">autograph.tsx:531</a></em></p>
+<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/e49b7b2/src/autograph.tsx#L533">autograph.tsx:533</a></em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -127,10 +128,25 @@
 </table>
 <p><strong>Returns:</strong> <code>any</code></p>
 <hr>
+<p><a id="eager"></a></p>
+<h3><a class="anchor" aria-hidden="true" id="eager"></a><a href="#eager" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Eager</h3>
+<p>► <strong>Eager</strong>(x: <em><code>boolean</code></em>): <code>boolean</code></p>
+<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/e49b7b2/src/autograph.tsx#L579">autograph.tsx:579</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Param</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td>x</td><td><code>boolean</code></td><td>-</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <code>boolean</code></p>
+<hr>
 <p><a id="loading"></a></p>
 <h3><a class="anchor" aria-hidden="true" id="loading"></a><a href="#loading" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Loading</h3>
 <p>► <strong>Loading</strong>(fn: <em><code>function</code></em>, fallback?: <em><code>Element</code></em>): <code>Element</code></p>
-<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/c675367/src/autograph.tsx#L564">autograph.tsx:564</a></em></p>
+<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/e49b7b2/src/autograph.tsx#L566">autograph.tsx:566</a></em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -146,7 +162,7 @@
 <p><a id="createroot"></a></p>
 <h3><a class="anchor" aria-hidden="true" id="createroot"></a><a href="#createroot" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>createRoot</h3>
 <p>► <strong>createRoot</strong>(config: <em><code>any</code></em>): <code>any</code></p>
-<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/c675367/src/autograph.tsx#L577">autograph.tsx:577</a></em></p>
+<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/e49b7b2/src/autograph.tsx#L584">autograph.tsx:584</a></em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -161,13 +177,13 @@
 <p><a id="ensureduringrender"></a></p>
 <h3><a class="anchor" aria-hidden="true" id="ensureduringrender"></a><a href="#ensureduringrender" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>ensureDuringRender</h3>
 <p>► <strong>ensureDuringRender</strong>(): <code>void</code></p>
-<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/c675367/src/autograph.tsx#L518">autograph.tsx:518</a></em></p>
+<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/e49b7b2/src/autograph.tsx#L520">autograph.tsx:520</a></em></p>
 <p><strong>Returns:</strong> <code>void</code></p>
 <hr>
 <p><a id="usequery"></a></p>
 <h3><a class="anchor" aria-hidden="true" id="usequery"></a><a href="#usequery" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>useQuery</h3>
 <p>► <strong>useQuery</strong>(config?: <em><code>string</code></em>, handleOptions?: <em><code>any</code></em>): <code>any</code></p>
-<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/c675367/src/autograph.tsx#L604">autograph.tsx:604</a></em></p>
+<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/e49b7b2/src/autograph.tsx#L611">autograph.tsx:611</a></em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -183,7 +199,7 @@
 <p><a id="withquery"></a></p>
 <h3><a class="anchor" aria-hidden="true" id="withquery"></a><a href="#withquery" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>withQuery</h3>
 <p>► <strong>withQuery</strong>(config?: <em><code>string</code></em>, handleOptions: <em><code>any</code></em>): <code>(Anonymous function)</code></p>
-<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/c675367/src/autograph.tsx#L668">autograph.tsx:668</a></em></p>
+<p><em>Defined in <a href="https://github.com/antimatter15/autograph/blob/e49b7b2/src/autograph.tsx#L675">autograph.tsx:675</a></em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -196,7 +212,7 @@
 </table>
 <p><strong>Returns:</strong> <code>(Anonymous function)</code></p>
 <hr>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/api"><span class="arrow-prev">← </span><span>API</span></a><a class="docs-next button" href="/docs/api-modules-graphql-module"><span>graphql</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#module">Module</a><ul class="toc-headings"><li><a href="#classes">Classes</a></li><li><a href="#type-aliases">Type aliases</a></li><li><a href="#variables">Variables</a></li><li><a href="#functions">Functions</a></li></ul></li><li><a href="#type-aliases-1">Type aliases</a><ul class="toc-headings"><li><a href="#basicclientconfig">BasicClientConfig</a></li></ul></li><li><a href="#variables-1">Variables</a><ul class="toc-headings"><li><a href="#const-autographcontext">«Const» AutographContext</a></li><li><a href="#let-lasthandlepointer">«Let» lastHandlePointer</a></li><li><a href="#let-lasthandlevalue">«Let» lastHandleValue</a></li></ul></li><li><a href="#functions-1">Functions</a><ul class="toc-headings"><li><a href="#directive">Directive</a></li><li><a href="#loading">Loading</a></li><li><a href="#createroot">createRoot</a></li><li><a href="#ensureduringrender">ensureDuringRender</a></li><li><a href="#usequery">useQuery</a></li><li><a href="#withquery">withQuery</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="Autograph" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/doc1.html">Getting Started (or other categories)</a><a href="/docs/en/doc2.html">Guides (or other categories)</a><a href="/docs/en/doc3.html">API Reference (or other categories)</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a><a href="https://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discordapp.com/">Project Chat</a><a href="https://twitter.com/" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/blog">Blog</a><a href="https://github.com/">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2019 Kevin Kwok (antimatter15@gmail.com)</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/api"><span class="arrow-prev">← </span><span>API</span></a><a class="docs-next button" href="/docs/api-modules-graphql-module"><span>graphql</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#module">Module</a><ul class="toc-headings"><li><a href="#classes">Classes</a></li><li><a href="#type-aliases">Type aliases</a></li><li><a href="#variables">Variables</a></li><li><a href="#functions">Functions</a></li></ul></li><li><a href="#type-aliases-1">Type aliases</a><ul class="toc-headings"><li><a href="#basicclientconfig">BasicClientConfig</a></li></ul></li><li><a href="#variables-1">Variables</a><ul class="toc-headings"><li><a href="#const-autographcontext">«Const» AutographContext</a></li><li><a href="#let-lasthandlepointer">«Let» lastHandlePointer</a></li><li><a href="#let-lasthandlevalue">«Let» lastHandleValue</a></li></ul></li><li><a href="#functions-1">Functions</a><ul class="toc-headings"><li><a href="#directive">Directive</a></li><li><a href="#eager">Eager</a></li><li><a href="#loading">Loading</a></li><li><a href="#createroot">createRoot</a></li><li><a href="#ensureduringrender">ensureDuringRender</a></li><li><a href="#usequery">useQuery</a></li><li><a href="#withquery">withQuery</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="Autograph" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/doc1.html">Getting Started (or other categories)</a><a href="/docs/en/doc2.html">Guides (or other categories)</a><a href="/docs/en/doc3.html">API Reference (or other categories)</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a><a href="https://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discordapp.com/">Project Chat</a><a href="https://twitter.com/" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/blog">Blog</a><a href="https://github.com/">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2019 Kevin Kwok (antimatter15@gmail.com)</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;
