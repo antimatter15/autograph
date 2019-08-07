@@ -16,15 +16,7 @@ export function shallowCompare(a, b){
 
 
 export function nextFrame(){
-    return new Promise(resolve => { 
-        if(typeof process !== 'undefined' && process.nextTick){
-            process.nextTick(resolve)
-        }else{
-            requestAnimationFrame(() => {
-                resolve()
-            })   
-        }
-    })
+    return Promise.resolve(true)
 }
 
 
