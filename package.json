@@ -27,7 +27,7 @@
     "parcel": "^1.12.3",
     "prettier": "^1.18.2",
     "react-dom": "^16.8.6",
-    "react-test-renderer": "^16.8.6",
+    "react-test-renderer": "^16.9.0",
     "ts-jest": "^24.0.2",
     "typescript": "^3.5.3"
   },
