@@ -6,10 +6,10 @@
   "author": "Kevin Kwok <antimatter15@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
-    "react": "^16.8.6"
+    "react": "^16.9.0"
   },
   "dependencies": {
-    "react": "^16.8.6",
+    "react": "^16.9.0",
     "react-is": "^16.8.6"
   },
   "devDependencies": {
