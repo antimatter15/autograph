@@ -82,7 +82,6 @@ function Pokedex({ pokemon }: { pokemon: GQL.Pokemon }) {
     // console.log('pokedex', pokemon)
     let [expand, setExpand] = React.useState(false)
 
-
     return <div>
         <h1>{pokemon.number} - {pokemon.name}</h1>
         <img src={Directive('@skip(if: false)', pokemon.image)} />
