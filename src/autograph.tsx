@@ -7,10 +7,6 @@ import accessLogToGraphQL, { SUCCINCT_INTROSPECTION_QUERY } from './graphql'
 import convertGQLSchemaToTypescript from './typescript'
 import * as eager from './util/eager'
 
-// import NProgress from 'nprogress'
-// import 'nprogress/nprogress.css'
-// console.log(React)
-
 const AutographContext = React.createContext(null)
 let lastHandleValue, lastHandlePointer
 
