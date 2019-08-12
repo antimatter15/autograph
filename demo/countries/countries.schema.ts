@@ -47,7 +47,7 @@ export type Language = GQLType & {
 /** The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1. */
 export type Int = number
 
-export type CacheControlScope = "PUBLIC" | "PRIVATE"
+export type CacheControlScope = 'PUBLIC' | 'PRIVATE'
 
 /** The `Upload` scalar type represents a file upload. */
 export type Upload = any

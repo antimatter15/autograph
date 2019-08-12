@@ -8,22 +8,54 @@ type GQLType = {
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRoot = GQLType & {
     /** List of the shop's articles. */
-    articles(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean, sortKey?: ArticleSortKeys, query?: string }): ArticleConnection
+    articles(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+        sortKey?: ArticleSortKeys
+        query?: string
+    }): ArticleConnection
     /** Find a blog by its handle. */
     blogByHandle(args: { handle: string }): Blog | undefined
     /** List of the shop's blogs. */
-    blogs(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean, sortKey?: BlogSortKeys, query?: string }): BlogConnection
+    blogs(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+        sortKey?: BlogSortKeys
+        query?: string
+    }): BlogConnection
     /** Find a collection by its handle. */
     collectionByHandle(args: { handle: string }): Collection | undefined
     /** List of the shop’s collections. */
-    collections(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean, sortKey?: CollectionSortKeys, query?: string }): CollectionConnection
+    collections(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+        sortKey?: CollectionSortKeys
+        query?: string
+    }): CollectionConnection
     customer(args: { customerAccessToken: string }): Customer | undefined
     node(args: { id: ID }): Node | undefined
     nodes(args: { ids: ID[] }): Node[]
     /** Find a page by its handle. */
     pageByHandle(args: { handle: string }): Page | undefined
     /** List of the shop's pages. */
-    pages(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean, sortKey?: PageSortKeys, query?: string }): PageConnection
+    pages(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+        sortKey?: PageSortKeys
+        query?: string
+    }): PageConnection
     /** Find a product by its handle. */
     productByHandle(args: { handle: string }): Product | undefined
     /** Find recommended products related to a given `product_id`.
@@ -38,7 +70,15 @@ Additional access scope required: unauthenticated_read_product_tags.
     /** List of product types for the shop's products that are published to your app. */
     productTypes(args: { first: Int }): StringConnection
     /** List of the shop’s products. */
-    products(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean, sortKey?: ProductSortKeys, query?: string }): ProductConnection
+    products(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+        sortKey?: ProductSortKeys
+        query?: string
+    }): ProductConnection
     /** The list of public Storefront API versions, including supported, release candidate and unstable versions. */
     publicApiVersions: ApiVersion[]
     shop: Shop
@@ -114,7 +154,13 @@ export type Customer = GQLType & {
     /** Indicates whether the customer has consented to be sent marketing material via email. */
     acceptsMarketing: boolean
     /** A list of addresses for the customer. */
-    addresses(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean }): MailingAddressConnection
+    addresses(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+    }): MailingAddressConnection
     /** The date and time when the customer was created. */
     createdAt: DateTime
     /** The customer’s default address. */
@@ -132,7 +178,15 @@ export type Customer = GQLType & {
     /** The customer’s last name. */
     lastName?: string
     /** The orders associated with the customer. */
-    orders(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean, sortKey?: OrderSortKeys, query?: string }): OrderConnection
+    orders(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+        sortKey?: OrderSortKeys
+        query?: string
+    }): OrderConnection
     /** The customer’s phone number. */
     phone?: string
     /** A list of tags assigned to the customer.
@@ -149,19 +203,19 @@ export type DateTime = any
 /** Represents a mailing address for customers and shipping. */
 export type MailingAddress = GQLType & {
     /** The first line of the address. Typically the street address or PO Box number.
- */
+     */
     address1?: string
     /** The second line of the address. Typically the number of the apartment, suite, or unit.
- */
+     */
     address2?: string
     /** The name of the city, district, village, or town.
- */
+     */
     city?: string
     /** The name of the customer's company or organization.
- */
+     */
     company?: string
     /** The name of the country.
- */
+     */
     country?: string
     /** The two-letter code for the country of the address.
 
@@ -177,7 +231,7 @@ For example, US.
     /** The first name of the customer. */
     firstName?: string
     /** A formatted version of the address, customized by the provided arguments. */
-    formatted(args: { withName?: boolean, withCompany?: boolean }): string[]
+    formatted(args: { withName?: boolean; withCompany?: boolean }): string[]
     /** A comma-separated list of the values for city, province, and country. */
     formattedArea?: string
     /** Globally unique identifier. */
@@ -189,7 +243,7 @@ For example, US.
     /** The longitude coordinate of the customer address. */
     longitude?: Float
     /** The full name of the customer, based on firstName and lastName.
- */
+     */
     name?: string
     /** A unique phone number for the customer.
 
@@ -211,7 +265,249 @@ For example, ON.
 export type Float = number
 
 /** ISO 3166-1 alpha-2 country codes with some differences. */
-export type CountryCode = "AF" | "AX" | "AL" | "DZ" | "AD" | "AO" | "AI" | "AG" | "AR" | "AM" | "AW" | "AU" | "AT" | "AZ" | "BS" | "BH" | "BD" | "BB" | "BY" | "BE" | "BZ" | "BJ" | "BM" | "BT" | "BO" | "BQ" | "BA" | "BW" | "BV" | "BR" | "IO" | "BN" | "BG" | "BF" | "BI" | "KH" | "CA" | "CV" | "KY" | "CF" | "TD" | "CL" | "CN" | "CX" | "CC" | "CO" | "KM" | "CG" | "CD" | "CK" | "CR" | "HR" | "CU" | "CW" | "CY" | "CZ" | "CI" | "DK" | "DJ" | "DM" | "DO" | "EC" | "EG" | "SV" | "GQ" | "ER" | "EE" | "ET" | "FK" | "FO" | "FJ" | "FI" | "FR" | "GF" | "PF" | "TF" | "GA" | "GM" | "GE" | "DE" | "GH" | "GI" | "GR" | "GL" | "GD" | "GP" | "GT" | "GG" | "GN" | "GW" | "GY" | "HT" | "HM" | "VA" | "HN" | "HK" | "HU" | "IS" | "IN" | "ID" | "IR" | "IQ" | "IE" | "IM" | "IL" | "IT" | "JM" | "JP" | "JE" | "JO" | "KZ" | "KE" | "KI" | "KP" | "XK" | "KW" | "KG" | "LA" | "LV" | "LB" | "LS" | "LR" | "LY" | "LI" | "LT" | "LU" | "MO" | "MK" | "MG" | "MW" | "MY" | "MV" | "ML" | "MT" | "MQ" | "MR" | "MU" | "YT" | "MX" | "MD" | "MC" | "MN" | "ME" | "MS" | "MA" | "MZ" | "MM" | "NA" | "NR" | "NP" | "NL" | "AN" | "NC" | "NZ" | "NI" | "NE" | "NG" | "NU" | "NF" | "NO" | "OM" | "PK" | "PS" | "PA" | "PG" | "PY" | "PE" | "PH" | "PN" | "PL" | "PT" | "QA" | "CM" | "RE" | "RO" | "RU" | "RW" | "BL" | "SH" | "KN" | "LC" | "MF" | "PM" | "WS" | "SM" | "ST" | "SA" | "SN" | "RS" | "SC" | "SL" | "SG" | "SX" | "SK" | "SI" | "SB" | "SO" | "ZA" | "GS" | "KR" | "SS" | "ES" | "LK" | "VC" | "SD" | "SR" | "SJ" | "SZ" | "SE" | "CH" | "SY" | "TW" | "TJ" | "TZ" | "TH" | "TL" | "TG" | "TK" | "TO" | "TT" | "TN" | "TR" | "TM" | "TC" | "TV" | "UG" | "UA" | "AE" | "GB" | "US" | "UM" | "UY" | "UZ" | "VU" | "VE" | "VN" | "VG" | "WF" | "EH" | "YE" | "ZM" | "ZW"
+export type CountryCode =
+    | 'AF'
+    | 'AX'
+    | 'AL'
+    | 'DZ'
+    | 'AD'
+    | 'AO'
+    | 'AI'
+    | 'AG'
+    | 'AR'
+    | 'AM'
+    | 'AW'
+    | 'AU'
+    | 'AT'
+    | 'AZ'
+    | 'BS'
+    | 'BH'
+    | 'BD'
+    | 'BB'
+    | 'BY'
+    | 'BE'
+    | 'BZ'
+    | 'BJ'
+    | 'BM'
+    | 'BT'
+    | 'BO'
+    | 'BQ'
+    | 'BA'
+    | 'BW'
+    | 'BV'
+    | 'BR'
+    | 'IO'
+    | 'BN'
+    | 'BG'
+    | 'BF'
+    | 'BI'
+    | 'KH'
+    | 'CA'
+    | 'CV'
+    | 'KY'
+    | 'CF'
+    | 'TD'
+    | 'CL'
+    | 'CN'
+    | 'CX'
+    | 'CC'
+    | 'CO'
+    | 'KM'
+    | 'CG'
+    | 'CD'
+    | 'CK'
+    | 'CR'
+    | 'HR'
+    | 'CU'
+    | 'CW'
+    | 'CY'
+    | 'CZ'
+    | 'CI'
+    | 'DK'
+    | 'DJ'
+    | 'DM'
+    | 'DO'
+    | 'EC'
+    | 'EG'
+    | 'SV'
+    | 'GQ'
+    | 'ER'
+    | 'EE'
+    | 'ET'
+    | 'FK'
+    | 'FO'
+    | 'FJ'
+    | 'FI'
+    | 'FR'
+    | 'GF'
+    | 'PF'
+    | 'TF'
+    | 'GA'
+    | 'GM'
+    | 'GE'
+    | 'DE'
+    | 'GH'
+    | 'GI'
+    | 'GR'
+    | 'GL'
+    | 'GD'
+    | 'GP'
+    | 'GT'
+    | 'GG'
+    | 'GN'
+    | 'GW'
+    | 'GY'
+    | 'HT'
+    | 'HM'
+    | 'VA'
+    | 'HN'
+    | 'HK'
+    | 'HU'
+    | 'IS'
+    | 'IN'
+    | 'ID'
+    | 'IR'
+    | 'IQ'
+    | 'IE'
+    | 'IM'
+    | 'IL'
+    | 'IT'
+    | 'JM'
+    | 'JP'
+    | 'JE'
+    | 'JO'
+    | 'KZ'
+    | 'KE'
+    | 'KI'
+    | 'KP'
+    | 'XK'
+    | 'KW'
+    | 'KG'
+    | 'LA'
+    | 'LV'
+    | 'LB'
+    | 'LS'
+    | 'LR'
+    | 'LY'
+    | 'LI'
+    | 'LT'
+    | 'LU'
+    | 'MO'
+    | 'MK'
+    | 'MG'
+    | 'MW'
+    | 'MY'
+    | 'MV'
+    | 'ML'
+    | 'MT'
+    | 'MQ'
+    | 'MR'
+    | 'MU'
+    | 'YT'
+    | 'MX'
+    | 'MD'
+    | 'MC'
+    | 'MN'
+    | 'ME'
+    | 'MS'
+    | 'MA'
+    | 'MZ'
+    | 'MM'
+    | 'NA'
+    | 'NR'
+    | 'NP'
+    | 'NL'
+    | 'AN'
+    | 'NC'
+    | 'NZ'
+    | 'NI'
+    | 'NE'
+    | 'NG'
+    | 'NU'
+    | 'NF'
+    | 'NO'
+    | 'OM'
+    | 'PK'
+    | 'PS'
+    | 'PA'
+    | 'PG'
+    | 'PY'
+    | 'PE'
+    | 'PH'
+    | 'PN'
+    | 'PL'
+    | 'PT'
+    | 'QA'
+    | 'CM'
+    | 'RE'
+    | 'RO'
+    | 'RU'
+    | 'RW'
+    | 'BL'
+    | 'SH'
+    | 'KN'
+    | 'LC'
+    | 'MF'
+    | 'PM'
+    | 'WS'
+    | 'SM'
+    | 'ST'
+    | 'SA'
+    | 'SN'
+    | 'RS'
+    | 'SC'
+    | 'SL'
+    | 'SG'
+    | 'SX'
+    | 'SK'
+    | 'SI'
+    | 'SB'
+    | 'SO'
+    | 'ZA'
+    | 'GS'
+    | 'KR'
+    | 'SS'
+    | 'ES'
+    | 'LK'
+    | 'VC'
+    | 'SD'
+    | 'SR'
+    | 'SJ'
+    | 'SZ'
+    | 'SE'
+    | 'CH'
+    | 'SY'
+    | 'TW'
+    | 'TJ'
+    | 'TZ'
+    | 'TH'
+    | 'TL'
+    | 'TG'
+    | 'TK'
+    | 'TO'
+    | 'TT'
+    | 'TN'
+    | 'TR'
+    | 'TM'
+    | 'TC'
+    | 'TV'
+    | 'UG'
+    | 'UA'
+    | 'AE'
+    | 'GB'
+    | 'US'
+    | 'UM'
+    | 'UY'
+    | 'UZ'
+    | 'VU'
+    | 'VE'
+    | 'VN'
+    | 'VG'
+    | 'WF'
+    | 'EH'
+    | 'YE'
+    | 'ZM'
+    | 'ZW'
 
 export type MailingAddressConnection = GQLType & {
     /** A list of edges. */
@@ -261,13 +557,25 @@ export type Order = GQLType & {
     /** The unique URL that the customer can use to access the order. */
     customerUrl?: URL
     /** Discounts that have been applied on the order. */
-    discountApplications(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean }): DiscountApplicationConnection
+    discountApplications(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+    }): DiscountApplicationConnection
     /** The customer's email address. */
     email?: string
     /** Globally unique identifier. */
     id: ID
     /** List of the order’s line items. */
-    lineItems(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean }): OrderLineItemConnection
+    lineItems(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+    }): OrderLineItemConnection
     /** Unique identifier for the order that appears on the order.
 For example, _#1000_ or _Store1001.
  */
@@ -284,7 +592,7 @@ If no value is provided, it will be auto-generated based on current date and tim
     /** The address to where the order will be shipped. */
     shippingAddress?: MailingAddress
     /** The discounts that have been allocated onto the shipping line by discount applications.
- */
+     */
     shippingDiscountAllocations: DiscountAllocation[]
     /** The unique URL for the order's status page. */
     statusUrl: URL
@@ -353,7 +661,149 @@ export type MoneyV2 = GQLType & {
 export type Decimal = any
 
 /** Currency codes */
-export type CurrencyCode = "USD" | "EUR" | "GBP" | "CAD" | "AFN" | "ALL" | "DZD" | "AOA" | "ARS" | "AMD" | "AWG" | "AUD" | "BBD" | "AZN" | "BDT" | "BSD" | "BHD" | "BIF" | "BYR" | "BZD" | "BMD" | "BTN" | "BAM" | "BRL" | "BOB" | "BWP" | "BND" | "BGN" | "MMK" | "KHR" | "CVE" | "KYD" | "XAF" | "CLP" | "CNY" | "COP" | "KMF" | "CDF" | "CRC" | "HRK" | "CZK" | "DKK" | "DOP" | "XCD" | "EGP" | "ETB" | "XPF" | "FJD" | "GMD" | "GHS" | "GTQ" | "GYD" | "GEL" | "HTG" | "HNL" | "HKD" | "HUF" | "ISK" | "INR" | "IDR" | "ILS" | "IQD" | "JMD" | "JPY" | "JEP" | "JOD" | "KZT" | "KES" | "KWD" | "KGS" | "LAK" | "LVL" | "LBP" | "LSL" | "LRD" | "LTL" | "MGA" | "MKD" | "MOP" | "MWK" | "MVR" | "MXN" | "MYR" | "MUR" | "MDL" | "MAD" | "MNT" | "MZN" | "NAD" | "NPR" | "ANG" | "NZD" | "NIO" | "NGN" | "NOK" | "OMR" | "PAB" | "PKR" | "PGK" | "PYG" | "PEN" | "PHP" | "PLN" | "QAR" | "RON" | "RUB" | "RWF" | "WST" | "SAR" | "STD" | "RSD" | "SCR" | "SGD" | "SDG" | "SYP" | "ZAR" | "KRW" | "SSP" | "SBD" | "LKR" | "SRD" | "SZL" | "SEK" | "CHF" | "TWD" | "THB" | "TZS" | "TTD" | "TND" | "TRY" | "TMT" | "UGX" | "UAH" | "AED" | "UYU" | "UZS" | "VUV" | "VEF" | "VND" | "XOF" | "YER" | "ZMW"
+export type CurrencyCode =
+    | 'USD'
+    | 'EUR'
+    | 'GBP'
+    | 'CAD'
+    | 'AFN'
+    | 'ALL'
+    | 'DZD'
+    | 'AOA'
+    | 'ARS'
+    | 'AMD'
+    | 'AWG'
+    | 'AUD'
+    | 'BBD'
+    | 'AZN'
+    | 'BDT'
+    | 'BSD'
+    | 'BHD'
+    | 'BIF'
+    | 'BYR'
+    | 'BZD'
+    | 'BMD'
+    | 'BTN'
+    | 'BAM'
+    | 'BRL'
+    | 'BOB'
+    | 'BWP'
+    | 'BND'
+    | 'BGN'
+    | 'MMK'
+    | 'KHR'
+    | 'CVE'
+    | 'KYD'
+    | 'XAF'
+    | 'CLP'
+    | 'CNY'
+    | 'COP'
+    | 'KMF'
+    | 'CDF'
+    | 'CRC'
+    | 'HRK'
+    | 'CZK'
+    | 'DKK'
+    | 'DOP'
+    | 'XCD'
+    | 'EGP'
+    | 'ETB'
+    | 'XPF'
+    | 'FJD'
+    | 'GMD'
+    | 'GHS'
+    | 'GTQ'
+    | 'GYD'
+    | 'GEL'
+    | 'HTG'
+    | 'HNL'
+    | 'HKD'
+    | 'HUF'
+    | 'ISK'
+    | 'INR'
+    | 'IDR'
+    | 'ILS'
+    | 'IQD'
+    | 'JMD'
+    | 'JPY'
+    | 'JEP'
+    | 'JOD'
+    | 'KZT'
+    | 'KES'
+    | 'KWD'
+    | 'KGS'
+    | 'LAK'
+    | 'LVL'
+    | 'LBP'
+    | 'LSL'
+    | 'LRD'
+    | 'LTL'
+    | 'MGA'
+    | 'MKD'
+    | 'MOP'
+    | 'MWK'
+    | 'MVR'
+    | 'MXN'
+    | 'MYR'
+    | 'MUR'
+    | 'MDL'
+    | 'MAD'
+    | 'MNT'
+    | 'MZN'
+    | 'NAD'
+    | 'NPR'
+    | 'ANG'
+    | 'NZD'
+    | 'NIO'
+    | 'NGN'
+    | 'NOK'
+    | 'OMR'
+    | 'PAB'
+    | 'PKR'
+    | 'PGK'
+    | 'PYG'
+    | 'PEN'
+    | 'PHP'
+    | 'PLN'
+    | 'QAR'
+    | 'RON'
+    | 'RUB'
+    | 'RWF'
+    | 'WST'
+    | 'SAR'
+    | 'STD'
+    | 'RSD'
+    | 'SCR'
+    | 'SGD'
+    | 'SDG'
+    | 'SYP'
+    | 'ZAR'
+    | 'KRW'
+    | 'SSP'
+    | 'SBD'
+    | 'LKR'
+    | 'SRD'
+    | 'SZL'
+    | 'SEK'
+    | 'CHF'
+    | 'TWD'
+    | 'THB'
+    | 'TZS'
+    | 'TTD'
+    | 'TND'
+    | 'TRY'
+    | 'TMT'
+    | 'UGX'
+    | 'UAH'
+    | 'AED'
+    | 'UYU'
+    | 'UZS'
+    | 'VUV'
+    | 'VEF'
+    | 'VND'
+    | 'XOF'
+    | 'YER'
+    | 'ZMW'
 
 /** An RFC 3986 and RFC 3987 compliant URI string.
 
@@ -393,16 +843,16 @@ export interface DiscountApplication extends GQLType {
 }
 
 /** The method by which the discount's value is allocated onto its entitled lines. */
-export type DiscountApplicationAllocationMethod = "ACROSS" | "EACH" | "ONE"
+export type DiscountApplicationAllocationMethod = 'ACROSS' | 'EACH' | 'ONE'
 
 /** Which lines on the order that the discount is allocated over, of the type
 defined by the Discount Application's target_type.
  */
-export type DiscountApplicationTargetSelection = "ALL" | "ENTITLED" | "EXPLICIT"
+export type DiscountApplicationTargetSelection = 'ALL' | 'ENTITLED' | 'EXPLICIT'
 
 /** The type of line (i.e. line item or shipping line) on an order that the discount is applicable towards.
  */
-export type DiscountApplicationTargetType = "LINE_ITEM" | "SHIPPING_LINE"
+export type DiscountApplicationTargetType = 'LINE_ITEM' | 'SHIPPING_LINE'
 
 /** The price value (fixed or percentage) for a discount application. */
 export type PricingValue = PricingPercentageValue | MoneyV2
@@ -456,13 +906,32 @@ export type ProductVariant = GQLType & {
     /** Globally unique identifier. */
     id: ID
     /** Image associated with the product variant. This field falls back to the product image if no image is available. */
-    image(args: { maxWidth?: Int, maxHeight?: Int, crop?: CropRegion, scale?: Int }): Image | undefined
+    image(args: {
+        maxWidth?: Int
+        maxHeight?: Int
+        crop?: CropRegion
+        scale?: Int
+    }): Image | undefined
     /** The metafield associated with the resource. */
-    metafield(args: { namespace: string, key: string }): Metafield | undefined
+    metafield(args: { namespace: string; key: string }): Metafield | undefined
     /** A paginated list of metafields associated with the resource. */
-    metafields(args: { namespace?: string, first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean }): MetafieldConnection
+    metafields(args: {
+        namespace?: string
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+    }): MetafieldConnection
     /** List of prices and compare-at prices in the presentment currencies for this shop. */
-    presentmentPrices(args: { presentmentCurrencies?: CurrencyCode[], first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean }): ProductVariantPricePairConnection
+    presentmentPrices(args: {
+        presentmentCurrencies?: CurrencyCode[]
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+    }): ProductVariantPricePairConnection
     /** The product variant’s price. */
     /** @deprecated Use `priceV2` instead */
     price: Money
@@ -517,7 +986,7 @@ export type Metafield = GQLType & {
 }
 
 /** Metafield value types. */
-export type MetafieldValueType = "STRING" | "INTEGER" | "JSON_STRING"
+export type MetafieldValueType = 'STRING' | 'INTEGER' | 'JSON_STRING'
 
 /** A resource that the metafield belongs to. */
 export type MetafieldParentResource = Product | ProductVariant
@@ -528,7 +997,13 @@ export type Product = GQLType & {
     /** Whether the product is available on the Online Store channel and in stock. */
     availableForSale: boolean
     /** List of collections a product belongs to. */
-    collections(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean }): CollectionConnection
+    collections(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+    }): CollectionConnection
     /** The date and time when the product was created. */
     createdAt: DateTime
     /** Stripped description of the product, single line with HTML tags removed. */
@@ -542,11 +1017,29 @@ They are used by the Liquid templating language to refer to objects.
     /** Globally unique identifier. */
     id: ID
     /** List of images associated with the product. */
-    images(args: { maxWidth?: Int, maxHeight?: Int, crop?: CropRegion, scale?: Int, first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean, sortKey?: ProductImageSortKeys }): ImageConnection
+    images(args: {
+        maxWidth?: Int
+        maxHeight?: Int
+        crop?: CropRegion
+        scale?: Int
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+        sortKey?: ProductImageSortKeys
+    }): ImageConnection
     /** The metafield associated with the resource. */
-    metafield(args: { namespace: string, key: string }): Metafield | undefined
+    metafield(args: { namespace: string; key: string }): Metafield | undefined
     /** A paginated list of metafields associated with the resource. */
-    metafields(args: { namespace?: string, first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean }): MetafieldConnection
+    metafields(args: {
+        namespace?: string
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+    }): MetafieldConnection
     /** The online store URL for the product.
 A value of `null` indicates that the product is not published to the Online Store sales channel.
  */
@@ -554,7 +1047,14 @@ A value of `null` indicates that the product is not published to the Online Stor
     /** List of custom product options (maximum of 3 per product). */
     options(args: { first?: Int }): ProductOption[]
     /** List of price ranges in the presentment currencies for this shop. */
-    presentmentPriceRanges(args: { presentmentCurrencies?: CurrencyCode[], first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean }): ProductPriceRangeConnection
+    presentmentPriceRanges(args: {
+        presentmentCurrencies?: CurrencyCode[]
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+    }): ProductPriceRangeConnection
     /** The price range. */
     priceRange: ProductPriceRange
     /** A categorization that a product can be tagged with, commonly used for filtering and searching. */
@@ -573,9 +1073,18 @@ Additional access scope required for private apps: unauthenticated_read_product_
 This is useful for converting a user’s selection of product options into a single matching variant.
 If there is not a variant for the selected options, `null` will be returned.
  */
-    variantBySelectedOptions(args: { selectedOptions: SelectedOptionInput[] }): ProductVariant | undefined
+    variantBySelectedOptions(args: {
+        selectedOptions: SelectedOptionInput[]
+    }): ProductVariant | undefined
     /** List of the product’s variants. */
-    variants(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean, sortKey?: ProductVariantSortKeys }): ProductVariantConnection
+    variants(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+        sortKey?: ProductVariantSortKeys
+    }): ProductVariantConnection
     /** The product’s vendor name. */
     vendor: string
 }
@@ -621,9 +1130,21 @@ Limit of 255 characters.
     /** Globally unique identifier. */
     id: ID
     /** Image associated with the collection. */
-    image(args: { maxWidth?: Int, maxHeight?: Int, crop?: CropRegion, scale?: Int }): Image | undefined
+    image(args: {
+        maxWidth?: Int
+        maxHeight?: Int
+        crop?: CropRegion
+        scale?: Int
+    }): Image | undefined
     /** List of products in the collection. */
-    products(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean, sortKey?: ProductCollectionSortKeys }): ProductConnection
+    products(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+        sortKey?: ProductCollectionSortKeys
+    }): ProductConnection
     /** The collection’s name. Limit of 255 characters. */
     title: string
     /** The date and time when the collection was last modified. */
@@ -693,14 +1214,20 @@ After:
 All transformation arguments are considered "best-effort". If they can be applied to an image, they will be.
 Otherwise any transformations which an image type does not support will be ignored.
  */
-    transformedSrc(args: { maxWidth?: Int, maxHeight?: Int, crop?: CropRegion, scale?: Int, preferredContentType?: ImageContentType }): URL
+    transformedSrc(args: {
+        maxWidth?: Int
+        maxHeight?: Int
+        crop?: CropRegion
+        scale?: Int
+        preferredContentType?: ImageContentType
+    }): URL
 }
 
 /** The part of the image that should remain after cropping. */
-export type CropRegion = "CENTER" | "TOP" | "BOTTOM" | "LEFT" | "RIGHT"
+export type CropRegion = 'CENTER' | 'TOP' | 'BOTTOM' | 'LEFT' | 'RIGHT'
 
 /** List of supported image content types. */
-export type ImageContentType = "PNG" | "JPG" | "WEBP"
+export type ImageContentType = 'PNG' | 'JPG' | 'WEBP'
 
 export type ProductConnection = GQLType & {
     /** A list of edges. */
@@ -717,7 +1244,15 @@ export type ProductEdge = GQLType & {
 }
 
 /** The set of valid sort keys for the products query. */
-export type ProductCollectionSortKeys = "TITLE" | "PRICE" | "BEST_SELLING" | "CREATED" | "ID" | "MANUAL" | "COLLECTION_DEFAULT" | "RELEVANCE"
+export type ProductCollectionSortKeys =
+    | 'TITLE'
+    | 'PRICE'
+    | 'BEST_SELLING'
+    | 'CREATED'
+    | 'ID'
+    | 'MANUAL'
+    | 'COLLECTION_DEFAULT'
+    | 'RELEVANCE'
 
 export type ImageConnection = GQLType & {
     /** A list of edges. */
@@ -734,7 +1269,7 @@ export type ImageEdge = GQLType & {
 }
 
 /** The set of valid sort keys for the images query. */
-export type ProductImageSortKeys = "CREATED_AT" | "POSITION" | "ID" | "RELEVANCE"
+export type ProductImageSortKeys = 'CREATED_AT' | 'POSITION' | 'ID' | 'RELEVANCE'
 
 /** The price range of the product. */
 export type ProductPriceRange = GQLType & {
@@ -795,10 +1330,10 @@ export type ProductVariantEdge = GQLType & {
 }
 
 /** The set of valid sort keys for the variants query. */
-export type ProductVariantSortKeys = "TITLE" | "SKU" | "POSITION" | "ID" | "RELEVANCE"
+export type ProductVariantSortKeys = 'TITLE' | 'SKU' | 'POSITION' | 'ID' | 'RELEVANCE'
 
 /** Units of measurement for weight. */
-export type WeightUnit = "KILOGRAMS" | "GRAMS" | "POUNDS" | "OUNCES"
+export type WeightUnit = 'KILOGRAMS' | 'GRAMS' | 'POUNDS' | 'OUNCES'
 
 export type ProductVariantPricePairConnection = GQLType & {
     /** A list of edges. */
@@ -844,7 +1379,13 @@ export type Attribute = GQLType & {
 /** Represents a single fulfillment in an order. */
 export type Fulfillment = GQLType & {
     /** List of the fulfillment's line items. */
-    fulfillmentLineItems(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean }): FulfillmentLineItemConnection
+    fulfillmentLineItems(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+    }): FulfillmentLineItemConnection
     /** The name of the tracking company. */
     trackingCompany?: string
     /** Tracking information associated with the fulfillment,
@@ -898,7 +1439,7 @@ export type DiscountApplicationEdge = GQLType & {
 }
 
 /** The set of valid sort keys for the orders query. */
-export type OrderSortKeys = "PROCESSED_AT" | "TOTAL_PRICE" | "ID" | "RELEVANCE"
+export type OrderSortKeys = 'PROCESSED_AT' | 'TOTAL_PRICE' | 'ID' | 'RELEVANCE'
 
 /** A container for all the information required to checkout items and pay. */
 export type Checkout = GQLType & {
@@ -920,13 +1461,25 @@ the shipping address is valid.
     /** @deprecated This field will always return null. If you have an authentication token for the customer, you can use the `customer` field on the query root to retrieve it. */
     customer?: Customer
     /** Discounts that have been applied on the checkout. */
-    discountApplications(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean }): DiscountApplicationConnection
+    discountApplications(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+    }): DiscountApplicationConnection
     /** The email attached to this checkout. */
     email?: string
     /** Globally unique identifier. */
     id: ID
     /** A list of line item objects, each one containing information about an item in the checkout. */
-    lineItems(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean }): CheckoutLineItemConnection
+    lineItems(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+    }): CheckoutLineItemConnection
     /** The sum of all the prices of all the items in the checkout. Taxes, shipping and discounts excluded. */
     lineItemsSubtotalPrice: MoneyV2
     note?: string
@@ -946,7 +1499,7 @@ the shipping address is valid.
     /** The shipping address to where the line items will be shipped. */
     shippingAddress?: MailingAddress
     /** The discounts that have been allocated onto the shipping line by discount applications.
- */
+     */
     shippingDiscountAllocations: DiscountAllocation[]
     /** Once a shipping rate is selected by the customer it is transitioned to a `shipping_line` object. */
     shippingLine?: ShippingRate
@@ -1053,16 +1606,40 @@ export type AppliedGiftCard = GQLType & {
 export type Shop = GQLType & {
     /** List of the shop' articles. */
     /** @deprecated Use `QueryRoot.articles` instead. */
-    articles(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean, sortKey?: ArticleSortKeys, query?: string }): ArticleConnection
+    articles(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+        sortKey?: ArticleSortKeys
+        query?: string
+    }): ArticleConnection
     /** List of the shop' blogs. */
     /** @deprecated Use `QueryRoot.blogs` instead. */
-    blogs(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean, sortKey?: BlogSortKeys, query?: string }): BlogConnection
+    blogs(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+        sortKey?: BlogSortKeys
+        query?: string
+    }): BlogConnection
     /** Find a collection by its handle. */
     /** @deprecated Use `QueryRoot.collectionByHandle` instead. */
     collectionByHandle(args: { handle: string }): Collection | undefined
     /** List of the shop’s collections. */
     /** @deprecated Use `QueryRoot.collections` instead. */
-    collections(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean, sortKey?: CollectionSortKeys, query?: string }): CollectionConnection
+    collections(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+        sortKey?: CollectionSortKeys
+        query?: string
+    }): CollectionConnection
     /** The three-letter code for the currency that the shop accepts. */
     /** @deprecated Use `paymentSettings` instead */
     currencyCode: CurrencyCode
@@ -1091,7 +1668,15 @@ Additional access scope required: unauthenticated_read_product_tags.
     productTypes(args: { first: Int }): StringConnection
     /** List of the shop’s products. */
     /** @deprecated Use `QueryRoot.products` instead. */
-    products(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean, sortKey?: ProductSortKeys, query?: string }): ProductConnection
+    products(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+        sortKey?: ProductSortKeys
+        query?: string
+    }): ProductConnection
     /** The shop’s refund policy. */
     refundPolicy?: ShopPolicy
     /** Countries that the shop ships to. */
@@ -1122,10 +1707,16 @@ export type PaymentSettings = GQLType & {
 }
 
 /** Card brand, such as Visa or Mastercard, which can be used for payments. */
-export type CardBrand = "VISA" | "MASTERCARD" | "DISCOVER" | "AMERICAN_EXPRESS" | "DINERS_CLUB" | "JCB"
+export type CardBrand =
+    | 'VISA'
+    | 'MASTERCARD'
+    | 'DISCOVER'
+    | 'AMERICAN_EXPRESS'
+    | 'DINERS_CLUB'
+    | 'JCB'
 
 /** Digital wallet, such as Apple Pay, which can be used for accelerated checkouts. */
-export type DigitalWallet = "APPLE_PAY" | "ANDROID_PAY" | "GOOGLE_PAY" | "SHOPIFY_PAY"
+export type DigitalWallet = 'APPLE_PAY' | 'ANDROID_PAY' | 'GOOGLE_PAY' | 'SHOPIFY_PAY'
 
 /** Represents a web address. */
 export type Domain = GQLType & {
@@ -1169,11 +1760,19 @@ export type Blog = GQLType & {
     /** Find an article by its handle. */
     articleByHandle(args: { handle: string }): Article | undefined
     /** List of the blog's articles. */
-    articles(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean, sortKey?: ArticleSortKeys, query?: string }): ArticleConnection
+    articles(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+        sortKey?: ArticleSortKeys
+        query?: string
+    }): ArticleConnection
     /** The authors who have contributed to the blog. */
     authors: ArticleAuthor[]
     /** A human-friendly unique string for the Blog automatically generated from its title.
- */
+     */
     handle: string
     /** Globally unique identifier. */
     id: ID
@@ -1192,7 +1791,13 @@ export type Article = GQLType & {
     /** The blog that the article belongs to. */
     blog: Blog
     /** List of comments posted on the article. */
-    comments(args: { first?: Int, after?: string, last?: Int, before?: string, reverse?: boolean }): CommentConnection
+    comments(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        reverse?: boolean
+    }): CommentConnection
     /** Stripped content of the article, single line with HTML tags removed. */
     content(args: { truncateAt?: Int }): string
     /** The content of the article, complete with HTML formatting. */
@@ -1202,12 +1807,17 @@ export type Article = GQLType & {
     /** The excerpt of the article, complete with HTML formatting. */
     excerptHtml?: HTML
     /** A human-friendly unique string for the Article automatically generated from its title.
- */
+     */
     handle: string
     /** Globally unique identifier. */
     id: ID
     /** The image associated with the article. */
-    image(args: { maxWidth?: Int, maxHeight?: Int, crop?: CropRegion, scale?: Int }): Image | undefined
+    image(args: {
+        maxWidth?: Int
+        maxHeight?: Int
+        crop?: CropRegion
+        scale?: Int
+    }): Image | undefined
     /** The date and time when the article was published. */
     publishedAt: DateTime
     /** The article’s SEO information. */
@@ -1288,16 +1898,32 @@ export type ArticleEdge = GQLType & {
 }
 
 /** The set of valid sort keys for the articles query. */
-export type ArticleSortKeys = "TITLE" | "BLOG_TITLE" | "AUTHOR" | "UPDATED_AT" | "PUBLISHED_AT" | "ID" | "RELEVANCE"
+export type ArticleSortKeys =
+    | 'TITLE'
+    | 'BLOG_TITLE'
+    | 'AUTHOR'
+    | 'UPDATED_AT'
+    | 'PUBLISHED_AT'
+    | 'ID'
+    | 'RELEVANCE'
 
 /** The set of valid sort keys for the blogs query. */
-export type BlogSortKeys = "HANDLE" | "TITLE" | "ID" | "RELEVANCE"
+export type BlogSortKeys = 'HANDLE' | 'TITLE' | 'ID' | 'RELEVANCE'
 
 /** The set of valid sort keys for the collections query. */
-export type CollectionSortKeys = "TITLE" | "UPDATED_AT" | "ID" | "RELEVANCE"
+export type CollectionSortKeys = 'TITLE' | 'UPDATED_AT' | 'ID' | 'RELEVANCE'
 
 /** The set of valid sort keys for the products query. */
-export type ProductSortKeys = "TITLE" | "PRODUCT_TYPE" | "VENDOR" | "UPDATED_AT" | "CREATED_AT" | "BEST_SELLING" | "PRICE" | "ID" | "RELEVANCE"
+export type ProductSortKeys =
+    | 'TITLE'
+    | 'PRODUCT_TYPE'
+    | 'VENDOR'
+    | 'UPDATED_AT'
+    | 'CREATED_AT'
+    | 'BEST_SELLING'
+    | 'PRICE'
+    | 'ID'
+    | 'RELEVANCE'
 
 export type StringConnection = GQLType & {
     /** A list of edges. */
@@ -1348,111 +1974,214 @@ export type PageEdge = GQLType & {
 }
 
 /** The set of valid sort keys for the pages query. */
-export type PageSortKeys = "TITLE" | "UPDATED_AT" | "ID" | "RELEVANCE"
+export type PageSortKeys = 'TITLE' | 'UPDATED_AT' | 'ID' | 'RELEVANCE'
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type Mutation = GQLType & {
     /** Updates the attributes of a checkout. */
     /** @deprecated Use `checkoutAttributesUpdateV2` instead */
-    checkoutAttributesUpdate(args: { checkoutId: ID, input: CheckoutAttributesUpdateInput }): CheckoutAttributesUpdatePayload | undefined
+    checkoutAttributesUpdate(args: {
+        checkoutId: ID
+        input: CheckoutAttributesUpdateInput
+    }): CheckoutAttributesUpdatePayload | undefined
     /** Updates the attributes of a checkout. */
-    checkoutAttributesUpdateV2(args: { checkoutId: ID, input: CheckoutAttributesUpdateV2Input }): CheckoutAttributesUpdateV2Payload | undefined
+    checkoutAttributesUpdateV2(args: {
+        checkoutId: ID
+        input: CheckoutAttributesUpdateV2Input
+    }): CheckoutAttributesUpdateV2Payload | undefined
     /** Completes a checkout without providing payment information. You can use this mutation for free items or items whose purchase price is covered by a gift card. */
     checkoutCompleteFree(args: { checkoutId: ID }): CheckoutCompleteFreePayload | undefined
     /** Completes a checkout using a credit card token from Shopify's Vault. */
     /** @deprecated Use `checkoutCompleteWithCreditCardV2` instead */
-    checkoutCompleteWithCreditCard(args: { checkoutId: ID, payment: CreditCardPaymentInput }): CheckoutCompleteWithCreditCardPayload | undefined
+    checkoutCompleteWithCreditCard(args: {
+        checkoutId: ID
+        payment: CreditCardPaymentInput
+    }): CheckoutCompleteWithCreditCardPayload | undefined
     /** Completes a checkout using a credit card token from Shopify's card vault. Before you can complete checkouts using CheckoutCompleteWithCreditCardV2, you need to  [_request payment processing_](https://help.shopify.com/api/guides/sales-channel-sdk/getting-started#request-payment-processing). */
-    checkoutCompleteWithCreditCardV2(args: { checkoutId: ID, payment: CreditCardPaymentInputV2 }): CheckoutCompleteWithCreditCardV2Payload | undefined
+    checkoutCompleteWithCreditCardV2(args: {
+        checkoutId: ID
+        payment: CreditCardPaymentInputV2
+    }): CheckoutCompleteWithCreditCardV2Payload | undefined
     /** Completes a checkout with a tokenized payment. */
     /** @deprecated Use `checkoutCompleteWithTokenizedPaymentV2` instead */
-    checkoutCompleteWithTokenizedPayment(args: { checkoutId: ID, payment: TokenizedPaymentInput }): CheckoutCompleteWithTokenizedPaymentPayload | undefined
+    checkoutCompleteWithTokenizedPayment(args: {
+        checkoutId: ID
+        payment: TokenizedPaymentInput
+    }): CheckoutCompleteWithTokenizedPaymentPayload | undefined
     /** Completes a checkout with a tokenized payment. */
-    checkoutCompleteWithTokenizedPaymentV2(args: { checkoutId: ID, payment: TokenizedPaymentInputV2 }): CheckoutCompleteWithTokenizedPaymentV2Payload | undefined
+    checkoutCompleteWithTokenizedPaymentV2(args: {
+        checkoutId: ID
+        payment: TokenizedPaymentInputV2
+    }): CheckoutCompleteWithTokenizedPaymentV2Payload | undefined
     /** Creates a new checkout. */
     checkoutCreate(args: { input: CheckoutCreateInput }): CheckoutCreatePayload | undefined
     /** Associates a customer to the checkout. */
     /** @deprecated Use `checkoutCustomerAssociateV2` instead */
-    checkoutCustomerAssociate(args: { checkoutId: ID, customerAccessToken: string }): CheckoutCustomerAssociatePayload | undefined
+    checkoutCustomerAssociate(args: {
+        checkoutId: ID
+        customerAccessToken: string
+    }): CheckoutCustomerAssociatePayload | undefined
     /** Associates a customer to the checkout. */
-    checkoutCustomerAssociateV2(args: { checkoutId: ID, customerAccessToken: string }): CheckoutCustomerAssociateV2Payload | undefined
+    checkoutCustomerAssociateV2(args: {
+        checkoutId: ID
+        customerAccessToken: string
+    }): CheckoutCustomerAssociateV2Payload | undefined
     /** Disassociates the current checkout customer from the checkout. */
     /** @deprecated Use `checkoutCustomerDisassociateV2` instead */
-    checkoutCustomerDisassociate(args: { checkoutId: ID }): CheckoutCustomerDisassociatePayload | undefined
+    checkoutCustomerDisassociate(args: {
+        checkoutId: ID
+    }): CheckoutCustomerDisassociatePayload | undefined
     /** Disassociates the current checkout customer from the checkout. */
-    checkoutCustomerDisassociateV2(args: { checkoutId: ID }): CheckoutCustomerDisassociateV2Payload | undefined
+    checkoutCustomerDisassociateV2(args: {
+        checkoutId: ID
+    }): CheckoutCustomerDisassociateV2Payload | undefined
     /** Applies a discount to an existing checkout using a discount code. */
     /** @deprecated Use `checkoutDiscountCodeApplyV2` instead */
-    checkoutDiscountCodeApply(args: { discountCode: string, checkoutId: ID }): CheckoutDiscountCodeApplyPayload | undefined
+    checkoutDiscountCodeApply(args: {
+        discountCode: string
+        checkoutId: ID
+    }): CheckoutDiscountCodeApplyPayload | undefined
     /** Applies a discount to an existing checkout using a discount code. */
-    checkoutDiscountCodeApplyV2(args: { discountCode: string, checkoutId: ID }): CheckoutDiscountCodeApplyV2Payload | undefined
+    checkoutDiscountCodeApplyV2(args: {
+        discountCode: string
+        checkoutId: ID
+    }): CheckoutDiscountCodeApplyV2Payload | undefined
     /** Removes the applied discount from an existing checkout. */
-    checkoutDiscountCodeRemove(args: { checkoutId: ID }): CheckoutDiscountCodeRemovePayload | undefined
+    checkoutDiscountCodeRemove(args: {
+        checkoutId: ID
+    }): CheckoutDiscountCodeRemovePayload | undefined
     /** Updates the email on an existing checkout. */
     /** @deprecated Use `checkoutEmailUpdateV2` instead */
-    checkoutEmailUpdate(args: { checkoutId: ID, email: string }): CheckoutEmailUpdatePayload | undefined
+    checkoutEmailUpdate(args: {
+        checkoutId: ID
+        email: string
+    }): CheckoutEmailUpdatePayload | undefined
     /** Updates the email on an existing checkout. */
-    checkoutEmailUpdateV2(args: { checkoutId: ID, email: string }): CheckoutEmailUpdateV2Payload | undefined
+    checkoutEmailUpdateV2(args: {
+        checkoutId: ID
+        email: string
+    }): CheckoutEmailUpdateV2Payload | undefined
     /** Applies a gift card to an existing checkout using a gift card code. This will replace all currently applied gift cards. */
     /** @deprecated Use `checkoutGiftCardsAppend` instead */
-    checkoutGiftCardApply(args: { giftCardCode: string, checkoutId: ID }): CheckoutGiftCardApplyPayload | undefined
+    checkoutGiftCardApply(args: {
+        giftCardCode: string
+        checkoutId: ID
+    }): CheckoutGiftCardApplyPayload | undefined
     /** Removes an applied gift card from the checkout. */
     /** @deprecated Use `checkoutGiftCardRemoveV2` instead */
-    checkoutGiftCardRemove(args: { appliedGiftCardId: ID, checkoutId: ID }): CheckoutGiftCardRemovePayload | undefined
+    checkoutGiftCardRemove(args: {
+        appliedGiftCardId: ID
+        checkoutId: ID
+    }): CheckoutGiftCardRemovePayload | undefined
     /** Removes an applied gift card from the checkout. */
-    checkoutGiftCardRemoveV2(args: { appliedGiftCardId: ID, checkoutId: ID }): CheckoutGiftCardRemoveV2Payload | undefined
+    checkoutGiftCardRemoveV2(args: {
+        appliedGiftCardId: ID
+        checkoutId: ID
+    }): CheckoutGiftCardRemoveV2Payload | undefined
     /** Appends gift cards to an existing checkout. */
-    checkoutGiftCardsAppend(args: { giftCardCodes: string[], checkoutId: ID }): CheckoutGiftCardsAppendPayload | undefined
+    checkoutGiftCardsAppend(args: {
+        giftCardCodes: string[]
+        checkoutId: ID
+    }): CheckoutGiftCardsAppendPayload | undefined
     /** Adds a list of line items to a checkout. */
     /** @deprecated Use `checkoutLineItemsReplace` instead */
-    checkoutLineItemsAdd(args: { lineItems: CheckoutLineItemInput[], checkoutId: ID }): CheckoutLineItemsAddPayload | undefined
+    checkoutLineItemsAdd(args: {
+        lineItems: CheckoutLineItemInput[]
+        checkoutId: ID
+    }): CheckoutLineItemsAddPayload | undefined
     /** Removes line items from an existing checkout */
     /** @deprecated Use `checkoutLineItemsReplace` instead */
-    checkoutLineItemsRemove(args: { checkoutId: ID, lineItemIds: ID[] }): CheckoutLineItemsRemovePayload | undefined
+    checkoutLineItemsRemove(args: {
+        checkoutId: ID
+        lineItemIds: ID[]
+    }): CheckoutLineItemsRemovePayload | undefined
     /** Sets a list of line items to a checkout. */
-    checkoutLineItemsReplace(args: { lineItems: CheckoutLineItemInput[], checkoutId: ID }): CheckoutLineItemsReplacePayload | undefined
+    checkoutLineItemsReplace(args: {
+        lineItems: CheckoutLineItemInput[]
+        checkoutId: ID
+    }): CheckoutLineItemsReplacePayload | undefined
     /** Updates line items on a checkout. */
     /** @deprecated Use `checkoutLineItemsReplace` instead */
-    checkoutLineItemsUpdate(args: { checkoutId: ID, lineItems: CheckoutLineItemUpdateInput[] }): CheckoutLineItemsUpdatePayload | undefined
+    checkoutLineItemsUpdate(args: {
+        checkoutId: ID
+        lineItems: CheckoutLineItemUpdateInput[]
+    }): CheckoutLineItemsUpdatePayload | undefined
     /** Updates the shipping address of an existing checkout. */
     /** @deprecated Use `checkoutShippingAddressUpdateV2` instead */
-    checkoutShippingAddressUpdate(args: { shippingAddress: MailingAddressInput, checkoutId: ID }): CheckoutShippingAddressUpdatePayload | undefined
+    checkoutShippingAddressUpdate(args: {
+        shippingAddress: MailingAddressInput
+        checkoutId: ID
+    }): CheckoutShippingAddressUpdatePayload | undefined
     /** Updates the shipping address of an existing checkout. */
-    checkoutShippingAddressUpdateV2(args: { shippingAddress: MailingAddressInput, checkoutId: ID }): CheckoutShippingAddressUpdateV2Payload | undefined
+    checkoutShippingAddressUpdateV2(args: {
+        shippingAddress: MailingAddressInput
+        checkoutId: ID
+    }): CheckoutShippingAddressUpdateV2Payload | undefined
     /** Updates the shipping lines on an existing checkout. */
-    checkoutShippingLineUpdate(args: { checkoutId: ID, shippingRateHandle: string }): CheckoutShippingLineUpdatePayload | undefined
+    checkoutShippingLineUpdate(args: {
+        checkoutId: ID
+        shippingRateHandle: string
+    }): CheckoutShippingLineUpdatePayload | undefined
     /** Creates a customer access token.
 The customer access token is required to modify the customer object in any way.
  */
-    customerAccessTokenCreate(args: { input: CustomerAccessTokenCreateInput }): CustomerAccessTokenCreatePayload | undefined
+    customerAccessTokenCreate(args: {
+        input: CustomerAccessTokenCreateInput
+    }): CustomerAccessTokenCreatePayload | undefined
     /** Permanently destroys a customer access token. */
-    customerAccessTokenDelete(args: { customerAccessToken: string }): CustomerAccessTokenDeletePayload | undefined
+    customerAccessTokenDelete(args: {
+        customerAccessToken: string
+    }): CustomerAccessTokenDeletePayload | undefined
     /** Renews a customer access token.
 
 Access token renewal must happen *before* a token expires.
 If a token has already expired, a new one should be created instead via `customerAccessTokenCreate`.
  */
-    customerAccessTokenRenew(args: { customerAccessToken: string }): CustomerAccessTokenRenewPayload | undefined
+    customerAccessTokenRenew(args: {
+        customerAccessToken: string
+    }): CustomerAccessTokenRenewPayload | undefined
     /** Activates a customer. */
-    customerActivate(args: { id: ID, input: CustomerActivateInput }): CustomerActivatePayload | undefined
+    customerActivate(args: {
+        id: ID
+        input: CustomerActivateInput
+    }): CustomerActivatePayload | undefined
     /** Creates a new address for a customer. */
-    customerAddressCreate(args: { customerAccessToken: string, address: MailingAddressInput }): CustomerAddressCreatePayload | undefined
+    customerAddressCreate(args: {
+        customerAccessToken: string
+        address: MailingAddressInput
+    }): CustomerAddressCreatePayload | undefined
     /** Permanently deletes the address of an existing customer. */
-    customerAddressDelete(args: { id: ID, customerAccessToken: string }): CustomerAddressDeletePayload | undefined
+    customerAddressDelete(args: {
+        id: ID
+        customerAccessToken: string
+    }): CustomerAddressDeletePayload | undefined
     /** Updates the address of an existing customer. */
-    customerAddressUpdate(args: { customerAccessToken: string, id: ID, address: MailingAddressInput }): CustomerAddressUpdatePayload | undefined
+    customerAddressUpdate(args: {
+        customerAccessToken: string
+        id: ID
+        address: MailingAddressInput
+    }): CustomerAddressUpdatePayload | undefined
     /** Creates a new customer. */
     customerCreate(args: { input: CustomerCreateInput }): CustomerCreatePayload | undefined
     /** Updates the default address of an existing customer. */
-    customerDefaultAddressUpdate(args: { customerAccessToken: string, addressId: ID }): CustomerDefaultAddressUpdatePayload | undefined
+    customerDefaultAddressUpdate(args: {
+        customerAccessToken: string
+        addressId: ID
+    }): CustomerDefaultAddressUpdatePayload | undefined
     /** Sends a reset password email to the customer, as the first step in the reset password process. */
     customerRecover(args: { email: string }): CustomerRecoverPayload | undefined
     /** Resets a customer’s password with a token received from `CustomerRecover`. */
-    customerReset(args: { id: ID, input: CustomerResetInput }): CustomerResetPayload | undefined
+    customerReset(args: { id: ID; input: CustomerResetInput }): CustomerResetPayload | undefined
     /** Resets a customer’s password with the reset password url received from `CustomerRecover`. */
-    customerResetByUrl(args: { resetUrl: URL, password: string }): CustomerResetByUrlPayload | undefined
+    customerResetByUrl(args: {
+        resetUrl: URL
+        password: string
+    }): CustomerResetByUrlPayload | undefined
     /** Updates an existing customer. */
-    customerUpdate(args: { customerAccessToken: string, customer: CustomerUpdateInput }): CustomerUpdatePayload | undefined
+    customerUpdate(args: {
+        customerAccessToken: string
+        customer: CustomerUpdateInput
+    }): CustomerUpdatePayload | undefined
 }
 
 /** Return type for `checkoutAttributesUpdate` mutation. */
@@ -1499,7 +2228,43 @@ export type CheckoutUserError = GQLType & {
 }
 
 /** Possible error codes that could be returned by a checkout mutation. */
-export type CheckoutErrorCode = "BLANK" | "INVALID" | "TOO_LONG" | "PRESENT" | "LESS_THAN" | "GREATER_THAN_OR_EQUAL_TO" | "LESS_THAN_OR_EQUAL_TO" | "ALREADY_COMPLETED" | "LOCKED" | "NOT_SUPPORTED" | "BAD_DOMAIN" | "INVALID_FOR_COUNTRY" | "INVALID_FOR_COUNTRY_AND_PROVINCE" | "INVALID_STATE_IN_COUNTRY" | "INVALID_PROVINCE_IN_COUNTRY" | "INVALID_REGION_IN_COUNTRY" | "SHIPPING_RATE_EXPIRED" | "GIFT_CARD_UNUSABLE" | "GIFT_CARD_DISABLED" | "GIFT_CARD_CODE_INVALID" | "GIFT_CARD_ALREADY_APPLIED" | "GIFT_CARD_CURRENCY_MISMATCH" | "GIFT_CARD_EXPIRED" | "GIFT_CARD_DEPLETED" | "GIFT_CARD_NOT_FOUND" | "CART_DOES_NOT_MEET_DISCOUNT_REQUIREMENTS_NOTICE" | "DISCOUNT_EXPIRED" | "DISCOUNT_DISABLED" | "DISCOUNT_LIMIT_REACHED" | "DISCOUNT_NOT_FOUND" | "CUSTOMER_ALREADY_USED_ONCE_PER_CUSTOMER_DISCOUNT_NOTICE" | "EMPTY" | "NOT_ENOUGH_IN_STOCK" | "MISSING_PAYMENT_INPUT" | "TOTAL_PRICE_MISMATCH" | "LINE_ITEM_NOT_FOUND"
+export type CheckoutErrorCode =
+    | 'BLANK'
+    | 'INVALID'
+    | 'TOO_LONG'
+    | 'PRESENT'
+    | 'LESS_THAN'
+    | 'GREATER_THAN_OR_EQUAL_TO'
+    | 'LESS_THAN_OR_EQUAL_TO'
+    | 'ALREADY_COMPLETED'
+    | 'LOCKED'
+    | 'NOT_SUPPORTED'
+    | 'BAD_DOMAIN'
+    | 'INVALID_FOR_COUNTRY'
+    | 'INVALID_FOR_COUNTRY_AND_PROVINCE'
+    | 'INVALID_STATE_IN_COUNTRY'
+    | 'INVALID_PROVINCE_IN_COUNTRY'
+    | 'INVALID_REGION_IN_COUNTRY'
+    | 'SHIPPING_RATE_EXPIRED'
+    | 'GIFT_CARD_UNUSABLE'
+    | 'GIFT_CARD_DISABLED'
+    | 'GIFT_CARD_CODE_INVALID'
+    | 'GIFT_CARD_ALREADY_APPLIED'
+    | 'GIFT_CARD_CURRENCY_MISMATCH'
+    | 'GIFT_CARD_EXPIRED'
+    | 'GIFT_CARD_DEPLETED'
+    | 'GIFT_CARD_NOT_FOUND'
+    | 'CART_DOES_NOT_MEET_DISCOUNT_REQUIREMENTS_NOTICE'
+    | 'DISCOUNT_EXPIRED'
+    | 'DISCOUNT_DISABLED'
+    | 'DISCOUNT_LIMIT_REACHED'
+    | 'DISCOUNT_NOT_FOUND'
+    | 'CUSTOMER_ALREADY_USED_ONCE_PER_CUSTOMER_DISCOUNT_NOTICE'
+    | 'EMPTY'
+    | 'NOT_ENOUGH_IN_STOCK'
+    | 'MISSING_PAYMENT_INPUT'
+    | 'TOTAL_PRICE_MISMATCH'
+    | 'LINE_ITEM_NOT_FOUND'
 
 /** Specifies the fields required to update a checkout's attributes. */
 export type CheckoutAttributesUpdateInput = {
@@ -1593,9 +2358,9 @@ export type Transaction = GQLType & {
     test: boolean
 }
 
-export type TransactionKind = "SALE" | "CAPTURE" | "AUTHORIZATION" | "EMV_AUTHORIZATION" | "CHANGE"
+export type TransactionKind = 'SALE' | 'CAPTURE' | 'AUTHORIZATION' | 'EMV_AUTHORIZATION' | 'CHANGE'
 
-export type TransactionStatus = "PENDING" | "SUCCESS" | "FAILURE" | "ERROR"
+export type TransactionStatus = 'PENDING' | 'SUCCESS' | 'FAILURE' | 'ERROR'
 
 /** Specifies the fields required to complete a checkout with
 a Shopify vaulted credit card payment.
@@ -2060,7 +2825,20 @@ export type CustomerUserError = GQLType & {
 }
 
 /** Possible error codes that could be returned by a customer mutation. */
-export type CustomerErrorCode = "BLANK" | "INVALID" | "TAKEN" | "TOO_LONG" | "TOO_SHORT" | "UNIDENTIFIED_CUSTOMER" | "CUSTOMER_DISABLED" | "PASSWORD_STARTS_OR_ENDS_WITH_WHITESPACE" | "CONTAINS_HTML_TAGS" | "CONTAINS_URL" | "TOKEN_INVALID" | "ALREADY_ENABLED" | "NOT_FOUND"
+export type CustomerErrorCode =
+    | 'BLANK'
+    | 'INVALID'
+    | 'TAKEN'
+    | 'TOO_LONG'
+    | 'TOO_SHORT'
+    | 'UNIDENTIFIED_CUSTOMER'
+    | 'CUSTOMER_DISABLED'
+    | 'PASSWORD_STARTS_OR_ENDS_WITH_WHITESPACE'
+    | 'CONTAINS_HTML_TAGS'
+    | 'CONTAINS_URL'
+    | 'TOKEN_INVALID'
+    | 'ALREADY_ENABLED'
+    | 'NOT_FOUND'
 
 /** A CustomerAccessToken represents the unique token required to make modifications to the customer object. */
 export type CustomerAccessToken = GQLType & {
@@ -2330,4 +3108,3 @@ export type AutomaticDiscountApplication = GQLType & {
     /** The value of the discount application. */
     value: PricingValue
 }
-

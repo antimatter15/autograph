@@ -37,14 +37,51 @@ export type Project = GQLType & {
     httpUrlToRepo?: string
     id: ID
     importStatus?: string
-    issue(args: { iid?: string, iids?: string[], state?: IssuableState, labelName?: string[], createdBefore?: Time, createdAfter?: Time, updatedBefore?: Time, updatedAfter?: Time, closedBefore?: Time, closedAfter?: Time, search?: string, sort?: Sort }): Issue | undefined
-    issues(args: { first?: Int, after?: string, last?: Int, before?: string, iid?: string, iids?: string[], state?: IssuableState, labelName?: string[], createdBefore?: Time, createdAfter?: Time, updatedBefore?: Time, updatedAfter?: Time, closedBefore?: Time, closedAfter?: Time, search?: string, sort?: Sort }): IssueConnection | undefined
+    issue(args: {
+        iid?: string
+        iids?: string[]
+        state?: IssuableState
+        labelName?: string[]
+        createdBefore?: Time
+        createdAfter?: Time
+        updatedBefore?: Time
+        updatedAfter?: Time
+        closedBefore?: Time
+        closedAfter?: Time
+        search?: string
+        sort?: Sort
+    }): Issue | undefined
+    issues(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        iid?: string
+        iids?: string[]
+        state?: IssuableState
+        labelName?: string[]
+        createdBefore?: Time
+        createdAfter?: Time
+        updatedBefore?: Time
+        updatedAfter?: Time
+        closedBefore?: Time
+        closedAfter?: Time
+        search?: string
+        sort?: Sort
+    }): IssueConnection | undefined
     issuesEnabled?: boolean
     jobsEnabled?: boolean
     lastActivityAt?: Time
     lfsEnabled?: boolean
-    mergeRequest(args: { iid?: string, iids?: string[] }): MergeRequest | undefined
-    mergeRequests(args: { first?: Int, after?: string, last?: Int, before?: string, iid?: string, iids?: string[] }): MergeRequestConnection | undefined
+    mergeRequest(args: { iid?: string; iids?: string[] }): MergeRequest | undefined
+    mergeRequests(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        iid?: string
+        iids?: string[]
+    }): MergeRequestConnection | undefined
     mergeRequestsEnabled?: boolean
     mergeRequestsFfOnlyEnabled?: boolean
     name: string
@@ -54,7 +91,15 @@ export type Project = GQLType & {
     onlyAllowMergeIfPipelineSucceeds?: boolean
     openIssuesCount?: Int
     path: string
-    pipelines(args: { first?: Int, after?: string, last?: Int, before?: string, status?: PipelineStatusEnum, ref?: string, sha?: string }): PipelineConnection | undefined
+    pipelines(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        status?: PipelineStatusEnum
+        ref?: string
+        sha?: string
+    }): PipelineConnection | undefined
     printingMergeRequestLinkEnabled?: boolean
     publicJobs?: boolean
     repository?: Repository
@@ -174,7 +219,13 @@ export type Namespace = GQLType & {
     lfsEnabled?: boolean
     name: string
     path: string
-    projects(args: { first?: Int, after?: string, last?: Int, before?: string, includeSubgroups?: boolean }): ProjectConnection
+    projects(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        includeSubgroups?: boolean
+    }): ProjectConnection
     requestAccessEnabled?: boolean
     visibility?: string
 }
@@ -212,8 +263,15 @@ export type Group = GQLType & {
     description?: string
     /** The GitLab Flavored Markdown rendering of `description` */
     descriptionHtml?: string
-    epic(args: { iid?: ID, iids?: ID[] }): Epic | undefined
-    epics(args: { first?: Int, after?: string, last?: Int, before?: string, iid?: ID, iids?: ID[] }): EpicConnection | undefined
+    epic(args: { iid?: ID; iids?: ID[] }): Epic | undefined
+    epics(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        iid?: ID
+        iids?: ID[]
+    }): EpicConnection | undefined
     epicsEnabled?: boolean
     fullName: string
     fullPath: ID
@@ -222,7 +280,13 @@ export type Group = GQLType & {
     name: string
     parent?: Group
     path: string
-    projects(args: { first?: Int, after?: string, last?: Int, before?: string, includeSubgroups?: boolean }): ProjectConnection
+    projects(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        includeSubgroups?: boolean
+    }): ProjectConnection
     requestAccessEnabled?: boolean
     /** Permissions for the current user on the resource */
     userPermissions: GroupPermissions
@@ -237,12 +301,24 @@ export type GroupPermissions = GQLType & {
 
 export type Epic = GQLType & {
     author: User
-    children(args: { first?: Int, after?: string, last?: Int, before?: string, iid?: ID, iids?: ID[] }): EpicConnection | undefined
+    children(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        iid?: ID
+        iids?: ID[]
+    }): EpicConnection | undefined
     closedAt?: Time
     createdAt?: Time
     description?: string
     /** All discussions on this noteable */
-    discussions(args: { first?: Int, after?: string, last?: Int, before?: string }): DiscussionConnection
+    discussions(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+    }): DiscussionConnection
     dueDate?: Time
     dueDateFixed?: Time
     dueDateFromMilestones?: Time
@@ -252,9 +328,14 @@ export type Epic = GQLType & {
     hasIssues: boolean
     id: ID
     iid: ID
-    issues(args: { first?: Int, after?: string, last?: Int, before?: string }): EpicIssueConnection | undefined
+    issues(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+    }): EpicIssueConnection | undefined
     /** All notes on this noteable */
-    notes(args: { first?: Int, after?: string, last?: Int, before?: string }): NoteConnection
+    notes(args: { first?: Int; after?: string; last?: Int; before?: string }): NoteConnection
     parent?: Epic
     reference(args: { full?: boolean }): string
     relationPath?: string
@@ -355,7 +436,7 @@ export type Discussion = GQLType & {
     createdAt: Time
     id: ID
     /** All notes in the discussion */
-    notes(args: { first?: Int, after?: string, last?: Int, before?: string }): NoteConnection
+    notes(args: { first?: Int; after?: string; last?: Int; before?: string }): NoteConnection
     /** The ID used to reply to this discussion */
     replyId: ID
 }
@@ -393,7 +474,7 @@ export type DiffRefs = GQLType & {
 }
 
 /** Type of file the position refers to */
-export type DiffPositionType = "text" | "image"
+export type DiffPositionType = 'text' | 'image'
 
 /** The connection type for Discussion. */
 export type DiscussionConnection = GQLType & {
@@ -432,7 +513,7 @@ export type EpicPermissions = GQLType & {
 }
 
 /** State of a GitLab epic */
-export type EpicState = "opened" | "closed"
+export type EpicState = 'opened' | 'closed'
 
 /** The connection type for Epic. */
 export type EpicConnection = GQLType & {
@@ -467,7 +548,12 @@ export type EpicIssueEdge = GQLType & {
 }
 
 export type EpicIssue = GQLType & {
-    assignees(args: { first?: Int, after?: string, last?: Int, before?: string }): UserConnection | undefined
+    assignees(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+    }): UserConnection | undefined
     author: User
     closedAt?: Time
     confidential: boolean
@@ -478,15 +564,25 @@ export type EpicIssue = GQLType & {
     designs?: DesignCollection
     discussionLocked: boolean
     /** All discussions on this noteable */
-    discussions(args: { first?: Int, after?: string, last?: Int, before?: string }): DiscussionConnection
+    discussions(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+    }): DiscussionConnection
     downvotes: Int
     dueDate?: Time
     epicIssueId: ID
     iid: ID
-    labels(args: { first?: Int, after?: string, last?: Int, before?: string }): LabelConnection | undefined
+    labels(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+    }): LabelConnection | undefined
     milestone?: Milestone
     /** All notes on this noteable */
-    notes(args: { first?: Int, after?: string, last?: Int, before?: string }): NoteConnection
+    notes(args: { first?: Int; after?: string; last?: Int; before?: string }): NoteConnection
     reference(args: { full?: boolean }): string
     relationPath?: string
     relativePosition?: Int
@@ -526,7 +622,7 @@ export type IssuePermissions = GQLType & {
 }
 
 /** State of a GitLab issue */
-export type IssueState = "opened" | "closed" | "locked"
+export type IssueState = 'opened' | 'closed' | 'locked'
 
 /** The connection type for User. */
 export type UserConnection = GQLType & {
@@ -587,15 +683,31 @@ export type TaskCompletionStatus = GQLType & {
 
 export type DesignCollection = GQLType & {
     /** All visible designs for this collection */
-    designs(args: { first?: Int, after?: string, last?: Int, before?: string, atVersion?: ID }): DesignConnection
+    designs(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        atVersion?: ID
+    }): DesignConnection
     issue: Issue
     project: Project
     /** All versions related to all designs ordered newest first */
-    versions(args: { first?: Int, after?: string, last?: Int, before?: string }): DesignVersionConnection
+    versions(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+    }): DesignVersionConnection
 }
 
 export type Issue = GQLType & {
-    assignees(args: { first?: Int, after?: string, last?: Int, before?: string }): UserConnection | undefined
+    assignees(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+    }): UserConnection | undefined
     author: User
     closedAt?: Time
     confidential: boolean
@@ -606,14 +718,24 @@ export type Issue = GQLType & {
     designs?: DesignCollection
     discussionLocked: boolean
     /** All discussions on this noteable */
-    discussions(args: { first?: Int, after?: string, last?: Int, before?: string }): DiscussionConnection
+    discussions(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+    }): DiscussionConnection
     downvotes: Int
     dueDate?: Time
     iid: ID
-    labels(args: { first?: Int, after?: string, last?: Int, before?: string }): LabelConnection | undefined
+    labels(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+    }): LabelConnection | undefined
     milestone?: Milestone
     /** All notes on this noteable */
-    notes(args: { first?: Int, after?: string, last?: Int, before?: string }): NoteConnection
+    notes(args: { first?: Int; after?: string; last?: Int; before?: string }): NoteConnection
     reference(args: { full?: boolean }): string
     relativePosition?: Int
     state: IssueState
@@ -650,17 +772,27 @@ export type DesignEdge = GQLType & {
 export type Design = GQLType & {
     diffRefs: DiffRefs
     /** All discussions on this noteable */
-    discussions(args: { first?: Int, after?: string, last?: Int, before?: string }): DiscussionConnection
+    discussions(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+    }): DiscussionConnection
     filename: string
     fullPath: string
     id: ID
     image: string
     issue: Issue
     /** All notes on this noteable */
-    notes(args: { first?: Int, after?: string, last?: Int, before?: string }): NoteConnection
+    notes(args: { first?: Int; after?: string; last?: Int; before?: string }): NoteConnection
     project: Project
     /** All versions related to this design ordered newest first */
-    versions(args: { first?: Int, after?: string, last?: Int, before?: string }): DesignVersionConnection
+    versions(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+    }): DesignVersionConnection
 }
 
 /** The connection type for DesignVersion. */
@@ -681,7 +813,7 @@ export type DesignVersionEdge = GQLType & {
 
 export type DesignVersion = GQLType & {
     /** All designs that were changed in this version */
-    designs(args: { first?: Int, after?: string, last?: Int, before?: string }): DesignConnection
+    designs(args: { first?: Int; after?: string; last?: Int; before?: string }): DesignConnection
     id: ID
     sha: ID
 }
@@ -700,14 +832,19 @@ export type Repository = GQLType & {
     empty: boolean
     exists: boolean
     rootRef?: string
-    tree(args: { path?: string, ref?: string, recursive?: boolean }): Tree | undefined
+    tree(args: { path?: string; ref?: string; recursive?: boolean }): Tree | undefined
 }
 
 export type Tree = GQLType & {
-    blobs(args: { first?: Int, after?: string, last?: Int, before?: string }): BlobConnection
+    blobs(args: { first?: Int; after?: string; last?: Int; before?: string }): BlobConnection
     lastCommit?: Commit
-    submodules(args: { first?: Int, after?: string, last?: Int, before?: string }): SubmoduleConnection
-    trees(args: { first?: Int, after?: string, last?: Int, before?: string }): TreeEntryConnection
+    submodules(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+    }): SubmoduleConnection
+    trees(args: { first?: Int; after?: string; last?: Int; before?: string }): TreeEntryConnection
 }
 
 export type Commit = GQLType & {
@@ -752,7 +889,17 @@ export type PipelinePermissions = GQLType & {
     updatePipeline: boolean
 }
 
-export type PipelineStatusEnum = "CREATED" | "PREPARING" | "PENDING" | "RUNNING" | "FAILED" | "SUCCESS" | "CANCELED" | "SKIPPED" | "MANUAL" | "SCHEDULED"
+export type PipelineStatusEnum =
+    | 'CREATED'
+    | 'PREPARING'
+    | 'PENDING'
+    | 'RUNNING'
+    | 'FAILED'
+    | 'SUCCESS'
+    | 'CANCELED'
+    | 'SKIPPED'
+    | 'MANUAL'
+    | 'SCHEDULED'
 
 export type DetailedStatus = GQLType & {
     detailsPath: string
@@ -809,7 +956,7 @@ export interface Entry extends GQLType {
 }
 
 /** Type of a tree entry */
-export type EntryType = "tree" | "blob" | "commit"
+export type EntryType = 'tree' | 'blob' | 'commit'
 
 /** The connection type for Submodule. */
 export type SubmoduleConnection = GQLType & {
@@ -889,7 +1036,12 @@ export type MergeRequest = GQLType & {
     diffHeadSha?: string
     diffRefs?: DiffRefs
     /** All discussions on this noteable */
-    discussions(args: { first?: Int, after?: string, last?: Int, before?: string }): DiscussionConnection
+    discussions(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+    }): DiscussionConnection
     downvotes: Int
     forceRemoveSourceBranch?: boolean
     headPipeline?: Pipeline
@@ -905,8 +1057,16 @@ export type MergeRequest = GQLType & {
     mergeWhenPipelineSucceeds?: boolean
     mergeableDiscussionsState?: boolean
     /** All notes on this noteable */
-    notes(args: { first?: Int, after?: string, last?: Int, before?: string }): NoteConnection
-    pipelines(args: { first?: Int, after?: string, last?: Int, before?: string, status?: PipelineStatusEnum, ref?: string, sha?: string }): PipelineConnection
+    notes(args: { first?: Int; after?: string; last?: Int; before?: string }): NoteConnection
+    pipelines(args: {
+        first?: Int
+        after?: string
+        last?: Int
+        before?: string
+        status?: PipelineStatusEnum
+        ref?: string
+        sha?: string
+    }): PipelineConnection
     project: Project
     projectId: Int
     rebaseCommitSha?: string
@@ -956,7 +1116,7 @@ export type MergeRequestPermissions = GQLType & {
 }
 
 /** State of a GitLab merge request */
-export type MergeRequestState = "opened" | "closed" | "locked" | "merged"
+export type MergeRequestState = 'opened' | 'closed' | 'locked' | 'merged'
 
 /** The connection type for Pipeline. */
 export type PipelineConnection = GQLType & {
@@ -991,9 +1151,9 @@ export type IssueEdge = GQLType & {
 }
 
 /** State of a GitLab issue or merge request */
-export type IssuableState = "opened" | "closed" | "locked"
+export type IssuableState = 'opened' | 'closed' | 'locked'
 
-export type Sort = "updated_desc" | "updated_asc" | "created_desc" | "created_asc"
+export type Sort = 'updated_desc' | 'updated_asc' | 'created_desc' | 'created_asc'
 
 export type Metadata = GQLType & {
     revision: string
@@ -1003,11 +1163,17 @@ export type Metadata = GQLType & {
 export type Mutation = GQLType & {
     addAwardEmoji(args: { input: AddAwardEmojiInput }): AddAwardEmojiPayload | undefined
     createDiffNote(args: { input: CreateDiffNoteInput }): CreateDiffNotePayload | undefined
-    createImageDiffNote(args: { input: CreateImageDiffNoteInput }): CreateImageDiffNotePayload | undefined
+    createImageDiffNote(args: {
+        input: CreateImageDiffNoteInput
+    }): CreateImageDiffNotePayload | undefined
     createNote(args: { input: CreateNoteInput }): CreateNotePayload | undefined
-    designManagementUpload(args: { input: DesignManagementUploadInput }): DesignManagementUploadPayload | undefined
+    designManagementUpload(args: {
+        input: DesignManagementUploadInput
+    }): DesignManagementUploadPayload | undefined
     destroyNote(args: { input: DestroyNoteInput }): DestroyNotePayload | undefined
-    mergeRequestSetWip(args: { input: MergeRequestSetWipInput }): MergeRequestSetWipPayload | undefined
+    mergeRequestSetWip(args: {
+        input: MergeRequestSetWipInput
+    }): MergeRequestSetWipPayload | undefined
     removeAwardEmoji(args: { input: RemoveAwardEmojiInput }): RemoveAwardEmojiPayload | undefined
     toggleAwardEmoji(args: { input: ToggleAwardEmojiInput }): ToggleAwardEmojiPayload | undefined
     updateNote(args: { input: UpdateNoteInput }): UpdateNotePayload | undefined
@@ -1107,7 +1273,7 @@ export type MergeRequestSetWipInput = {
     /** The iid of the merge request to mutate */
     iid: string
     /** Whether or not to set the merge request as a WIP.
- */
+     */
     wip: boolean
     /** A unique identifier for the client performing the mutation. */
     clientMutationId?: string
@@ -1281,4 +1447,3 @@ export type DesignManagementUploadInput = {
 }
 
 export type Upload = any
-

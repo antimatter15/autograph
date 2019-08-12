@@ -6,23 +6,23 @@ export default function makeFixedArray(obj: any[]) {
 }
 
 class FixedPointArray extends Array {
-    filter(test){
+    filter(test) {
         Array.prototype.filter.apply(this, arguments)
         return this
     }
-    splice(index, del, ...insert){
+    splice(index, del, ...insert) {
         Array.prototype.splice.apply([...this], arguments)
         return this
     }
-    slice(start, end?){
+    slice(start, end?) {
         Array.prototype.slice.apply(this, arguments)
         return this
     }
-    reverse(){
+    reverse() {
         Array.prototype.reverse.apply(this, arguments)
         return this
     }
-    sort(cmp){
+    sort(cmp) {
         Array.prototype.sort.apply(this, arguments)
         return this
     }

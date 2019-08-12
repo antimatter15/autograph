@@ -5,7 +5,7 @@ type GQLType = {
 
 export type Query = GQLType & {
     /** Visit the specified page */
-    page(args: { url?: string, source?: string }): Document | undefined
+    page(args: { url?: string; source?: string }): Document | undefined
 
     /** Check this to determine whether the query is loading */
     _loading?: boolean
@@ -29,7 +29,7 @@ export type Document = GQLType & {
     /** The tag for the selected DOM */
     tag(args: { selector?: string }): string | undefined
     /** The DOM attr of the Node */
-    attr(args: { selector?: string, name: string }): string | undefined
+    attr(args: { selector?: string; name: string }): string | undefined
     /** Returns True if the DOM matches the selector */
     is(args: { selector: string }): boolean | undefined
     /** Find elements using selector traversing down from self */
@@ -105,7 +105,7 @@ export type Element = GQLType & {
     /** The tag for the selected DOM */
     tag(args: { selector?: string }): string | undefined
     /** The DOM attr of the Node */
-    attr(args: { selector?: string, name: string }): string | undefined
+    attr(args: { selector?: string; name: string }): string | undefined
     /** Returns True if the DOM matches the selector */
     is(args: { selector: string }): boolean | undefined
     /** Find elements using selector traversing down from self */

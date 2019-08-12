@@ -6,13 +6,26 @@ type GQLType = {
 export type Query = GQLType & {
     node(args: { id: ID }): Node | undefined
     book(args: { id?: ID }): Book | undefined
-    books(args: { first?: Int, after?: string, properties_list?: string[], order?: BookFilter_order, title?: string, author?: string }): BookConnection | undefined
+    books(args: {
+        first?: Int
+        after?: string
+        properties_list?: string[]
+        order?: BookFilter_order
+        title?: string
+        author?: string
+    }): BookConnection | undefined
     /** @deprecated Create a Book instead */
     parchment(args: { id?: ID }): Parchment | undefined
     /** @deprecated Create a Book instead */
-    parchments(args: { first?: Int, after?: string }): ParchmentConnection | undefined
+    parchments(args: { first?: Int; after?: string }): ParchmentConnection | undefined
     review(args: { id?: ID }): Review | undefined
-    reviews(args: { first?: Int, after?: string, order?: ReviewFilter_order, book?: string, book_list?: string[] }): ReviewConnection | undefined
+    reviews(args: {
+        first?: Int
+        after?: string
+        order?: ReviewFilter_order
+        book?: string
+        book_list?: string[]
+    }): ReviewConnection | undefined
 
     /** Check this to determine whether the query is loading */
     _loading?: boolean
@@ -55,7 +68,14 @@ export type Book = GQLType & {
     /** The date on which the CreativeWork was created or the item was added to a DataFeed */
     publicationDate: string
     /** The book's reviews */
-    reviews(args: { first?: Int, after?: string, properties_list?: string[], order?: BookFilter_order, title?: string, author?: string }): ReviewConnection | undefined
+    reviews(args: {
+        first?: Int
+        after?: string
+        properties_list?: string[]
+        order?: BookFilter_order
+        title?: string
+        author?: string
+    }): ReviewConnection | undefined
 }
 
 /** The `Int` scalar type represents non-fractional signed whole numeric
@@ -341,4 +361,3 @@ export type createReviewPayload = GQLType & {
 values as specified by
 [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point).  */
 export type Float = number
-

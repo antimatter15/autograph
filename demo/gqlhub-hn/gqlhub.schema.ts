@@ -32,17 +32,17 @@ export type HackerNewsAPI = GQLType & {
     item?(args: { id: Int }): HackerNewsItem
     user?(args: { id: string }): HackerNewsUser
     /** Up to 500 of the top stories */
-    topStories?(args: { limit?: Int, offset?: Int }): HackerNewsItem[]
+    topStories?(args: { limit?: Int; offset?: Int }): HackerNewsItem[]
     /** Up to 500 of the newest stories */
-    newStories?(args: { limit?: Int, offset?: Int }): HackerNewsItem[]
+    newStories?(args: { limit?: Int; offset?: Int }): HackerNewsItem[]
     /** Up to 200 of the Show HN stories */
-    showStories?(args: { limit?: Int, offset?: Int }): HackerNewsItem[]
+    showStories?(args: { limit?: Int; offset?: Int }): HackerNewsItem[]
     /** Up to 200 of the Ask HN stories */
-    askStories?(args: { limit?: Int, offset?: Int }): HackerNewsItem[]
+    askStories?(args: { limit?: Int; offset?: Int }): HackerNewsItem[]
     /** Up to 200 of the Job stores */
-    jobStories?(args: { limit?: Int, offset?: Int }): HackerNewsItem[]
+    jobStories?(args: { limit?: Int; offset?: Int }): HackerNewsItem[]
     /** Return list of stories */
-    stories?(args: { limit?: Int, offset?: Int, storyType: string }): HackerNewsItem[]
+    stories?(args: { limit?: Int; offset?: Int; storyType: string }): HackerNewsItem[]
 }
 
 /** The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.  */
@@ -73,7 +73,7 @@ export type HackerNewsItem = GQLType & {
     /** The title of the story, poll or job. */
     title?: string
     /** The item's comments, in ranked display order. */
-    kids?(args: { limit?: Int, offset?: Int }): HackerNewsItem[]
+    kids?(args: { limit?: Int; offset?: Int }): HackerNewsItem[]
     /** The item's parent. For comments, either another comment or the relevant story. For pollopts, the relevant poll. */
     parent?: HackerNewsItem
     /** A list of related pollopts, in display order. */
@@ -83,7 +83,7 @@ export type HackerNewsItem = GQLType & {
 }
 
 /** The type of item */
-export type ItemType = "job" | "story" | "comment" | "poll" | "pollopt"
+export type ItemType = 'job' | 'story' | 'comment' | 'poll' | 'pollopt'
 
 /** Users are identified by case-sensitive ids. Only users that have public activity (comments or story submissions) on the site are available through the API. */
 export type HackerNewsUser = GQLType & {
@@ -98,7 +98,7 @@ export type HackerNewsUser = GQLType & {
     /** The user's optional self-description. HTML. */
     about?: string
     /** List of the user's stories, polls and comments. */
-    submitted?(args: { limit?: Int, offset?: Int }): HackerNewsItem[]
+    submitted?(args: { limit?: Int; offset?: Int }): HackerNewsItem[]
 }
 
 /** The Hacker News V2 API; this is Relay-compatible (uses Nodes and Connections) */
@@ -106,7 +106,7 @@ export type HackerNewsAPIV2 = GQLType & {
     /** Fetches an object given its ID */
     node?(args: { id: ID }): Node
     /** To ensure Node IDs are globally unique, GraphQLHub coerces IDs returned by the HN API. Use this field to get nodes via normal HN IDs */
-    nodeFromHnId(args: { id: string, isUserId: boolean }): Node
+    nodeFromHnId(args: { id: string; isUserId: boolean }): Node
 }
 
 /** The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `"4"`) or integer (such as `4`) input value will be accepted as an ID. */
@@ -152,7 +152,12 @@ export type HackerNewsV2Story = GQLType & {
     /** The comment, story or poll text. HTML. */
     text?: string
     /** The item's comments, in ranked display order. */
-    kids?(args: { after?: string, first?: Int, before?: string, last?: Int }): HackerNewsV2CommentConnection
+    kids?(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): HackerNewsV2CommentConnection
     /** if the item is deleted */
     deleted?: boolean
     /** if the item is dead */
@@ -173,7 +178,7 @@ export type HackerNewsV2User = GQLType & {
     /** The user's optional self-description. HTML. */
     about?: string
     /** List of the user's stories, polls and comments. */
-    submitted?(args: { after?: string, first?: Int, before?: string, last?: Int }): NodeConnection
+    submitted?(args: { after?: string; first?: Int; before?: string; last?: Int }): NodeConnection
 }
 
 /** A connection to a list of items. */
@@ -236,7 +241,12 @@ export type HackerNewsV2Comment = GQLType & {
     /** Creation date of the item, in ISO8601 */
     timeISO: string
     /** The item's comments, in ranked display order. */
-    kids?(args: { after?: string, first?: Int, before?: string, last?: Int }): HackerNewsV2CommentConnection
+    kids?(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): HackerNewsV2CommentConnection
     /** if the item is deleted */
     deleted?: boolean
     /** if the item is dead */
@@ -288,7 +298,12 @@ export type HackerNewsV2Poll = GQLType & {
     /** The comment, story or poll text. HTML. */
     text?: string
     /** The item's comments, in ranked display order. */
-    kids?(args: { after?: string, first?: Int, before?: string, last?: Int }): HackerNewsV2CommentConnection
+    kids?(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): HackerNewsV2CommentConnection
     /** if the item is deleted */
     deleted?: boolean
     /** if the item is dead */
@@ -343,15 +358,32 @@ export type RedditSubreddit = GQLType & {
     /** Creation date of the subreddit, in ISO8601 */
     createdISO: string
     /** Hot/"Front Page" listings of the subreddit */
-    hotListings(args: { after?: string, before?: string, count?: Int, limit?: Int }): RedditLink[]
+    hotListings(args: { after?: string; before?: string; count?: Int; limit?: Int }): RedditLink[]
     /** Newest listings of the subreddit */
-    newListings(args: { after?: string, before?: string, count?: Int, limit?: Int }): RedditLink[]
+    newListings(args: { after?: string; before?: string; count?: Int; limit?: Int }): RedditLink[]
     /** Rising listings of the subreddit */
-    risingListings(args: { after?: string, before?: string, count?: Int, limit?: Int }): RedditLink[]
+    risingListings(args: {
+        after?: string
+        before?: string
+        count?: Int
+        limit?: Int
+    }): RedditLink[]
     /** Controversial listings of the subreddit */
-    controversialListings(args: { after?: string, before?: string, count?: Int, limit?: Int, timeInterval?: TimeInterval }): RedditLink[]
+    controversialListings(args: {
+        after?: string
+        before?: string
+        count?: Int
+        limit?: Int
+        timeInterval?: TimeInterval
+    }): RedditLink[]
     /** Top listings of the subreddit */
-    topListings(args: { after?: string, before?: string, count?: Int, limit?: Int, timeInterval?: TimeInterval }): RedditLink[]
+    topListings(args: {
+        after?: string
+        before?: string
+        count?: Int
+        limit?: Int
+        timeInterval?: TimeInterval
+    }): RedditLink[]
 }
 
 /** The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point).  */
@@ -372,7 +404,7 @@ export type RedditLink = GQLType & {
     /** Author of the link */
     author: RedditUser
     /** Comments on the link */
-    comments(args: { depth?: Int, limit?: Int }): RedditComment[]
+    comments(args: { depth?: Int; limit?: Int }): RedditComment[]
 }
 
 /** Information about a Reddit user */
@@ -398,11 +430,11 @@ export type RedditComment = GQLType & {
     /** Body of the comment */
     body: string
     /** Replies to the comment */
-    replies(args: { depth?: Int, limit?: Int }): RedditComment[]
+    replies(args: { depth?: Int; limit?: Int }): RedditComment[]
 }
 
 /** Time interval by which listings are queried */
-export type TimeInterval = "hour" | "day" | "week" | "month" | "year" | "all"
+export type TimeInterval = 'hour' | 'day' | 'week' | 'month' | 'year' | 'all'
 
 /** An in-memory key-value store */
 export type KeyValueAPI = GQLType & {
@@ -420,7 +452,7 @@ export type KeyValueItem = GQLType & {
 /** The Github API */
 export type GithubAPI = GQLType & {
     user?(args: { username: string }): GithubUser
-    repo?(args: { name: string, ownerUsername: string }): GithubRepo
+    repo?(args: { name: string; ownerUsername: string }): GithubRepo
 }
 
 export type GithubUser = GQLType & {
@@ -507,14 +539,14 @@ export type GithubBranch = GQLType & {
 
 /** The Twitter API */
 export type TwitterAPI = GQLType & {
-    user?(args: { identifier: UserIdentifier, identity: UserIdentity }): TwitterUser
+    user?(args: { identifier: UserIdentifier; identity: UserIdentity }): TwitterUser
     tweet?(args: { id: string }): Tweet
     /** Returns a collection of relevant Tweets matching a specified query. */
-    search?(args: { q: string, count?: Int, result_type?: SearchReponse }): Tweet[]
+    search?(args: { q: string; count?: Int; result_type?: SearchReponse }): Tweet[]
 }
 
 /** Either user unique ID, or screen name */
-export type UserIdentifier = "id" | "name"
+export type UserIdentifier = 'id' | 'name'
 
 /** Parse user provided identity */
 export type UserIdentity = any
@@ -557,12 +589,17 @@ export type Retweet = GQLType & {
 }
 
 /** Type of search response. */
-export type SearchReponse = "mixed" | "recent" | "popular"
+export type SearchReponse = 'mixed' | 'recent' | 'popular'
 
 export type GiphyAPI = GQLType & {
     gif?(args: { id: string }): GiphyGIFData
-    search?(args: { query: string, limit?: Int, offset?: Int, rating?: GiphyRatingType }): GiphyGIFData[]
-    random?(args: { tag?: string, rating?: GiphyRatingType }): GiphyGIFData
+    search?(args: {
+        query: string
+        limit?: Int
+        offset?: Int
+        rating?: GiphyRatingType
+    }): GiphyGIFData[]
+    random?(args: { tag?: string; rating?: GiphyRatingType }): GiphyGIFData
 }
 
 export type GiphyGIFData = GQLType & {
@@ -716,7 +753,7 @@ export type GiphyGIFImageDataLooping = GQLType & {
 }
 
 /** The rating of a GIF */
-export type GiphyRatingType = "y" | "g" | "pg" | "pg13" | "r"
+export type GiphyRatingType = 'y' | 'g' | 'pg' | 'pg13' | 'r'
 
 /** APIs exposed as GraphQL mutations */
 export type GraphQLHubMutationAPI = GQLType & {
@@ -733,4 +770,3 @@ export type SetValueForKeyPayload = GQLType & {
     item?: KeyValueItem
     clientMutationId: string
 }
-

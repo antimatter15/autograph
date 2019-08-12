@@ -604,19 +604,9 @@ test('Query with arguments', async () => {
         convertGQLSchemaToTypescript(
             await parseGraphQL(gql`
                 type Query {
-                    allFilms(
-                        after: String
-                        first: Int
-                        before: String
-                        last: Int
-                    ): String
+                    allFilms(after: String, first: Int, before: String, last: Int): String
 
-                    allCharacters(
-                        after: String
-                        first: Int
-                        before: String
-                        last: Int
-                    ): String!
+                    allCharacters(after: String, first: Int, before: String, last: Int): String!
                 }
             `)
         )
@@ -883,9 +873,7 @@ test('Exception for unhandled type', () => {
                 },
             ],
         })
-    ).toThrowErrorMatchingInlineSnapshot(
-        `"Unable to handle type \\"Wumbo\\" named \\"Derp\\""`
-    )
+    ).toThrowErrorMatchingInlineSnapshot(`"Unable to handle type \\"Wumbo\\" named \\"Derp\\""`)
 })
 
 test('Exception for unhandled subtype', () => {
@@ -905,7 +893,5 @@ test('Exception for unhandled subtype', () => {
                 },
             ],
         })
-    ).toThrowErrorMatchingInlineSnapshot(
-        `"Unable to handle type \\"Wumbo\\" named \\"Flerp\\""`
-    )
+    ).toThrowErrorMatchingInlineSnapshot(`"Unable to handle type \\"Wumbo\\" named \\"Flerp\\""`)
 })

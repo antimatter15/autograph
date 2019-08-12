@@ -7,7 +7,7 @@ type GQLType = {
 export type Query = GQLType & {
     query?: Query
     pokemons?(args: { first: Int }): Pokemon[]
-    pokemon?(args: { id?: string, name?: string }): Pokemon
+    pokemon?(args: { id?: string; name?: string }): Pokemon
 
     /** Check this to determine whether the query is loading */
     _loading?: boolean

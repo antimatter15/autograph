@@ -6,18 +6,48 @@ type GQLType = {
 }
 
 export type Root = GQLType & {
-    allFilms(args: { after?: string, first?: Int, before?: string, last?: Int }): FilmsConnection | undefined
-    film(args: { id?: ID, filmID?: ID }): Film | undefined
-    allPeople(args: { after?: string, first?: Int, before?: string, last?: Int }): PeopleConnection | undefined
-    person(args: { id?: ID, personID?: ID }): Person | undefined
-    allPlanets(args: { after?: string, first?: Int, before?: string, last?: Int }): PlanetsConnection | undefined
-    planet(args: { id?: ID, planetID?: ID }): Planet | undefined
-    allSpecies(args: { after?: string, first?: Int, before?: string, last?: Int }): SpeciesConnection | undefined
-    species(args: { id?: ID, speciesID?: ID }): Species | undefined
-    allStarships(args: { after?: string, first?: Int, before?: string, last?: Int }): StarshipsConnection | undefined
-    starship(args: { id?: ID, starshipID?: ID }): Starship | undefined
-    allVehicles(args: { after?: string, first?: Int, before?: string, last?: Int }): VehiclesConnection | undefined
-    vehicle(args: { id?: ID, vehicleID?: ID }): Vehicle | undefined
+    allFilms(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): FilmsConnection | undefined
+    film(args: { id?: ID; filmID?: ID }): Film | undefined
+    allPeople(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): PeopleConnection | undefined
+    person(args: { id?: ID; personID?: ID }): Person | undefined
+    allPlanets(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): PlanetsConnection | undefined
+    planet(args: { id?: ID; planetID?: ID }): Planet | undefined
+    allSpecies(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): SpeciesConnection | undefined
+    species(args: { id?: ID; speciesID?: ID }): Species | undefined
+    allStarships(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): StarshipsConnection | undefined
+    starship(args: { id?: ID; starshipID?: ID }): Starship | undefined
+    allVehicles(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): VehiclesConnection | undefined
+    vehicle(args: { id?: ID; vehicleID?: ID }): Vehicle | undefined
     /** Fetches an object given its ID */
     node(args: { id: ID }): Node | undefined
 
@@ -86,11 +116,36 @@ export type Film = GQLType & {
     producers?: string[]
     /** The ISO 8601 date format of film release at original creator country. */
     releaseDate?: string
-    speciesConnection(args: { after?: string, first?: Int, before?: string, last?: Int }): FilmSpeciesConnection | undefined
-    starshipConnection(args: { after?: string, first?: Int, before?: string, last?: Int }): FilmStarshipsConnection | undefined
-    vehicleConnection(args: { after?: string, first?: Int, before?: string, last?: Int }): FilmVehiclesConnection | undefined
-    characterConnection(args: { after?: string, first?: Int, before?: string, last?: Int }): FilmCharactersConnection | undefined
-    planetConnection(args: { after?: string, first?: Int, before?: string, last?: Int }): FilmPlanetsConnection | undefined
+    speciesConnection(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): FilmSpeciesConnection | undefined
+    starshipConnection(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): FilmStarshipsConnection | undefined
+    vehicleConnection(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): FilmVehiclesConnection | undefined
+    characterConnection(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): FilmCharactersConnection | undefined
+    planetConnection(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): FilmPlanetsConnection | undefined
     /** The ISO 8601 date format of the time that this resource was created. */
     created?: string
     /** The ISO 8601 date format of the time that this resource was edited. */
@@ -173,8 +228,18 @@ have skin. */
     language?: string
     /** A planet that this species originates from. */
     homeworld?: Planet
-    personConnection(args: { after?: string, first?: Int, before?: string, last?: Int }): SpeciesPeopleConnection | undefined
-    filmConnection(args: { after?: string, first?: Int, before?: string, last?: Int }): SpeciesFilmsConnection | undefined
+    personConnection(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): SpeciesPeopleConnection | undefined
+    filmConnection(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): SpeciesFilmsConnection | undefined
     /** The ISO 8601 date format of the time that this resource was created. */
     created?: string
     /** The ISO 8601 date format of the time that this resource was edited. */
@@ -211,8 +276,18 @@ G. "2" is twice or 2 standard Gs. "0.5" is half or 0.5 standard Gs. */
     /** The percentage of the planet surface that is naturally occuring water or bodies
 of water. */
     surfaceWater?: Float
-    residentConnection(args: { after?: string, first?: Int, before?: string, last?: Int }): PlanetResidentsConnection | undefined
-    filmConnection(args: { after?: string, first?: Int, before?: string, last?: Int }): PlanetFilmsConnection | undefined
+    residentConnection(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): PlanetResidentsConnection | undefined
+    filmConnection(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): PlanetFilmsConnection | undefined
     /** The ISO 8601 date format of the time that this resource was created. */
     created?: string
     /** The ISO 8601 date format of the time that this resource was edited. */
@@ -274,11 +349,26 @@ person does not have hair. */
     skinColor?: string
     /** A planet that this person was born on or inhabits. */
     homeworld?: Planet
-    filmConnection(args: { after?: string, first?: Int, before?: string, last?: Int }): PersonFilmsConnection | undefined
+    filmConnection(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): PersonFilmsConnection | undefined
     /** The species that this person belongs to, or null if unknown. */
     species?: Species
-    starshipConnection(args: { after?: string, first?: Int, before?: string, last?: Int }): PersonStarshipsConnection | undefined
-    vehicleConnection(args: { after?: string, first?: Int, before?: string, last?: Int }): PersonVehiclesConnection | undefined
+    starshipConnection(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): PersonStarshipsConnection | undefined
+    vehicleConnection(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): PersonVehiclesConnection | undefined
     /** The ISO 8601 date format of the time that this resource was created. */
     created?: string
     /** The ISO 8601 date format of the time that this resource was edited. */
@@ -379,8 +469,18 @@ distance between our Sun (Sol) and Earth. */
     /** The maximum length of time that this starship can provide consumables for its
 entire crew without having to resupply. */
     consumables?: string
-    pilotConnection(args: { after?: string, first?: Int, before?: string, last?: Int }): StarshipPilotsConnection | undefined
-    filmConnection(args: { after?: string, first?: Int, before?: string, last?: Int }): StarshipFilmsConnection | undefined
+    pilotConnection(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): StarshipPilotsConnection | undefined
+    filmConnection(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): StarshipFilmsConnection | undefined
     /** The ISO 8601 date format of the time that this resource was created. */
     created?: string
     /** The ISO 8601 date format of the time that this resource was edited. */
@@ -500,8 +600,18 @@ Transport". */
     /** The maximum length of time that this vehicle can provide consumables for its
 entire crew without having to resupply. */
     consumables?: string
-    pilotConnection(args: { after?: string, first?: Int, before?: string, last?: Int }): VehiclePilotsConnection | undefined
-    filmConnection(args: { after?: string, first?: Int, before?: string, last?: Int }): VehicleFilmsConnection | undefined
+    pilotConnection(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): VehiclePilotsConnection | undefined
+    filmConnection(args: {
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): VehicleFilmsConnection | undefined
     /** The ISO 8601 date format of the time that this resource was created. */
     created?: string
     /** The ISO 8601 date format of the time that this resource was edited. */
@@ -901,4 +1011,3 @@ export type VehiclesEdge = GQLType & {
     /** A cursor for use in pagination */
     cursor: string
 }
-

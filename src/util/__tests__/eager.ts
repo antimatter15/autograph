@@ -1,20 +1,20 @@
-import { eager, explore } from "../eager";
+import { eager, explore } from '../eager'
 
 test('no branch', () => {
-    let execs = 0;
+    let execs = 0
     explore(() => {
-        execs++;
+        execs++
     })
     expect(execs).toBe(1)
 })
 
 test('basic test', () => {
     let yes_count = 0,
-        no_count = 0;
+        no_count = 0
     explore(() => {
-        if(eager(true)){
+        if (eager(true)) {
             yes_count++
-        }else{
+        } else {
             no_count++
         }
     })
@@ -22,16 +22,15 @@ test('basic test', () => {
     expect(no_count).toBe(1)
 })
 
-
 test('nested explore', () => {
     let yes_count = 0,
-        no_count = 0;
+        no_count = 0
     explore(() => {
-        if(eager(false)){
+        if (eager(false)) {
             explore(() => {
-                if(eager(true)){
+                if (eager(true)) {
                     yes_count++
-                }else{
+                } else {
                     no_count++
                 }
             })
@@ -41,7 +40,6 @@ test('nested explore', () => {
     expect(no_count).toBe(1)
 })
 
-
 test('no explore', () => {
     expect(eager(true)).toBe(true)
     expect(eager(false)).toBe(false)
@@ -49,21 +47,19 @@ test('no explore', () => {
 
 test('errors do not affect stack', () => {
     try {
-            explore(() => {
-            if(eager(false)){
+        explore(() => {
+            if (eager(false)) {
                 throw new Error('blah')
             }
         })
-    }catch(e){
-
-    }
+    } catch (e) {}
 
     let yes_count = 0,
-        no_count = 0;
+        no_count = 0
     explore(() => {
-        if(eager(true)){
+        if (eager(true)) {
             yes_count++
-        }else{
+        } else {
             no_count++
         }
     })
@@ -72,143 +68,133 @@ test('errors do not affect stack', () => {
 })
 
 test('else chains', () => {
-
     let results: Array<string> = []
     explore(() => {
         let conds = ''
-        if(eager(true)){
+        if (eager(true)) {
             conds += 'A'
-        }else if(eager(false)){
+        } else if (eager(false)) {
             conds += 'B'
-        }else if(eager(true)){
+        } else if (eager(true)) {
             conds += 'C'
-        }else if(eager(true)){
+        } else if (eager(true)) {
             conds += 'D'
-        }else{
+        } else {
             conds += 'E'
         }
         results.push(conds)
     })
-    expect(results).toEqual([ 'A', 'C', 'B', 'D', 'E' ])
+    expect(results).toEqual(['A', 'C', 'B', 'D', 'E'])
 })
-
 
 test('independent branches 3', () => {
     let results: Array<string> = []
     explore(() => {
         let conds = ''
-        if(eager(true)){
+        if (eager(true)) {
             conds += 'A'
-        }else{
+        } else {
             conds += 'B'
         }
-        if(eager(false)){
+        if (eager(false)) {
             conds += 'C'
-        }else{
+        } else {
             conds += 'D'
         }
-        if(eager(true)){
+        if (eager(true)) {
             conds += 'E'
-        }else{
+        } else {
             conds += 'F'
         }
         results.push(conds)
     })
-    expect(results).toEqual([ 'ADE', 'BDE', 'ACE', 'ADF', 'BCE', 'BDF', 'ACF', 'BCF' ])
+    expect(results).toEqual(['ADE', 'BDE', 'ACE', 'ADF', 'BCE', 'BDF', 'ACF', 'BCF'])
 })
-
 
 test('independent branches 2', () => {
     let results: Array<string> = []
     explore(() => {
         let conds = ''
-        if(eager(true)){
+        if (eager(true)) {
             conds += 'A'
-        }else{
+        } else {
             conds += 'B'
         }
-        if(eager(false)){
+        if (eager(false)) {
             conds += 'C'
-        }else{
+        } else {
             conds += 'D'
         }
         results.push(conds)
     })
-    expect(results).toEqual([ 'AD', 'BD', 'AC', 'BC' ])
+    expect(results).toEqual(['AD', 'BD', 'AC', 'BC'])
 })
-
-
 
 test('nested branches 2', () => {
     let results: Array<string> = []
     explore(() => {
         let conds = ''
-        if(eager(true)){
-            if(eager(false)){
+        if (eager(true)) {
+            if (eager(false)) {
                 conds += 'A'
-            }else{
+            } else {
                 conds += 'B'
             }
-        }else{
-            if(eager(false)){
+        } else {
+            if (eager(false)) {
                 conds += 'C'
-            }else{
+            } else {
                 conds += 'D'
             }
         }
         results.push(conds)
     })
-    expect(results).toEqual([ 'B', 'D', 'A', 'C' ])
+    expect(results).toEqual(['B', 'D', 'A', 'C'])
 })
-
-
 
 test('nested branches 1', () => {
     let results: Array<string> = []
     explore(() => {
         let conds = ''
-        if(eager(true)){
-            if(eager(false)){
+        if (eager(true)) {
+            if (eager(false)) {
                 conds += 'A'
-            }else{
+            } else {
                 conds += 'B'
             }
-        }else{
+        } else {
             conds += 'C'
         }
         results.push(conds)
     })
-    expect(results).toEqual( [ 'B', 'C', 'A' ])
+    expect(results).toEqual(['B', 'C', 'A'])
 })
-
 
 test('for loop', () => {
     let results: Array<string> = []
     explore(() => {
         let conds = ''
-        for(let i = 0; i < 4; i++){
+        for (let i = 0; i < 4; i++) {
             conds += eager(false) ? 'A' : 'B'
         }
         results.push(conds)
     })
-    expect(results).toEqual( [ 
-        "BBBB",
-        "ABBB",
-        "BABB",
-        "BBAB",
-        "BBBA",
-        "AABB",
-        "ABAB",
-        "ABBA",
-        "BAAB",
-        "BABA",
-        "BBAA",
-        "AAAB",
-        "AABA",
-        "ABAA",
-        "BAAA",
-        "AAAA",
+    expect(results).toEqual([
+        'BBBB',
+        'ABBB',
+        'BABB',
+        'BBAB',
+        'BBBA',
+        'AABB',
+        'ABAB',
+        'ABBA',
+        'BAAB',
+        'BABA',
+        'BBAA',
+        'AAAB',
+        'AABA',
+        'ABAA',
+        'BAAA',
+        'AAAA',
     ])
 })
-
-

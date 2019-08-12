@@ -55,7 +55,7 @@ export type LookupQuery = GQLType & {
     /** Look up a specific series by its MBID. */
     series(args: { mbid: MBID }): Series | undefined
     /** Look up a specific URL by its MBID. */
-    url(args: { mbid?: MBID, resource?: URLString }): URL | undefined
+    url(args: { mbid?: MBID; resource?: URLString }): URL | undefined
     /** Look up a specific work by its MBID. */
     work(args: { mbid: MBID }): Work | undefined
 }
@@ -92,21 +92,26 @@ values](https://musicbrainz.org/doc/Area)). */
 field. */
     typeID?: MBID
     /** A list of artists linked to this entity. */
-    artists(args: { after?: string, first?: Int }): ArtistConnection | undefined
+    artists(args: { after?: string; first?: Int }): ArtistConnection | undefined
     /** A list of events linked to this entity. */
-    events(args: { after?: string, first?: Int }): EventConnection | undefined
+    events(args: { after?: string; first?: Int }): EventConnection | undefined
     /** A list of labels linked to this entity. */
-    labels(args: { after?: string, first?: Int }): LabelConnection | undefined
+    labels(args: { after?: string; first?: Int }): LabelConnection | undefined
     /** A list of places linked to this entity. */
-    places(args: { after?: string, first?: Int }): PlaceConnection | undefined
+    places(args: { after?: string; first?: Int }): PlaceConnection | undefined
     /** A list of releases linked to this entity. */
-    releases(args: { type?: ReleaseGroupType[], status?: ReleaseStatus[], after?: string, first?: Int }): ReleaseConnection | undefined
+    releases(args: {
+        type?: ReleaseGroupType[]
+        status?: ReleaseStatus[]
+        after?: string
+        first?: Int
+    }): ReleaseConnection | undefined
     /** Relationships between this entity and other entitites. */
     relationships?: Relationships
     /** A list of collections containing this entity. */
-    collections(args: { after?: string, first?: Int }): CollectionConnection | undefined
+    collections(args: { after?: string; first?: Int }): CollectionConnection | undefined
     /** A list of tags linked to this entity. */
-    tags(args: { after?: string, first?: Int }): TagConnection | undefined
+    tags(args: { after?: string; first?: Int }): TagConnection | undefined
     /** Chart data available for this area on [Last.fm](https://www.last.fm/), if
 the area represents a country with an [ISO 3166 code](https://en.wikipedia.org/wiki/ISO_3166).
 This field is provided by the Last.fm extension. */
@@ -305,21 +310,30 @@ field. */
 (ISNI) codes for the artist. */
     isnis?: ISNI[]
     /** A list of recordings linked to this entity. */
-    recordings(args: { after?: string, first?: Int }): RecordingConnection | undefined
+    recordings(args: { after?: string; first?: Int }): RecordingConnection | undefined
     /** A list of releases linked to this entity. */
-    releases(args: { type?: ReleaseGroupType[], status?: ReleaseStatus[], after?: string, first?: Int }): ReleaseConnection | undefined
+    releases(args: {
+        type?: ReleaseGroupType[]
+        status?: ReleaseStatus[]
+        after?: string
+        first?: Int
+    }): ReleaseConnection | undefined
     /** A list of release groups linked to this entity. */
-    releaseGroups(args: { type?: ReleaseGroupType[], after?: string, first?: Int }): ReleaseGroupConnection | undefined
+    releaseGroups(args: {
+        type?: ReleaseGroupType[]
+        after?: string
+        first?: Int
+    }): ReleaseGroupConnection | undefined
     /** A list of works linked to this entity. */
-    works(args: { after?: string, first?: Int }): WorkConnection | undefined
+    works(args: { after?: string; first?: Int }): WorkConnection | undefined
     /** Relationships between this entity and other entitites. */
     relationships?: Relationships
     /** A list of collections containing this entity. */
-    collections(args: { after?: string, first?: Int }): CollectionConnection | undefined
+    collections(args: { after?: string; first?: Int }): CollectionConnection | undefined
     /** The rating users have given to this entity. */
     rating?: Rating
     /** A list of tags linked to this entity. */
-    tags(args: { after?: string, first?: Int }): TagConnection | undefined
+    tags(args: { after?: string; first?: Int }): TagConnection | undefined
     /** Images of the artist from [fanart.tv](https://fanart.tv/).
 This field is provided by the fanart.tv extension. */
     fanArt?: FanArtArtist
@@ -432,17 +446,22 @@ from the lengths of the tracks using it. */
     /** Whether this is a video recording. */
     video?: boolean
     /** A list of artists linked to this entity. */
-    artists(args: { after?: string, first?: Int }): ArtistConnection | undefined
+    artists(args: { after?: string; first?: Int }): ArtistConnection | undefined
     /** A list of releases linked to this entity. */
-    releases(args: { type?: ReleaseGroupType[], status?: ReleaseStatus[], after?: string, first?: Int }): ReleaseConnection | undefined
+    releases(args: {
+        type?: ReleaseGroupType[]
+        status?: ReleaseStatus[]
+        after?: string
+        first?: Int
+    }): ReleaseConnection | undefined
     /** Relationships between this entity and other entitites. */
     relationships?: Relationships
     /** A list of collections containing this entity. */
-    collections(args: { after?: string, first?: Int }): CollectionConnection | undefined
+    collections(args: { after?: string; first?: Int }): CollectionConnection | undefined
     /** The rating users have given to this entity. */
     rating?: Rating
     /** A list of tags linked to this entity. */
-    tags(args: { after?: string, first?: Int }): TagConnection | undefined
+    tags(args: { after?: string; first?: Int }): TagConnection | undefined
     /** Data about the recording from [TheAudioDB](http://www.theaudiodb.com/).
 This field is provided by TheAudioDB extension. */
     theAudioDB?: TheAudioDBTrack
@@ -488,11 +507,27 @@ export type Duration = any
 
 /** A type used to describe release groups, e.g. album, single, EP,
 etc. */
-export type ReleaseGroupType = "ALBUM" | "SINGLE" | "EP" | "OTHER" | "BROADCAST" | "COMPILATION" | "SOUNDTRACK" | "SPOKENWORD" | "INTERVIEW" | "AUDIOBOOK" | "LIVE" | "REMIX" | "DJMIX" | "MIXTAPE" | "DEMO" | "NAT"
+export type ReleaseGroupType =
+    | 'ALBUM'
+    | 'SINGLE'
+    | 'EP'
+    | 'OTHER'
+    | 'BROADCAST'
+    | 'COMPILATION'
+    | 'SOUNDTRACK'
+    | 'SPOKENWORD'
+    | 'INTERVIEW'
+    | 'AUDIOBOOK'
+    | 'LIVE'
+    | 'REMIX'
+    | 'DJMIX'
+    | 'MIXTAPE'
+    | 'DEMO'
+    | 'NAT'
 
 /** A type used to describe the status of releases, e.g. official,
 bootleg, etc. */
-export type ReleaseStatus = "OFFICIAL" | "PROMOTION" | "BOOTLEG" | "PSEUDORELEASE"
+export type ReleaseStatus = 'OFFICIAL' | 'PROMOTION' | 'BOOTLEG' | 'PSEUDORELEASE'
 
 /** A connection to a list of items. */
 export type ReleaseConnection = GQLType & {
@@ -580,19 +615,23 @@ It is not a mark of how good or bad the music itself is – for that, use
     /** The media on which the release was distributed. */
     media?: Medium[]
     /** A list of artists linked to this entity. */
-    artists(args: { after?: string, first?: Int }): ArtistConnection | undefined
+    artists(args: { after?: string; first?: Int }): ArtistConnection | undefined
     /** A list of labels linked to this entity. */
-    labels(args: { after?: string, first?: Int }): LabelConnection | undefined
+    labels(args: { after?: string; first?: Int }): LabelConnection | undefined
     /** A list of recordings linked to this entity. */
-    recordings(args: { after?: string, first?: Int }): RecordingConnection | undefined
+    recordings(args: { after?: string; first?: Int }): RecordingConnection | undefined
     /** A list of release groups linked to this entity. */
-    releaseGroups(args: { type?: ReleaseGroupType[], after?: string, first?: Int }): ReleaseGroupConnection | undefined
+    releaseGroups(args: {
+        type?: ReleaseGroupType[]
+        after?: string
+        first?: Int
+    }): ReleaseGroupConnection | undefined
     /** Relationships between this entity and other entitites. */
     relationships?: Relationships
     /** A list of collections containing this entity. */
-    collections(args: { after?: string, first?: Int }): CollectionConnection | undefined
+    collections(args: { after?: string; first?: Int }): CollectionConnection | undefined
     /** A list of tags linked to this entity. */
-    tags(args: { after?: string, first?: Int }): TagConnection | undefined
+    tags(args: { after?: string; first?: Int }): TagConnection | undefined
     /** An object containing a list and summary of the cover art images that are
 present for this release from the [Cover Art Archive](https://musicbrainz.org/doc/Cover_Art_Archive).
 This field is provided by the Cover Art Archive extension. */
@@ -658,7 +697,7 @@ export type Disc = GQLType & {
     /** The sector offset of the lead-out (the end of the disc). */
     sectors: Int
     /** The list of releases linked to this disc ID. */
-    releases(args: { after?: string, first?: Int }): ReleaseConnection | undefined
+    releases(args: { after?: string; first?: Int }): ReleaseConnection | undefined
 }
 
 /** [Disc ID](https://musicbrainz.org/doc/Disc_ID) is the code
@@ -760,15 +799,20 @@ imprint, production, distributor, rights society, etc. */
 field. */
     typeID?: MBID
     /** A list of releases linked to this entity. */
-    releases(args: { type?: ReleaseGroupType[], status?: ReleaseStatus[], after?: string, first?: Int }): ReleaseConnection | undefined
+    releases(args: {
+        type?: ReleaseGroupType[]
+        status?: ReleaseStatus[]
+        after?: string
+        first?: Int
+    }): ReleaseConnection | undefined
     /** Relationships between this entity and other entitites. */
     relationships?: Relationships
     /** A list of collections containing this entity. */
-    collections(args: { after?: string, first?: Int }): CollectionConnection | undefined
+    collections(args: { after?: string; first?: Int }): CollectionConnection | undefined
     /** The rating users have given to this entity. */
     rating?: Rating
     /** A list of tags linked to this entity. */
-    tags(args: { after?: string, first?: Int }): TagConnection | undefined
+    tags(args: { after?: string; first?: Int }): TagConnection | undefined
     /** Images of the label from [fanart.tv](https://fanart.tv/).
 This field is provided by the fanart.tv extension. */
     fanArt?: FanArtLabel
@@ -783,29 +827,125 @@ This field is provided by the MediaWiki extension. */
 /** Lists of entity relationships for each entity type. */
 export type Relationships = GQLType & {
     /** A list of relationships between these two entity types. */
-    areas(args: { direction?: string, type?: string, typeID?: MBID, after?: string, first?: Int, before?: string, last?: Int }): RelationshipConnection | undefined
+    areas(args: {
+        direction?: string
+        type?: string
+        typeID?: MBID
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): RelationshipConnection | undefined
     /** A list of relationships between these two entity types. */
-    artists(args: { direction?: string, type?: string, typeID?: MBID, after?: string, first?: Int, before?: string, last?: Int }): RelationshipConnection | undefined
+    artists(args: {
+        direction?: string
+        type?: string
+        typeID?: MBID
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): RelationshipConnection | undefined
     /** A list of relationships between these two entity types. */
-    events(args: { direction?: string, type?: string, typeID?: MBID, after?: string, first?: Int, before?: string, last?: Int }): RelationshipConnection | undefined
+    events(args: {
+        direction?: string
+        type?: string
+        typeID?: MBID
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): RelationshipConnection | undefined
     /** A list of relationships between these two entity types. */
-    instruments(args: { direction?: string, type?: string, typeID?: MBID, after?: string, first?: Int, before?: string, last?: Int }): RelationshipConnection | undefined
+    instruments(args: {
+        direction?: string
+        type?: string
+        typeID?: MBID
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): RelationshipConnection | undefined
     /** A list of relationships between these two entity types. */
-    labels(args: { direction?: string, type?: string, typeID?: MBID, after?: string, first?: Int, before?: string, last?: Int }): RelationshipConnection | undefined
+    labels(args: {
+        direction?: string
+        type?: string
+        typeID?: MBID
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): RelationshipConnection | undefined
     /** A list of relationships between these two entity types. */
-    places(args: { direction?: string, type?: string, typeID?: MBID, after?: string, first?: Int, before?: string, last?: Int }): RelationshipConnection | undefined
+    places(args: {
+        direction?: string
+        type?: string
+        typeID?: MBID
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): RelationshipConnection | undefined
     /** A list of relationships between these two entity types. */
-    recordings(args: { direction?: string, type?: string, typeID?: MBID, after?: string, first?: Int, before?: string, last?: Int }): RelationshipConnection | undefined
+    recordings(args: {
+        direction?: string
+        type?: string
+        typeID?: MBID
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): RelationshipConnection | undefined
     /** A list of relationships between these two entity types. */
-    releases(args: { direction?: string, type?: string, typeID?: MBID, after?: string, first?: Int, before?: string, last?: Int }): RelationshipConnection | undefined
+    releases(args: {
+        direction?: string
+        type?: string
+        typeID?: MBID
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): RelationshipConnection | undefined
     /** A list of relationships between these two entity types. */
-    releaseGroups(args: { direction?: string, type?: string, typeID?: MBID, after?: string, first?: Int, before?: string, last?: Int }): RelationshipConnection | undefined
+    releaseGroups(args: {
+        direction?: string
+        type?: string
+        typeID?: MBID
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): RelationshipConnection | undefined
     /** A list of relationships between these two entity types. */
-    series(args: { direction?: string, type?: string, typeID?: MBID, after?: string, first?: Int, before?: string, last?: Int }): RelationshipConnection | undefined
+    series(args: {
+        direction?: string
+        type?: string
+        typeID?: MBID
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): RelationshipConnection | undefined
     /** A list of relationships between these two entity types. */
-    urls(args: { direction?: string, type?: string, typeID?: MBID, after?: string, first?: Int, before?: string, last?: Int }): RelationshipConnection | undefined
+    urls(args: {
+        direction?: string
+        type?: string
+        typeID?: MBID
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): RelationshipConnection | undefined
     /** A list of relationships between these two entity types. */
-    works(args: { direction?: string, type?: string, typeID?: MBID, after?: string, first?: Int, before?: string, last?: Int }): RelationshipConnection | undefined
+    works(args: {
+        direction?: string
+        type?: string
+        typeID?: MBID
+        after?: string
+        first?: Int
+        before?: string
+        last?: Int
+    }): RelationshipConnection | undefined
 }
 
 /** A connection to a list of items. */
@@ -911,27 +1051,36 @@ export type Collection = GQLType & {
 field. */
     typeID?: MBID
     /** The list of areas found in this collection. */
-    areas(args: { after?: string, first?: Int }): AreaConnection | undefined
+    areas(args: { after?: string; first?: Int }): AreaConnection | undefined
     /** The list of artists found in this collection. */
-    artists(args: { after?: string, first?: Int }): ArtistConnection | undefined
+    artists(args: { after?: string; first?: Int }): ArtistConnection | undefined
     /** The list of events found in this collection. */
-    events(args: { after?: string, first?: Int }): EventConnection | undefined
+    events(args: { after?: string; first?: Int }): EventConnection | undefined
     /** The list of instruments found in this collection. */
-    instruments(args: { after?: string, first?: Int }): InstrumentConnection | undefined
+    instruments(args: { after?: string; first?: Int }): InstrumentConnection | undefined
     /** The list of labels found in this collection. */
-    labels(args: { after?: string, first?: Int }): LabelConnection | undefined
+    labels(args: { after?: string; first?: Int }): LabelConnection | undefined
     /** The list of places found in this collection. */
-    places(args: { after?: string, first?: Int }): PlaceConnection | undefined
+    places(args: { after?: string; first?: Int }): PlaceConnection | undefined
     /** The list of recordings found in this collection. */
-    recordings(args: { after?: string, first?: Int }): RecordingConnection | undefined
+    recordings(args: { after?: string; first?: Int }): RecordingConnection | undefined
     /** The list of releases found in this collection. */
-    releases(args: { type?: ReleaseGroupType[], status?: ReleaseStatus[], after?: string, first?: Int }): ReleaseConnection | undefined
+    releases(args: {
+        type?: ReleaseGroupType[]
+        status?: ReleaseStatus[]
+        after?: string
+        first?: Int
+    }): ReleaseConnection | undefined
     /** The list of release groups found in this collection. */
-    releaseGroups(args: { type?: ReleaseGroupType[], after?: string, first?: Int }): ReleaseGroupConnection | undefined
+    releaseGroups(args: {
+        type?: ReleaseGroupType[]
+        after?: string
+        first?: Int
+    }): ReleaseGroupConnection | undefined
     /** The list of series found in this collection. */
-    series(args: { after?: string, first?: Int }): SeriesConnection | undefined
+    series(args: { after?: string; first?: Int }): SeriesConnection | undefined
     /** The list of works found in this collection. */
-    works(args: { after?: string, first?: Int }): WorkConnection | undefined
+    works(args: { after?: string; first?: Int }): WorkConnection | undefined
 }
 
 /** A connection to a list of items. */
@@ -1018,11 +1167,11 @@ field. */
     /** Relationships between this entity and other entitites. */
     relationships?: Relationships
     /** A list of collections containing this entity. */
-    collections(args: { after?: string, first?: Int }): CollectionConnection | undefined
+    collections(args: { after?: string; first?: Int }): CollectionConnection | undefined
     /** The rating users have given to this entity. */
     rating?: Rating
     /** A list of tags linked to this entity. */
-    tags(args: { after?: string, first?: Int }): TagConnection | undefined
+    tags(args: { after?: string; first?: Int }): TagConnection | undefined
 }
 
 /** A time of day, in 24-hour hh:mm notation. */
@@ -1130,9 +1279,9 @@ field. */
     /** Relationships between this entity and other entitites. */
     relationships?: Relationships
     /** A list of collections containing this entity. */
-    collections(args: { after?: string, first?: Int }): CollectionConnection | undefined
+    collections(args: { after?: string; first?: Int }): CollectionConnection | undefined
     /** A list of tags linked to this entity. */
-    tags(args: { after?: string, first?: Int }): TagConnection | undefined
+    tags(args: { after?: string; first?: Int }): TagConnection | undefined
     /** Instrument images found at MediaWiki URLs in the instrument’s URL
 relationships. Defaults to URL relationships with the type “image”.
 This field is provided by the MediaWiki extension. */
@@ -1247,13 +1396,13 @@ function. */
 field. */
     typeID?: MBID
     /** A list of events linked to this entity. */
-    events(args: { after?: string, first?: Int }): EventConnection | undefined
+    events(args: { after?: string; first?: Int }): EventConnection | undefined
     /** Relationships between this entity and other entitites. */
     relationships?: Relationships
     /** A list of collections containing this entity. */
-    collections(args: { after?: string, first?: Int }): CollectionConnection | undefined
+    collections(args: { after?: string; first?: Int }): CollectionConnection | undefined
     /** A list of tags linked to this entity. */
-    tags(args: { after?: string, first?: Int }): TagConnection | undefined
+    tags(args: { after?: string; first?: Int }): TagConnection | undefined
     /** Place images found at MediaWiki URLs in the place’s URL relationships.
 Defaults to URL relationships with the type “image”.
 This field is provided by the MediaWiki extension. */
@@ -1342,17 +1491,22 @@ that apply to this release group. */
 field. */
     secondaryTypeIDs?: MBID[]
     /** A list of artists linked to this entity. */
-    artists(args: { after?: string, first?: Int }): ArtistConnection | undefined
+    artists(args: { after?: string; first?: Int }): ArtistConnection | undefined
     /** A list of releases linked to this entity. */
-    releases(args: { type?: ReleaseGroupType[], status?: ReleaseStatus[], after?: string, first?: Int }): ReleaseConnection | undefined
+    releases(args: {
+        type?: ReleaseGroupType[]
+        status?: ReleaseStatus[]
+        after?: string
+        first?: Int
+    }): ReleaseConnection | undefined
     /** Relationships between this entity and other entitites. */
     relationships?: Relationships
     /** A list of collections containing this entity. */
-    collections(args: { after?: string, first?: Int }): CollectionConnection | undefined
+    collections(args: { after?: string; first?: Int }): CollectionConnection | undefined
     /** The rating users have given to this entity. */
     rating?: Rating
     /** A list of tags linked to this entity. */
-    tags(args: { after?: string, first?: Int }): TagConnection | undefined
+    tags(args: { after?: string; first?: Int }): TagConnection | undefined
     /** The cover art for a release in the release group, obtained from the
 [Cover Art Archive](https://musicbrainz.org/doc/Cover_Art_Archive). A
 release in the release group will be chosen as representative of the release
@@ -1403,7 +1557,7 @@ media and packaging. */
 }
 
 /** The image sizes that may be requested at the [Cover Art Archive](https://musicbrainz.org/doc/Cover_Art_Archive). */
-export type CoverArtArchiveImageSize = "SMALL" | "LARGE" | "FULL"
+export type CoverArtArchiveImageSize = 'SMALL' | 'LARGE' | 'FULL'
 
 /** An individual piece of album artwork from the [Cover Art Archive](https://musicbrainz.org/doc/Cover_Art_Archive). */
 export type CoverArtArchiveImage = GQLType & {
@@ -1459,7 +1613,7 @@ export type FanArtImage = GQLType & {
 }
 
 /** The image sizes that may be requested at [fanart.tv](https://fanart.tv/). */
-export type FanArtImageSize = "FULL" | "PREVIEW"
+export type FanArtImageSize = 'FULL' | 'PREVIEW'
 
 /** A disc image from [fanart.tv](https://fanart.tv/). */
 export type FanArtDiscImage = GQLType & {
@@ -1513,7 +1667,7 @@ export type TheAudioDBAlbum = GQLType & {
 }
 
 /** The image sizes that may be requested at [TheAudioDB](http://www.theaudiodb.com/). */
-export type TheAudioDBImageSize = "FULL" | "PREVIEW"
+export type TheAudioDBImageSize = 'FULL' | 'PREVIEW'
 
 /** Master releases group different versions of the same release (for example,
 releases in different formats, issued in different countries, re-releases,
@@ -1610,7 +1764,7 @@ export type DiscogsImage = GQLType & {
 }
 
 /** The type of image. */
-export type DiscogsImageType = "PRIMARY" | "SECONDARY"
+export type DiscogsImageType = 'PRIMARY' | 'SECONDARY'
 
 /** A single artist who is a member of a group on Discogs. */
 export type DiscogsArtistMember = GQLType & {
@@ -1755,9 +1909,9 @@ field. */
     /** Relationships between this entity and other entitites. */
     relationships?: Relationships
     /** A list of collections containing this entity. */
-    collections(args: { after?: string, first?: Int }): CollectionConnection | undefined
+    collections(args: { after?: string; first?: Int }): CollectionConnection | undefined
     /** A list of tags linked to this entity. */
-    tags(args: { after?: string, first?: Int }): TagConnection | undefined
+    tags(args: { after?: string; first?: Int }): TagConnection | undefined
 }
 
 /** A connection to a list of items. */
@@ -1811,15 +1965,15 @@ to the work by copyright collecting agencies. */
 field. */
     typeID?: MBID
     /** A list of artists linked to this entity. */
-    artists(args: { after?: string, first?: Int }): ArtistConnection | undefined
+    artists(args: { after?: string; first?: Int }): ArtistConnection | undefined
     /** Relationships between this entity and other entitites. */
     relationships?: Relationships
     /** A list of collections containing this entity. */
-    collections(args: { after?: string, first?: Int }): CollectionConnection | undefined
+    collections(args: { after?: string; first?: Int }): CollectionConnection | undefined
     /** The rating users have given to this entity. */
     rating?: Rating
     /** A list of tags linked to this entity. */
-    tags(args: { after?: string, first?: Int }): TagConnection | undefined
+    tags(args: { after?: string; first?: Int }): TagConnection | undefined
 }
 
 /** An object containing lists of the different types of label images from
@@ -1888,11 +2042,11 @@ languages. */
 not the MusicBrainz artist. */
     artist?: LastFMArtist
     /** A list of tags applied to the artist by users, ordered by popularity. */
-    topTags(args: { first?: Int, after?: string }): LastFMTagConnection | undefined
+    topTags(args: { first?: Int; after?: string }): LastFMTagConnection | undefined
 }
 
 /** The image sizes that may be requested at [Last.fm](https://www.last.fm/). */
-export type LastFMImageSize = "SMALL" | "MEDIUM" | "LARGE" | "EXTRALARGE" | "MEGA"
+export type LastFMImageSize = 'SMALL' | 'MEDIUM' | 'LARGE' | 'EXTRALARGE' | 'MEGA'
 
 /** Biographical or background information written about an entity on
 [Last.fm](https://www.last.fm/). */
@@ -1927,13 +2081,13 @@ export type LastFMArtist = GQLType & {
     /** The number of plays recorded for the artist. */
     playCount?: Float
     /** A list of similar artists. */
-    similarArtists(args: { first?: Int, after?: string }): LastFMArtistConnection | undefined
+    similarArtists(args: { first?: Int; after?: string }): LastFMArtistConnection | undefined
     /** A list of the artist’s most popular albums. */
-    topAlbums(args: { first?: Int, after?: string }): LastFMAlbumConnection | undefined
+    topAlbums(args: { first?: Int; after?: string }): LastFMAlbumConnection | undefined
     /** A list of tags applied to the artist by users, ordered by popularity. */
-    topTags(args: { first?: Int, after?: string }): LastFMTagConnection | undefined
+    topTags(args: { first?: Int; after?: string }): LastFMTagConnection | undefined
     /** A list of the artist’s most popular tracks. */
-    topTracks(args: { first?: Int, after?: string }): LastFMTrackConnection | undefined
+    topTracks(args: { first?: Int; after?: string }): LastFMTrackConnection | undefined
     /** A biography of the artist, often available in several languages. */
     biography(args: { lang?: string }): LastFMWikiContent | undefined
 }
@@ -2059,13 +2213,13 @@ not the MusicBrainz artist. */
 not the MusicBrainz release. */
     album?: LastFMAlbum
     /** A list of similar tracks. */
-    similarTracks(args: { first?: Int, after?: string }): LastFMTrackConnection | undefined
+    similarTracks(args: { first?: Int; after?: string }): LastFMTrackConnection | undefined
     /** A list of tags applied to the track by users, ordered by popularity. */
-    topTags(args: { first?: Int, after?: string }): LastFMTagConnection | undefined
+    topTags(args: { first?: Int; after?: string }): LastFMTagConnection | undefined
 }
 
 /** Strategies for matching MusicBrainz entities to Spotify entities. */
-export type SpotifyMatchStrategy = "URL" | "EXTERNALID"
+export type SpotifyMatchStrategy = 'URL' | 'EXTERNALID'
 
 /** An album from Spotify. */
 export type SpotifyAlbum = GQLType & {
@@ -2289,7 +2443,7 @@ depressed, angry). */
 }
 
 /** The potential values for modality (major or minor) of a track. */
-export type SpotifyTrackMode = "MAJOR" | "MINOR"
+export type SpotifyTrackMode = 'MAJOR' | 'MINOR'
 
 /** A value for identifying an entity with some third party. */
 export type SpotifyExternalID = GQLType & {
@@ -2309,7 +2463,7 @@ export type SpotifyCopyright = GQLType & {
 }
 
 /** The type of copyright. */
-export type SpotifyCopyrightType = "COPYRIGHT" | "PERFORMANCE"
+export type SpotifyCopyrightType = 'COPYRIGHT' | 'PERFORMANCE'
 
 /** A track on [TheAudioDB](http://www.theaudiodb.com/) corresponding with a
 MusicBrainz Recording. */
@@ -2414,9 +2568,9 @@ every member of a band). */
 /** A country with chart data available on [Last.fm](https://www.last.fm/). */
 export type LastFMCountry = GQLType & {
     /** The top artists in this country, ordered by popularity. */
-    topArtists(args: { first?: Int, after?: string }): LastFMArtistConnection | undefined
+    topArtists(args: { first?: Int; after?: string }): LastFMArtistConnection | undefined
     /** The top tracks in this country, ordered by popularity. */
-    topTracks(args: { first?: Int, after?: string }): LastFMTrackConnection | undefined
+    topTracks(args: { first?: Int; after?: string }): LastFMTrackConnection | undefined
 }
 
 /** A [URL](https://musicbrainz.org/doc/URL) pointing to a resource
@@ -2437,25 +2591,99 @@ export type URL = GQLType & {
 entity. */
 export type BrowseQuery = GQLType & {
     /** Browse area entities linked to the given arguments. */
-    areas(args: { collection?: MBID, after?: string, first?: Int }): AreaConnection | undefined
+    areas(args: { collection?: MBID; after?: string; first?: Int }): AreaConnection | undefined
     /** Browse artist entities linked to the given arguments. */
-    artists(args: { area?: MBID, collection?: MBID, recording?: MBID, release?: MBID, releaseGroup?: MBID, work?: MBID, after?: string, first?: Int }): ArtistConnection | undefined
+    artists(args: {
+        area?: MBID
+        collection?: MBID
+        recording?: MBID
+        release?: MBID
+        releaseGroup?: MBID
+        work?: MBID
+        after?: string
+        first?: Int
+    }): ArtistConnection | undefined
     /** Browse collection entities linked to the given arguments. */
-    collections(args: { area?: MBID, artist?: MBID, editor?: string, event?: MBID, label?: MBID, place?: MBID, recording?: MBID, release?: MBID, releaseGroup?: MBID, work?: MBID, after?: string, first?: Int }): CollectionConnection | undefined
+    collections(args: {
+        area?: MBID
+        artist?: MBID
+        editor?: string
+        event?: MBID
+        label?: MBID
+        place?: MBID
+        recording?: MBID
+        release?: MBID
+        releaseGroup?: MBID
+        work?: MBID
+        after?: string
+        first?: Int
+    }): CollectionConnection | undefined
     /** Browse event entities linked to the given arguments. */
-    events(args: { area?: MBID, artist?: MBID, collection?: MBID, place?: MBID, after?: string, first?: Int }): EventConnection | undefined
+    events(args: {
+        area?: MBID
+        artist?: MBID
+        collection?: MBID
+        place?: MBID
+        after?: string
+        first?: Int
+    }): EventConnection | undefined
     /** Browse label entities linked to the given arguments. */
-    labels(args: { area?: MBID, collection?: MBID, release?: MBID, after?: string, first?: Int }): LabelConnection | undefined
+    labels(args: {
+        area?: MBID
+        collection?: MBID
+        release?: MBID
+        after?: string
+        first?: Int
+    }): LabelConnection | undefined
     /** Browse place entities linked to the given arguments. */
-    places(args: { area?: MBID, collection?: MBID, after?: string, first?: Int }): PlaceConnection | undefined
+    places(args: {
+        area?: MBID
+        collection?: MBID
+        after?: string
+        first?: Int
+    }): PlaceConnection | undefined
     /** Browse recording entities linked to the given arguments. */
-    recordings(args: { artist?: MBID, collection?: MBID, isrc?: ISRC, release?: MBID, after?: string, first?: Int }): RecordingConnection | undefined
+    recordings(args: {
+        artist?: MBID
+        collection?: MBID
+        isrc?: ISRC
+        release?: MBID
+        after?: string
+        first?: Int
+    }): RecordingConnection | undefined
     /** Browse release entities linked to the given arguments. */
-    releases(args: { area?: MBID, artist?: MBID, collection?: MBID, discID?: DiscID, label?: MBID, recording?: MBID, releaseGroup?: MBID, track?: MBID, trackArtist?: MBID, type?: ReleaseGroupType[], status?: ReleaseStatus[], after?: string, first?: Int }): ReleaseConnection | undefined
+    releases(args: {
+        area?: MBID
+        artist?: MBID
+        collection?: MBID
+        discID?: DiscID
+        label?: MBID
+        recording?: MBID
+        releaseGroup?: MBID
+        track?: MBID
+        trackArtist?: MBID
+        type?: ReleaseGroupType[]
+        status?: ReleaseStatus[]
+        after?: string
+        first?: Int
+    }): ReleaseConnection | undefined
     /** Browse release group entities linked to the given arguments. */
-    releaseGroups(args: { artist?: MBID, collection?: MBID, release?: MBID, type?: ReleaseGroupType[], after?: string, first?: Int }): ReleaseGroupConnection | undefined
+    releaseGroups(args: {
+        artist?: MBID
+        collection?: MBID
+        release?: MBID
+        type?: ReleaseGroupType[]
+        after?: string
+        first?: Int
+    }): ReleaseGroupConnection | undefined
     /** Browse work entities linked to the given arguments. */
-    works(args: { artist?: MBID, collection?: MBID, iswc?: ISWC, after?: string, first?: Int }): WorkConnection | undefined
+    works(args: {
+        artist?: MBID
+        collection?: MBID
+        iswc?: ISWC
+        after?: string
+        first?: Int
+    }): WorkConnection | undefined
 }
 
 /** The [International Standard Musical Work Code](https://musicbrainz.org/doc/ISWC)
@@ -2466,27 +2694,39 @@ export type ISWC = any
 /** A search for MusicBrainz entities using Lucene query syntax. */
 export type SearchQuery = GQLType & {
     /** Search for area entities matching the given query. */
-    areas(args: { query: string, after?: string, first?: Int }): AreaConnection | undefined
+    areas(args: { query: string; after?: string; first?: Int }): AreaConnection | undefined
     /** Search for artist entities matching the given query. */
-    artists(args: { query: string, after?: string, first?: Int }): ArtistConnection | undefined
+    artists(args: { query: string; after?: string; first?: Int }): ArtistConnection | undefined
     /** Search for event entities matching the given query. */
-    events(args: { query: string, after?: string, first?: Int }): EventConnection | undefined
+    events(args: { query: string; after?: string; first?: Int }): EventConnection | undefined
     /** Search for instrument entities matching the given query. */
-    instruments(args: { query: string, after?: string, first?: Int }): InstrumentConnection | undefined
+    instruments(args: {
+        query: string
+        after?: string
+        first?: Int
+    }): InstrumentConnection | undefined
     /** Search for label entities matching the given query. */
-    labels(args: { query: string, after?: string, first?: Int }): LabelConnection | undefined
+    labels(args: { query: string; after?: string; first?: Int }): LabelConnection | undefined
     /** Search for place entities matching the given query. */
-    places(args: { query: string, after?: string, first?: Int }): PlaceConnection | undefined
+    places(args: { query: string; after?: string; first?: Int }): PlaceConnection | undefined
     /** Search for recording entities matching the given query. */
-    recordings(args: { query: string, after?: string, first?: Int }): RecordingConnection | undefined
+    recordings(args: {
+        query: string
+        after?: string
+        first?: Int
+    }): RecordingConnection | undefined
     /** Search for release entities matching the given query. */
-    releases(args: { query: string, after?: string, first?: Int }): ReleaseConnection | undefined
+    releases(args: { query: string; after?: string; first?: Int }): ReleaseConnection | undefined
     /** Search for release group entities matching the given query. */
-    releaseGroups(args: { query: string, after?: string, first?: Int }): ReleaseGroupConnection | undefined
+    releaseGroups(args: {
+        query: string
+        after?: string
+        first?: Int
+    }): ReleaseGroupConnection | undefined
     /** Search for series entities matching the given query. */
-    series(args: { query: string, after?: string, first?: Int }): SeriesConnection | undefined
+    series(args: { query: string; after?: string; first?: Int }): SeriesConnection | undefined
     /** Search for work entities matching the given query. */
-    works(args: { query: string, after?: string, first?: Int }): WorkConnection | undefined
+    works(args: { query: string; after?: string; first?: Int }): WorkConnection | undefined
 }
 
 /** The different types of [Last.fm](https://www.last.fm/) queries that can be
@@ -2500,17 +2740,30 @@ export type LastFMQuery = GQLType & {
 export type LastFMChartQuery = GQLType & {
     /** The most popular artists, ordered by popularity. If a country code is
 given, retrieve the most popular artists in that country. */
-    topArtists(args: { country?: string, first?: Int, after?: string }): LastFMArtistConnection | undefined
+    topArtists(args: {
+        country?: string
+        first?: Int
+        after?: string
+    }): LastFMArtistConnection | undefined
     /** The most popular tags, ordered by popularity. */
-    topTags(args: { first?: Int, after?: string }): LastFMTagConnection | undefined
+    topTags(args: { first?: Int; after?: string }): LastFMTagConnection | undefined
     /** The most popular tracks, ordered by popularity. If a country code is
 given, retrieve the most popular tracks in that country. */
-    topTracks(args: { country?: string, first?: Int, after?: string }): LastFMTrackConnection | undefined
+    topTracks(args: {
+        country?: string
+        first?: Int
+        after?: string
+    }): LastFMTrackConnection | undefined
 }
 
 export type SpotifyQuery = GQLType & {
     /** Track recommendations based on seed entities and various parameters. */
-    recommendations(args: { seedArtists?: ID[], seedGenres?: ID[], seedTracks?: ID[], limit?: Int }): SpotifyRecommendations
+    recommendations(args: {
+        seedArtists?: ID[]
+        seedGenres?: ID[]
+        seedTracks?: ID[]
+        limit?: Int
+    }): SpotifyRecommendations
 }
 
 export type SpotifyRecommendations = GQLType & {
@@ -2534,4 +2787,3 @@ export type DiscogsReleaseEdge = GQLType & {
     /** The release at the end of the edge. */
     node: DiscogsRelease
 }
-

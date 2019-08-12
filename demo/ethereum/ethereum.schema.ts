@@ -7,13 +7,13 @@ export type Query = GQLType & {
     /** Selects an account. */
     account?(args: { address: Address }): Account
     /** Selects a block based on either a number, hash or a tag. */
-    block?(args: { number?: BlockNumber, hash?: Bytes32, tag?: BlockTag }): Block
+    block?(args: { number?: BlockNumber; hash?: Bytes32; tag?: BlockTag }): Block
     /** Selects a block based on a reference block and an offset from it. */
     blockOffset?(args: { offset: BlockOffset }): Block
     /** Selects an arbitrary set of blocks based on their numbers or hashes. */
-    blocks?(args: { numbers?: BlockNumber[], hashes?: Bytes32[] }): Block[]
+    blocks?(args: { numbers?: BlockNumber[]; hashes?: Bytes32[] }): Block[]
     /** Selects a range of blocks. */
-    blocksRange?(args: { numberRange?: BlockNumber[], hashRange?: Bytes32[] }): Block[]
+    blocksRange?(args: { numberRange?: BlockNumber[]; hashRange?: Bytes32[] }): Block[]
     /** Selects a transaction by hash. */
     transaction?(args: { hash?: Bytes32 }): Transaction
     /** Returns the health of the server. */
@@ -46,13 +46,36 @@ export type Account = GQLType & {
     storage: Storage
 }
 
-export type Unit = "wei" | "kwei" | "babbage" | "femtoether" | "mwei" | "lovelace" | "picoether" | "gwei" | "shannon" | "nanoether" | "nano" | "szabo" | "microether" | "micro" | "finney" | "milliether" | "milli" | "ether" | "kether" | "grand" | "mether" | "gether" | "tether"
+export type Unit =
+    | 'wei'
+    | 'kwei'
+    | 'babbage'
+    | 'femtoether'
+    | 'mwei'
+    | 'lovelace'
+    | 'picoether'
+    | 'gwei'
+    | 'shannon'
+    | 'nanoether'
+    | 'nano'
+    | 'szabo'
+    | 'microether'
+    | 'micro'
+    | 'finney'
+    | 'milliether'
+    | 'milli'
+    | 'ether'
+    | 'kether'
+    | 'grand'
+    | 'mether'
+    | 'gether'
+    | 'tether'
 
 /** 64-bit unsigned integer */
 export type Long = any
 
 /** Type of account. */
-export type AccountType = "CONTRACT" | "EXTERNALLY_OWNED"
+export type AccountType = 'CONTRACT' | 'EXTERNALLY_OWNED'
 
 /** The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.  */
 export type Int = number
@@ -63,14 +86,14 @@ export type Storage = GQLType & {
     value?(args: { at: Int }): string
     /** Steps into a map at this storage slot.
 keyType can be address, number, or string. */
-    solidityMap?(args: { at: Int, keyType: KeyType }): SolidityMap
+    solidityMap?(args: { at: Int; keyType: KeyType }): SolidityMap
     /** Steps into a fixed array at this storage slot. */
     solidityFixedArray?(args: { at: Int }): SolidityFixedArray
     /** Steps into a dynamic array at this storage slot. */
     solidityDynamicArray?(args: { at: Int }): SolidityDynamicArray
 }
 
-export type KeyType = "address" | "number" | "string"
+export type KeyType = 'address' | 'number' | 'string'
 
 /** A solidity map. */
 export type SolidityMap = GQLType & {
@@ -78,7 +101,7 @@ export type SolidityMap = GQLType & {
     value?(args: { at: string }): string
     /** Steps into the map returned by this key.
 keyType can be address, number, or string. */
-    solidityMap?(args: { at: string, keyType: KeyType }): SolidityMap
+    solidityMap?(args: { at: string; keyType: KeyType }): SolidityMap
     /** Steps into the fixed array returned by this key. */
     solidityFixedArray?(args: { at: string }): SolidityFixedArray
     /** Steps into the dynamic array returned by this key. */
@@ -91,7 +114,7 @@ export type SolidityFixedArray = GQLType & {
     value?(args: { at: Int }): string
     /** Steps into the map at this index.
 keyType can be address, number, or string. */
-    solidityMap?(args: { at: Int, keyType: KeyType }): SolidityMap
+    solidityMap?(args: { at: Int; keyType: KeyType }): SolidityMap
     /** Steps into the fixed array at this index. */
     solidityFixedArray?(args: { at: Int }): SolidityFixedArray
     /** Steps into the dynamic array at this index. */
@@ -104,7 +127,7 @@ export type SolidityDynamicArray = GQLType & {
     value?(args: { at: Int }): string
     /** Steps into the map at this index.
 keyType can be address, string, or number. */
-    solidityMap?(args: { at: Int, keyType: KeyType }): SolidityMap
+    solidityMap?(args: { at: Int; keyType: KeyType }): SolidityMap
     /** Steps into the fixed array at this index. */
     solidityFixedArray?(args: { at: Int }): SolidityFixedArray
     /** Steps into the dynamic array at this index. */
@@ -118,7 +141,7 @@ export type BlockNumber = any
 export type Bytes32 = any
 
 /** Named block identifiers. */
-export type BlockTag = "EARLIEST" | "LATEST" | "PENDING"
+export type BlockTag = 'EARLIEST' | 'LATEST' | 'PENDING'
 
 /** An Ethereum Block. */
 export type Block = GQLType & {
@@ -164,10 +187,17 @@ export type Block = GQLType & {
     transactions?(args: { filter?: TransactionFilter }): Transaction[]
     /** Gets all transactions from this block as long as they involve any of the addresses specified.
 If a filter is passed, only the transactions matching the filter will be returned. */
-    transactionsInvolving?(args: { participants: Address[], filter?: TransactionFilter }): Transaction[]
+    transactionsInvolving?(args: {
+        participants: Address[]
+        filter?: TransactionFilter
+    }): Transaction[]
     /** Gets all transactions from this block where the provided addresses take the indicated roles.
 If a filter is passed, only the transactions matching the filter will be returned. */
-    transactionsRoles?(args: { from?: Address, to?: Address, filter?: TransactionFilter }): Transaction[]
+    transactionsRoles?(args: {
+        from?: Address
+        to?: Address
+        filter?: TransactionFilter
+    }): Transaction[]
 }
 
 /** An Ethereum transaction. */
@@ -207,7 +237,7 @@ For example, because some standards share function signatures, a single transact
 export type Float = number
 
 /** The status or outcome of the transaction. */
-export type TransactionStatus = "FAILED" | "SUCCESS"
+export type TransactionStatus = 'FAILED' | 'SUCCESS'
 
 /** A filter for logs. */
 export type LogFilter = {
@@ -256,7 +286,7 @@ export interface DecodedLog extends GQLType {
 
 /** Entities are a way to group related standards into one functional concept, e.g. ERC20, ERC777 refer to the 'token' entity,
 the ENS standard refers to the 'domain' entity. */
-export type Entity = "token"
+export type Entity = 'token'
 
 export interface DecodedTransaction extends GQLType {
     /** The entity this transaction refers to. See documentation on the Entity type. */
@@ -359,4 +389,3 @@ export type ERC20ApprovalEvent = GQLType & {
     spender?: TokenHolder
     value?: string
 }
-

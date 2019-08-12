@@ -5,28 +5,31 @@ import { createRoot, useQuery, Directive, withQuery, Query } from '../../src/aut
 import * as GQL from './api-platform.schema'
 
 const AutographRoot = createRoot({
-    client: 'https://demo.api-platform.com/graphql'
+    client: 'https://demo.api-platform.com/graphql',
 })
 
+function App() {
+    let query: GQL.Query = useQuery()
 
-function App(){
-    let query: GQL.Query = useQuery();
+    if (query._loading) return <div>Loading...</div>
+    let books = query.books({ author: 'Fermin Larkin' })
 
-    if(query._loading) return <div>Loading...</div>;
-    let books = query.books({author: "Fermin Larkin"});
+    return (
+        <div>
+            {books!.totalCount}
 
-    return <div>    
-        {books!.totalCount}
-
-        {books!.edges!.map(result => <div>
-            {result!.node!.title}
-        </div>)}
-    </div>
+            {books!.edges!.map((result) => (
+                <div>{result!.node!.title}</div>
+            ))}
+        </div>
+    )
 }
 
-let dom = <AutographRoot>
+let dom = (
+    <AutographRoot>
         <App />
-</AutographRoot>
+    </AutographRoot>
+)
 ReactDOM.render(dom, document.getElementById('root'))
 
 // global.ag = AutographRoot._root;

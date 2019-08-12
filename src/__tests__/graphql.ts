@@ -206,7 +206,5 @@ test('Unsupported Types', () => {
                 '{"type": "ZOOP", "name": "Human"}': {},
             },
         })
-    ).toThrowErrorMatchingInlineSnapshot(
-        `"Encountered unexpected navigation type \\"ZOOP\\""`
-    )
+    ).toThrowErrorMatchingInlineSnapshot(`"Encountered unexpected navigation type \\"ZOOP\\""`)
 })
