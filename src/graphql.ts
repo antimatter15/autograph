@@ -75,47 +75,81 @@ export default function accessLogToGraphQL(log) {
     return convertRecursive(log, '')
 }
 
-export const SUCCINCT_INTROSPECTION_QUERY = `
-  query IntrospectionQuery {
-    __schema {
-      queryType { name }
-      mutationType { name }
-      subscriptionType { name }
-      types { ...FullType }
-    }
-  }
+// this line is for syntax highlighting and prettier formatting
+const gql = (x) => x[0]
 
-  fragment FullType on __Type {
-    kind
-    name
-    description
-    fields(includeDeprecated: true) {
-      name
-      description
-      deprecationReason
-      args { ...InputValue }
-      type { ...TypeRef }
+export const SUCCINCT_INTROSPECTION_QUERY = gql`
+    query IntrospectionQuery {
+        __schema {
+            queryType {
+                name
+            }
+            mutationType {
+                name
+            }
+            subscriptionType {
+                name
+            }
+            types {
+                ...FullType
+            }
+        }
     }
-    inputFields { ...InputValue }
-    interfaces { ...TypeRef }
-    enumValues(includeDeprecated: true) {
-      name
-      description
+
+    fragment FullType on __Type {
+        kind
+        name
+        description
+        fields(includeDeprecated: true) {
+            name
+            description
+            deprecationReason
+            args {
+                ...InputValue
+            }
+            type {
+                ...TypeRef
+            }
+        }
+        inputFields {
+            ...InputValue
+        }
+        interfaces {
+            ...TypeRef
+        }
+        enumValues(includeDeprecated: true) {
+            name
+            description
+        }
+        possibleTypes {
+            ...TypeRef
+        }
     }
-    possibleTypes { ...TypeRef }
-  }
 
-  fragment InputValue on __InputValue {
-    name
-    description
-    type { ...TypeRef }
-  }
+    fragment InputValue on __InputValue {
+        name
+        description
+        type {
+            ...TypeRef
+        }
+    }
 
-  fragment TypeRef on __Type {
-    kind
-    name
-    ofType { kind, name, ofType { kind, name, ofType { kind, name } } }
-  }
+    fragment TypeRef on __Type {
+        kind
+        name
+        ofType {
+            kind
+            name
+            ofType {
+                kind
+                name
+                ofType {
+                    kind
+                    name
+                }
+            }
+        }
+    }
 `
 
 // let MINIMAL_INTROSPECTION_QUERY = `
