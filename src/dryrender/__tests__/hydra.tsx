@@ -286,11 +286,11 @@ test('profiler rehydrate', () => {
         lastMessage = state
         return <button onClick={(e) => setState('derp')}>{state}</button>
     }
-
+    const Profiler = React.Profiler || (React as any).unstable_Profiler
     const node = (
-        <React.unstable_Profiler onRender={() => {}} id="asdf">
+        <Profiler onRender={() => {}} id="asdf">
             <StatefulDemo />
-        </React.unstable_Profiler>
+        </Profiler>
     )
 
     const component = renderer.create(node)

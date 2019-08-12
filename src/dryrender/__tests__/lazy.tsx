@@ -40,11 +40,9 @@ test('React.lazy (test renderer)', async () => {
     }
     const LazyDummy = React.lazy(
         () =>
-            new Promise((resolve) =>
-                resolve({
-                    default: Dummy,
-                } as any)
-            )
+            Promise.resolve({
+                default: Dummy
+            })
     )
     const node = (
         <React.Suspense fallback={<div>loading...</div>}>
@@ -52,14 +50,14 @@ test('React.lazy (test renderer)', async () => {
         </React.Suspense>
     )
 
-    const component = renderer.create(node)
+    let component;
+    await act(async () => {
+        component = renderer.create(node)    
+    })
+    
     let root = findFiberRoot((component.root as any)._fiber)
-
     expect(callRender.mock.calls.length).toBe(0)
     dryRender(elementFromFiber(root.child), root.child)
-    expect(callRender.mock.calls.length).toBe(0)
-
-    await delay(10)
     expect(callRender.mock.calls.length).toBe(1)
     dryRender(elementFromFiber(root.child), root.child)
     expect(callRender.mock.calls.length).toBe(2)
@@ -93,17 +91,20 @@ test('React.lazy (test renderer / stateful)', async () => {
         </React.Suspense>
     )
 
-    const component = renderer.create(node)
+    let component;
+    await act(async () => {
+        component = renderer.create(node)    
+    })
     let root = findFiberRoot((component.root as any)._fiber)
 
-    expect(callRender.mock.calls.length).toBe(0)
-    dryRender(elementFromFiber(root.child), root.child)
-    expect(callRender.mock.calls.length).toBe(0)
-
-    await delay(10)
     expect(callRender.mock.calls.length).toBe(1)
     dryRender(elementFromFiber(root.child), root.child)
     expect(callRender.mock.calls.length).toBe(2)
+
+    // await delay(10)
+    // expect(callRender.mock.calls.length).toBe(1)
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(callRender.mock.calls.length).toBe(3)
 
     expect(lastMessage).toBe('wumbo')
     dryRender(elementFromFiber(root.child), root.child)

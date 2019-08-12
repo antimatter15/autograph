@@ -160,10 +160,11 @@ describe('basic render traversal', () => {
             callRender()
             return <div>thing</div>
         }
+        const Profiler = React.Profiler || (React as any).unstable_Profiler
         const node = (
-            <React.unstable_Profiler onRender={() => {}} id="asdf">
+            <Profiler onRender={() => {}} id="asdf">
                 <Thing />
-            </React.unstable_Profiler>
+            </Profiler>
         )
         dryRender(node, null)
         expect(callRender.mock.calls.length).toBe(1)

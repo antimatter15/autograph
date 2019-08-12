@@ -1,6 +1,5 @@
 import * as React from 'react'
 import * as ReactIs from 'react-is'
-import { jsxAttribute } from '@babel/types'
 
 // TODO: check out https://github.com/airbnb/enzyme/blob/master/packages/enzyme-adapter-react-16/src/ReactSixteenAdapter.js
 // TODO: add findCurrentFiberUsingSlowPath, because we're clearly getting the wrong fiber sometimes....
@@ -52,10 +51,10 @@ export default function dryRender(node: React.ReactNode, fiber: ReactFiber | nul
             //     console.error(err)
             // }
         }
-        console.log('Array/Fragment')
+        // console.log('Array/Fragment')
         return
     } else if (typeof node === 'string' || typeof node === 'number' || !node) {
-        console.log('String', node)
+        // console.log('String', node)
         return
     } else if (ReactIs.isFragment(node)) {
         return dryRender(node.props.children, fiber)
@@ -97,14 +96,14 @@ export default function dryRender(node: React.ReactNode, fiber: ReactFiber | nul
     }
 
     if (typeof (node as JSX.Element).type === 'string') {
-        console.log('Host component', (node as JSX.Element).type)
+        // console.log('Host component', (node as JSX.Element).type)
         dryRender((node as JSX.Element).props.children, fiber && fiber.child)
     } else if (
         typeof (node as JSX.Element).type === 'function' &&
         (node as JSX.Element).type.prototype &&
         (node as JSX.Element).type.prototype.isReactComponent
     ) {
-        console.log('Class component', (node as JSX.Element).type.name)
+        // console.log('Class component', (node as JSX.Element).type.name)
         // https://overreacted.io/how-does-react-tell-a-class-from-a-function/
         let stateNode = new (node as JSX.Element).type(
             (node as JSX.Element).props /* TODO: legacy context API */
@@ -139,7 +138,7 @@ export default function dryRender(node: React.ReactNode, fiber: ReactFiber | nul
             _currentLegacyContext = originalLegacyContext
         }
     } else if (typeof (node as JSX.Element).type === 'function') {
-        console.log('Functional component', (node as JSX.Element).type.name)
+        // console.log('Functional component', (node as JSX.Element).type.name)
         let nextChildren
         let legacyContext
         if (fiber) _currentHookState = fiber.memoizedState
@@ -230,7 +229,7 @@ function nextHook() {
     if (currentHook) {
         _currentHookState = currentHook.next
     }
-    console.log('next hook please', currentHook)
+    // console.log('next hook please', currentHook)
     return currentHook
 }
 
