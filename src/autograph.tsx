@@ -1,4 +1,5 @@
 import React from 'react'
+import * as parser from 'graphql/language/parser'
 import _dryRender, { elementFromFiber } from './dryrender/dryrender'
 import makeFixedArray from './util/fixarray'
 import { hashArguments, shallowCompare, nextFrame } from './util/util'
@@ -50,6 +51,28 @@ export class AutographBasicClient {
     }
 }
 
+class AutographApolloClient {
+    constructor(client) {
+        this.client = client
+    }
+
+    fetchSchema() {
+        return this.fetchQuery(SUCCINCT_INTROSPECTION_QUERY).then((data) => data.__schema)
+    }
+
+    fetchQuery(query) {
+        let doc = parser.parse(query, {})
+
+        return this.client
+            .query({
+                query: doc,
+            })
+            .then((resp) => {
+                return resp.data
+            })
+    }
+}
+
 class AutographModel {
     mounted: boolean
     currentlyDryRendering: boolean
@@ -61,6 +84,8 @@ class AutographModel {
     constructor(config) {
         if (typeof config.client === 'string') {
             config.client = new AutographBasicClient(config.client)
+        } else if (typeof config.client === 'object' && config.client.link && config.client.query) {
+            config.client = new AutographApolloClient(config.client)
         }
 
         this.mounted = false
