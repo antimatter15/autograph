@@ -50,7 +50,9 @@ export default function convertGQLSchemaToTypescript(schema) {
                     ts +=
                         INDENT +
                         field.name +
-                        '(args: { ' +
+                        '(args' +
+                        (field.args.every((arg) => IsGQLTypeNullable(arg.type)) ? '?' : '') +
+                        ': { ' +
                         field.args
                             .map(
                                 (arg) =>

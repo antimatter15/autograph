@@ -5,7 +5,7 @@ type GQLType = {
 
 export type Query = GQLType & {
     /** Testing endpoint to validate the API with */
-    echo(args: { text?: string }): string
+    echo(args?: { text?: string }): string
     /** Find a group */
     group(args: { fullPath: ID }): Group | undefined
     /** Metadata about GitLab */
@@ -37,7 +37,7 @@ export type Project = GQLType & {
     httpUrlToRepo?: string
     id: ID
     importStatus?: string
-    issue(args: {
+    issue(args?: {
         iid?: string
         iids?: string[]
         state?: IssuableState
@@ -51,7 +51,7 @@ export type Project = GQLType & {
         search?: string
         sort?: Sort
     }): Issue | undefined
-    issues(args: {
+    issues(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -73,8 +73,8 @@ export type Project = GQLType & {
     jobsEnabled?: boolean
     lastActivityAt?: Time
     lfsEnabled?: boolean
-    mergeRequest(args: { iid?: string; iids?: string[] }): MergeRequest | undefined
-    mergeRequests(args: {
+    mergeRequest(args?: { iid?: string; iids?: string[] }): MergeRequest | undefined
+    mergeRequests(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -91,7 +91,7 @@ export type Project = GQLType & {
     onlyAllowMergeIfPipelineSucceeds?: boolean
     openIssuesCount?: Int
     path: string
-    pipelines(args: {
+    pipelines(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -219,7 +219,7 @@ export type Namespace = GQLType & {
     lfsEnabled?: boolean
     name: string
     path: string
-    projects(args: {
+    projects(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -263,8 +263,8 @@ export type Group = GQLType & {
     description?: string
     /** The GitLab Flavored Markdown rendering of `description` */
     descriptionHtml?: string
-    epic(args: { iid?: ID; iids?: ID[] }): Epic | undefined
-    epics(args: {
+    epic(args?: { iid?: ID; iids?: ID[] }): Epic | undefined
+    epics(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -280,7 +280,7 @@ export type Group = GQLType & {
     name: string
     parent?: Group
     path: string
-    projects(args: {
+    projects(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -301,7 +301,7 @@ export type GroupPermissions = GQLType & {
 
 export type Epic = GQLType & {
     author: User
-    children(args: {
+    children(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -313,7 +313,7 @@ export type Epic = GQLType & {
     createdAt?: Time
     description?: string
     /** All discussions on this noteable */
-    discussions(args: {
+    discussions(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -328,16 +328,16 @@ export type Epic = GQLType & {
     hasIssues: boolean
     id: ID
     iid: ID
-    issues(args: {
+    issues(args?: {
         first?: Int
         after?: string
         last?: Int
         before?: string
     }): EpicIssueConnection | undefined
     /** All notes on this noteable */
-    notes(args: { first?: Int; after?: string; last?: Int; before?: string }): NoteConnection
+    notes(args?: { first?: Int; after?: string; last?: Int; before?: string }): NoteConnection
     parent?: Epic
-    reference(args: { full?: boolean }): string
+    reference(args?: { full?: boolean }): string
     relationPath?: string
     startDate?: Time
     startDateFixed?: Time
@@ -436,7 +436,7 @@ export type Discussion = GQLType & {
     createdAt: Time
     id: ID
     /** All notes in the discussion */
-    notes(args: { first?: Int; after?: string; last?: Int; before?: string }): NoteConnection
+    notes(args?: { first?: Int; after?: string; last?: Int; before?: string }): NoteConnection
     /** The ID used to reply to this discussion */
     replyId: ID
 }
@@ -548,7 +548,7 @@ export type EpicIssueEdge = GQLType & {
 }
 
 export type EpicIssue = GQLType & {
-    assignees(args: {
+    assignees(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -564,7 +564,7 @@ export type EpicIssue = GQLType & {
     designs?: DesignCollection
     discussionLocked: boolean
     /** All discussions on this noteable */
-    discussions(args: {
+    discussions(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -574,7 +574,7 @@ export type EpicIssue = GQLType & {
     dueDate?: Time
     epicIssueId: ID
     iid: ID
-    labels(args: {
+    labels(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -582,8 +582,8 @@ export type EpicIssue = GQLType & {
     }): LabelConnection | undefined
     milestone?: Milestone
     /** All notes on this noteable */
-    notes(args: { first?: Int; after?: string; last?: Int; before?: string }): NoteConnection
-    reference(args: { full?: boolean }): string
+    notes(args?: { first?: Int; after?: string; last?: Int; before?: string }): NoteConnection
+    reference(args?: { full?: boolean }): string
     relationPath?: string
     relativePosition?: Int
     state: IssueState
@@ -683,7 +683,7 @@ export type TaskCompletionStatus = GQLType & {
 
 export type DesignCollection = GQLType & {
     /** All visible designs for this collection */
-    designs(args: {
+    designs(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -693,7 +693,7 @@ export type DesignCollection = GQLType & {
     issue: Issue
     project: Project
     /** All versions related to all designs ordered newest first */
-    versions(args: {
+    versions(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -702,7 +702,7 @@ export type DesignCollection = GQLType & {
 }
 
 export type Issue = GQLType & {
-    assignees(args: {
+    assignees(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -718,7 +718,7 @@ export type Issue = GQLType & {
     designs?: DesignCollection
     discussionLocked: boolean
     /** All discussions on this noteable */
-    discussions(args: {
+    discussions(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -727,7 +727,7 @@ export type Issue = GQLType & {
     downvotes: Int
     dueDate?: Time
     iid: ID
-    labels(args: {
+    labels(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -735,8 +735,8 @@ export type Issue = GQLType & {
     }): LabelConnection | undefined
     milestone?: Milestone
     /** All notes on this noteable */
-    notes(args: { first?: Int; after?: string; last?: Int; before?: string }): NoteConnection
-    reference(args: { full?: boolean }): string
+    notes(args?: { first?: Int; after?: string; last?: Int; before?: string }): NoteConnection
+    reference(args?: { full?: boolean }): string
     relativePosition?: Int
     state: IssueState
     taskCompletionStatus: TaskCompletionStatus
@@ -772,7 +772,7 @@ export type DesignEdge = GQLType & {
 export type Design = GQLType & {
     diffRefs: DiffRefs
     /** All discussions on this noteable */
-    discussions(args: {
+    discussions(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -784,10 +784,10 @@ export type Design = GQLType & {
     image: string
     issue: Issue
     /** All notes on this noteable */
-    notes(args: { first?: Int; after?: string; last?: Int; before?: string }): NoteConnection
+    notes(args?: { first?: Int; after?: string; last?: Int; before?: string }): NoteConnection
     project: Project
     /** All versions related to this design ordered newest first */
-    versions(args: {
+    versions(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -813,7 +813,7 @@ export type DesignVersionEdge = GQLType & {
 
 export type DesignVersion = GQLType & {
     /** All designs that were changed in this version */
-    designs(args: { first?: Int; after?: string; last?: Int; before?: string }): DesignConnection
+    designs(args?: { first?: Int; after?: string; last?: Int; before?: string }): DesignConnection
     id: ID
     sha: ID
 }
@@ -832,19 +832,19 @@ export type Repository = GQLType & {
     empty: boolean
     exists: boolean
     rootRef?: string
-    tree(args: { path?: string; ref?: string; recursive?: boolean }): Tree | undefined
+    tree(args?: { path?: string; ref?: string; recursive?: boolean }): Tree | undefined
 }
 
 export type Tree = GQLType & {
-    blobs(args: { first?: Int; after?: string; last?: Int; before?: string }): BlobConnection
+    blobs(args?: { first?: Int; after?: string; last?: Int; before?: string }): BlobConnection
     lastCommit?: Commit
-    submodules(args: {
+    submodules(args?: {
         first?: Int
         after?: string
         last?: Int
         before?: string
     }): SubmoduleConnection
-    trees(args: { first?: Int; after?: string; last?: Int; before?: string }): TreeEntryConnection
+    trees(args?: { first?: Int; after?: string; last?: Int; before?: string }): TreeEntryConnection
 }
 
 export type Commit = GQLType & {
@@ -1036,7 +1036,7 @@ export type MergeRequest = GQLType & {
     diffHeadSha?: string
     diffRefs?: DiffRefs
     /** All discussions on this noteable */
-    discussions(args: {
+    discussions(args?: {
         first?: Int
         after?: string
         last?: Int
@@ -1057,8 +1057,8 @@ export type MergeRequest = GQLType & {
     mergeWhenPipelineSucceeds?: boolean
     mergeableDiscussionsState?: boolean
     /** All notes on this noteable */
-    notes(args: { first?: Int; after?: string; last?: Int; before?: string }): NoteConnection
-    pipelines(args: {
+    notes(args?: { first?: Int; after?: string; last?: Int; before?: string }): NoteConnection
+    pipelines(args?: {
         first?: Int
         after?: string
         last?: Int

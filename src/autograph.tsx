@@ -431,7 +431,7 @@ class AutographQuery {
                                 .filter((k) => /^[_A-Za-z][_0-9A-Za-z]*$/.test(k))
                                 .join(', ')}}`
                             handle[field.name] = eval(
-                                `(function(${argStr}){ return run(arguments[0])} )`
+                                `(function(${argStr}={}){ return run(arguments[0])} )`
                             )
                         } else {
                             handle[field.name] = run

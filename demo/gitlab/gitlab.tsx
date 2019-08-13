@@ -35,7 +35,7 @@ function App() {
 
             <ul>
                 {project
-                    .repository!.tree({})!
+                    .repository!.tree()!
                     .blobs({ first: 100 })
                     .edges!.map((k) => (
                         <li>{k.node!.path}</li>
