@@ -1,7 +1,7 @@
 {
   "name": "autograph",
   "version": "0.0.0",
-  "main": "index.js",
+  "main": "dist/autograph.js",
   "repository": "git@github.com:antimatter15/autograph.git",
   "author": "Kevin Kwok <antimatter15@gmail.com>",
   "license": "MIT",
@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "graphql": "^14.4.2",
-    "react": "^16.9.0",
     "react-is": "^16.9.0"
   },
   "devDependencies": {
@@ -25,10 +24,15 @@
     "jest": "^24.8.0",
     "parcel": "^1.12.3",
     "prettier": "^1.18.2",
+    "react": "^16.0.0",
     "react-dom": "^16.9.0",
     "react-test-renderer": "^16.9.0",
     "ts-jest": "^24.0.2",
+    "tsc": "^1.20150623.0",
     "typescript": "^3.5.3"
+  },
+  "resolutions": {
+    "@types/react": "^16.9.1"
   },
   "scripts": {
     "test": "jest",

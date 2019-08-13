@@ -52,6 +52,7 @@ export class AutographBasicClient {
 }
 
 class AutographApolloClient {
+    client: any
     constructor(client) {
         this.client = client
     }
