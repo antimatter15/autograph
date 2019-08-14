@@ -49,6 +49,7 @@ export class AutographBasicClient {
 
 class AutographApolloClient {
     client: any
+    
     constructor(client) {
         this.client = client
     }
@@ -678,6 +679,8 @@ export function createRoot(config): any {
     return AutographRootComponent
 }
 
+
+
 // Hook
 export function useQuery(config = 'default', handleOptions: any = {}) {
     let root: AutographModel = React.useContext(AutographContext) as any
@@ -701,6 +704,8 @@ export function useQuery(config = 'default', handleOptions: any = {}) {
     return query.createHandle(handleOptions)
 }
 
+
+
 // Render Prop
 export class Query extends React.Component<
     {
@@ -717,9 +722,11 @@ export class Query extends React.Component<
     static defaultProps = {
         config: 'default',
     }
+    static contextType = AutographContext
     constructor(props) {
         super(props)
         this.state = { version: 0 }
+        this.lastVersion = -1
         this.update = () => this.setState((s) => ({ version: s.version + 1 }))
     }
     getQuery() {
@@ -747,7 +754,6 @@ export class Query extends React.Component<
         return this.props.children(query.createHandle(this.props.handleOptions))
     }
 }
-Query.contextType = AutographContext
 
 // HOC
 export function withQuery(config = 'default', handleOptions) {
