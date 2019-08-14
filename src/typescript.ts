@@ -166,16 +166,16 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
 }
 
 function GQLType2TS(type: GQLTypeRef): string {
-    if (type.kind === 'LIST') return GQLType2TS(type.ofType) + '[]'
-    if (type.kind === 'NON_NULL') return GQLType2TS(type.ofType)
+    if (type.kind === 'LIST') return GQLType2TS(type.ofType!) + '[]'
+    if (type.kind === 'NON_NULL') return GQLType2TS(type.ofType!)
     if (type.name === 'String') return 'string'
     if (type.name === 'Boolean') return 'boolean'
-    if (type.kind === 'SCALAR') return type.name
-    if (type.kind === 'UNION') return type.name
-    if (type.kind === 'OBJECT') return type.name
-    if (type.kind === 'INPUT_OBJECT') return type.name
-    if (type.kind === 'ENUM') return type.name
-    if (type.kind === 'INTERFACE') return type.name
+    if (type.kind === 'SCALAR') return type.name!
+    if (type.kind === 'UNION') return type.name!
+    if (type.kind === 'OBJECT') return type.name!
+    if (type.kind === 'INPUT_OBJECT') return type.name!
+    if (type.kind === 'ENUM') return type.name!
+    if (type.kind === 'INTERFACE') return type.name!
     throw new Error(`Unable to handle type "${type.kind}" named "${type.name}"`)
 }
 

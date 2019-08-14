@@ -19,10 +19,9 @@ const indent = (x: string): string =>
         .map((k) => '  ' + k)
         .join('\n')
 
-type AccessLog = {
+export type AccessLog = {
     __directive?: string
     __get?: boolean
-
 }
 
 
@@ -96,9 +95,11 @@ export type GQLSchema = {
     types: Array<GQLType>
 }
 
-type GQLTypeKind = 'SCALAR' | 'OBJECT' | 'INTERFACE' | 'UNION' | 'ENUM' | 'INPUT_OBJECT' | 'LIST' | 'NON_NULL'
+// type GQLTypeKind = 'SCALAR' | 'OBJECT' | 'INTERFACE' | 'UNION' | 'ENUM' | 'INPUT_OBJECT' | 'LIST' | 'NON_NULL'
 
-type GQLType = {
+type GQLTypeKind = string;
+
+export type GQLType = {
     kind: GQLTypeKind
     name?: string
     description?: string
@@ -128,8 +129,8 @@ type GQLInputValue = {
 
 export type GQLTypeRef = {
     kind: GQLTypeKind
-    name: string
-    ofType: GQLTypeRef
+    name?: string
+    ofType?: GQLTypeRef
 }
 
 

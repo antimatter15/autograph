@@ -3,12 +3,16 @@ import * as parser from 'graphql/language/parser'
 import _dryRender, { elementFromFiber } from './dryrender/dryrender'
 import makeFixedArray from './util/fixarray'
 import { hashArguments, shallowCompare, nextFrame } from './util/util'
-import accessLogToGraphQL, { SUCCINCT_INTROSPECTION_QUERY } from './graphql'
+import accessLogToGraphQL, { AccessLog, SUCCINCT_INTROSPECTION_QUERY, GQLSchema, GQLTypeRef, GQLType } from './graphql'
 import convertGQLSchemaToTypescript from './typescript'
 import * as eager from './util/eager'
 
 const AutographContext = React.createContext(null)
-let lastHandleValue, lastHandlePointer
+let lastHandleValue: any;
+let lastHandlePointer: AccessLog | null
+
+const SHOW_ARGUMENTS_DEV = true
+const __DEV__ = true // TODO: process.env.NODE_ENV?
 
 type BasicClientConfig = {
     url: string
@@ -28,11 +32,12 @@ export class AutographBasicClient {
         }
     }
 
-    fetchSchema() {
-        return this.fetchQuery(SUCCINCT_INTROSPECTION_QUERY).then((data) => data.__schema)
+    fetchSchema(): Promise<GQLSchema> {
+        return this.fetchQuery(SUCCINCT_INTROSPECTION_QUERY)
+            .then((data) => data.__schema)
     }
 
-    fetchQuery(query) {
+    fetchQuery(query: string): Promise<any> {
         return fetch(this.config.url, {
             method: 'POST',
             headers: {
@@ -49,26 +54,36 @@ export class AutographBasicClient {
 
 class AutographApolloClient {
     client: any
-    
-    constructor(client) {
+
+    constructor(client: any) {
         this.client = client
     }
 
-    fetchSchema() {
-        return this.fetchQuery(SUCCINCT_INTROSPECTION_QUERY).then((data) => data.__schema)
+    fetchSchema(): Promise<GQLSchema> {
+        return this.fetchQuery(SUCCINCT_INTROSPECTION_QUERY)
+            .then((data) => data.__schema)
     }
 
-    fetchQuery(query) {
+    fetchQuery(query: string): Promise<any> {
         let doc = parser.parse(query, {})
 
         return this.client
             .query({
                 query: doc,
             })
-            .then((resp) => {
+            .then((resp: any) => {
                 return resp.data
             })
     }
+}
+
+
+type AutographConfig = {
+    client: string | any
+}
+
+type AutographQueryConfig = {
+    id: string
 }
 
 class AutographModel {
@@ -76,10 +91,10 @@ class AutographModel {
     currentlyDryRendering: boolean
     queries: { [key: string]: AutographQuery }
     mountedFiber: any
-    config: { [key: string]: any }
+    config: AutographConfig
     lastFetchError: any
 
-    constructor(config) {
+    constructor(config: AutographConfig) {
         if (typeof config.client === 'string') {
             config.client = new AutographBasicClient(config.client)
         } else if (typeof config.client === 'object' && config.client.link && config.client.query) {
@@ -103,7 +118,7 @@ class AutographModel {
         if (!this.mounted) throw new Error('Can not unmount— root has already been unmounted.')
         this.mounted = false
     }
-    getQuery(config) {
+    getQuery(config: AutographQueryConfig | string) {
         if (typeof config === 'string') config = { id: config }
         if (!(config.id in this.queries)) this.queries[config.id] = new AutographQuery(this, config)
         // if(!shallowEqual(this.queries[config.id].config, config))
@@ -142,10 +157,35 @@ class AutographModel {
         }
     }
 }
+type AccessorState = {
+    isDry: boolean
+    handleOptions: HandleOptions
+    version: number
+}
+
+type HandleOptions = {
+    error?: boolean
+    // suspense?: boolean
+    boundary?: boolean
+
+    cacheOnly?: boolean
+}
+
+type PathComponent = {
+    type: 'AS',
+    name: string
+} | {
+    type: 'PROP'
+    name: string
+} | {
+    type: 'METHOD'
+    name: string
+    args: any
+}
 
 class AutographQuery {
     root: AutographModel
-    config: { [key: string]: any }
+    config: AutographQueryConfig
     callbacks: (() => void)[]
     dataPromise: null | Promise<any>
     dataError: null | any
@@ -155,7 +195,7 @@ class AutographQuery {
     lastDeps: { [key: string]: any }
     version: number
 
-    constructor(root, config) {
+    constructor(root: AutographModel, config: AutographQueryConfig) {
         this.root = root
         this.config = config
         this.callbacks = []
@@ -171,7 +211,7 @@ class AutographQuery {
         this.version = 1
     }
 
-    subscribe(callback) {
+    subscribe(callback: () => void) {
         this.callbacks.push(callback)
         // console.log('subscribe', this.callbacks.length)
 
@@ -184,7 +224,7 @@ class AutographQuery {
         // requestAnimationFrame(callback)
     }
 
-    unsubscribe(callback) {
+    unsubscribe(callback: () => void) {
         this.callbacks = this.callbacks.filter((k) => k !== callback)
         // console.log('unsubscribe', this.callbacks.length)
 
@@ -213,25 +253,19 @@ class AutographQuery {
         this.version++
         this.dataPromise = this.client
             .fetchQuery(gql)
-            .then((data) => {
+            .then((data: any) => {
                 this.data = data
                 this.dataPromise = null
                 this.notify()
             })
-            .catch((err) => {
+            .catch((err: any) => {
                 this.dataError = err
                 this.dataPromise = null
                 this.notify()
             })
     }
 
-    createHandle(
-        handleOptions: {
-            error?: boolean
-            // suspense?: boolean
-            boundary?: boolean
-        } = {}
-    ) {
+    createHandle(handleOptions: HandleOptions = {}) {
         if (handleOptions === true) {
             handleOptions = { boundary: true }
         }
@@ -240,11 +274,11 @@ class AutographQuery {
         let queryRoot = { kind: '__NOSCHEMA' }
         if (this.client.schemaData) {
             let schema = this.client.schemaData
-            queryRoot = schema.types.find((k) => k.name === schema.queryType.name)
+            queryRoot = schema.types.find((k: GQLType) => k.name === schema.queryType.name)
         }
 
         if (this.root.currentlyDryRendering) {
-            return this._createAccessor(this.deps, queryRoot, {
+            return this._createAccessor(this.deps, queryRoot as GQLType, {
                 isDry: true,
                 handleOptions,
                 version: this.version,
@@ -255,7 +289,7 @@ class AutographQuery {
                 this.client.schemaPromise = new Promise((resolve) => {
                     this.client
                         .fetchSchema()
-                        .then((data) => {
+                        .then((data: GQLSchema) => {
                             console.groupCollapsed('TypeScript Schema')
                             console.log(convertGQLSchemaToTypescript(data))
                             console.groupEnd()
@@ -265,7 +299,7 @@ class AutographQuery {
                             this.notify()
                             resolve()
                         })
-                        .catch((err) => {
+                        .catch((err: any) => {
                             this.client.schemaError = err
                             this.client.schemaPromise = null
                             this.notify()
@@ -294,20 +328,20 @@ class AutographQuery {
         }
     }
 
-    _createAccessor(data, type, state, path: Array<string> = []) {
+    _createAccessor(data: any, type: GQLTypeRef, state: AccessorState, path: Array<string> = []) {
         // this allows directives to work
-        let obj = this.__createAccessor(data, type, state, path)
+        let obj: any = this.__createAccessor(data, type, state, path)
         if (state.isDry) {
             lastHandleValue = obj
             lastHandlePointer = data
         }
         return obj
     }
-    __createAccessor(data, type, state, path) {
-        let schema = this.client.schemaData
+    __createAccessor(data: any, type: GQLTypeRef, state: AccessorState, path: Array<string>) {
+        let schema: GQLSchema = this.client.schemaData
         let { isDry, handleOptions, version } = state
 
-        const subpath = (obj) => {
+        const subpath = (obj: PathComponent) => {
             if (isDry) {
                 let key = JSON.stringify(obj)
                 return data[key] || (data[key] = {})
@@ -406,7 +440,7 @@ class AutographQuery {
                             })
                         }
                     } else {
-                        let run = (args) => {
+                        let run = (args: any) => {
                             let next = subpath({
                                 type: 'METHOD',
                                 name: field.name,
@@ -418,32 +452,33 @@ class AutographQuery {
                             ])
                         }
 
-                        const SHOW_ARGUMENTS_DEV = true
-
-                        if (SHOW_ARGUMENTS_DEV) {
-                            let argStr = `{${field.args
-                                .map((k) => k.name)
-                                // ensure that the names are within graphql spec to guard against code injection
-                                // security issues
-                                .filter((k) => /^[_A-Za-z][_0-9A-Za-z]*$/.test(k))
-                                .join(', ')}}`
-                            handle[field.name] = eval(
-                                `(function(${argStr}={}){ return run(arguments[0])} )`
-                            )
-                        } else {
-                            handle[field.name] = run
+                        let handler = run;
+                        if (SHOW_ARGUMENTS_DEV && __DEV__) {
+                            try {
+                                let argStr = `{${field.args
+                                    .map((k) => k.name)
+                                    // ensure that the names are within graphql spec to guard against code injection
+                                    // security issues
+                                    // note thatthere are 
+                                    .filter((k) => /^[_A-Za-z][_0-9A-Za-z]*$/.test(k))
+                                    .join(', ')}}`
+                                handler = eval(
+                                    `(function(${argStr}={}){ return run(arguments[0])} )`
+                                )        
+                            } catch (err) { }
                         }
+                        handle[field.name] = handler
                     }
                 }
 
                 if (sub.kind === 'INTERFACE') {
                     for (let type of schema.types) {
                         if (type.kind !== 'OBJECT') continue
-                        if (!type.interfaces.some((k) => k.name === sub.name)) continue
+                        if (!type.interfaces.some((k) => k.name === sub!.name)) continue
 
                         Object.defineProperty(handle, 'as' + type.name, {
                             get: () => {
-                                let next = subpath({ type: 'AS', name: type.name })
+                                let next = subpath({ type: 'AS', name: type.name! })
                                 return this._createAccessor(next, type, state, [
                                     ...path,
                                     'as' + type.name,
@@ -525,17 +560,17 @@ class AutographQuery {
             // return handle
         }
 
-        if (type.kind === 'NON_NULL') return this._createAccessor(data, type.ofType, state, path)
+        if (type.kind === 'NON_NULL') return this._createAccessor(data, type.ofType!, state, path)
 
         if (!isDry) {
             // if there is data then we return it
             if (type.kind === 'LIST') {
-                return data.map((x) => this._createAccessor(x, type.ofType, state, path))
+                return data.map((x: any) => this._createAccessor(x, type.ofType!, state, path))
             }
             return data
         } else {
             if (type.kind === 'LIST')
-                return makeFixedArray([this._createAccessor(data, type.ofType, state, path)])
+                return makeFixedArray([this._createAccessor(data, type.ofType!, state, path)])
             if (type.kind === 'UNION') {
                 let sub = schema.types.find((k) => k.name === type.name)
                 if (!sub) throw new Error(`Unable to find type "${type.name}" in schema.`)
@@ -575,7 +610,7 @@ function ensureDuringRender() {
 }
 
 // graphql query directive helper
-export function Directive(directive_string, value) {
+export function Directive(directive_string: string, value: any) {
     if (lastHandlePointer) {
         if (value === lastHandleValue) {
             // do something with lastHandlePointer
@@ -623,7 +658,7 @@ export function Eager(x: boolean): boolean {
     return eager.eager(x)
 }
 
-function RootSuspenseFallback({ root }) {
+function RootSuspenseFallback({ root }: { root: AutographModel }) {
     let initialMount = !root.mounted
     React.useEffect(() => {
         // Ignore the fallback on the initial mount.
@@ -646,7 +681,7 @@ function RootSuspenseFallback({ root }) {
 }
 
 // Provider
-export function createRoot(config): any {
+export function createRoot(config: AutographConfig): any {
     let root = new AutographModel(config)
 
     class AutographRootComponent extends React.Component {
@@ -691,7 +726,7 @@ export function useQuery(config = 'default', handleOptions: any = {}) {
 
     let query = root.getQuery(config)
     let originalVersion = query.version
-    let [version, setVersion] = React.useState(0)
+    let [, setVersion] = React.useState(0)
     React.useEffect(() => {
         let update = () => setVersion((k) => k + 1)
         query.subscribe(update)
@@ -723,7 +758,8 @@ export class Query extends React.Component<
         config: 'default',
     }
     static contextType = AutographContext
-    constructor(props) {
+    
+    constructor(props: any) {
         super(props)
         this.state = { version: 0 }
         this.lastVersion = -1
@@ -756,10 +792,10 @@ export class Query extends React.Component<
 }
 
 // HOC
-export function withQuery(config = 'default', handleOptions) {
+export function withQuery(config = 'default', handleOptions: HandleOptions) {
     // let mapper = [...arguments].reverse().find(k => typeof k === 'function')
-    return function(BaseComponent) {
-        function WithQuery(props) {
+    return function(BaseComponent: React.ElementType) {
+        function WithQuery(props: any) {
             return (
                 <Query config={config} handleOptions={handleOptions}>
                     {(query) => <BaseComponent {...props} query={query} />}
