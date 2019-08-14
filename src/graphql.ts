@@ -1,25 +1,32 @@
 import { hashArguments } from './util/util'
 
 // TODO: instead of encoding the value inline, store it to be sent as a variable.
-const encodeValue = (obj) =>
+const encodeValue = (obj: any): string =>
     typeof obj === 'object'
         ? Array.isArray(obj)
             ? '[' + obj.map(encodeValue).join(', ') + ']'
             : '{' + encodeKV(obj) + '}'
         : JSON.stringify(obj)
 
-const encodeKV = (obj) =>
+const encodeKV = (obj: {[key: string]: any}): string =>
     Object.keys(obj)
         .map((key) => key + ': ' + encodeValue(obj[key]))
         .join(', ')
 
-const indent = (x) =>
+const indent = (x: string): string =>
     x
         .split('\n')
         .map((k) => '  ' + k)
         .join('\n')
 
-const convertRecursive = (log, prefix = '') => {
+type AccessLog = {
+    __directive?: string
+    __get?: boolean
+
+}
+
+
+const convertRecursive = (log: AccessLog, prefix = '') => {
     let gql = ''
     if (log.__directive) gql += log.__directive
 
@@ -71,12 +78,60 @@ const convertRecursive = (log, prefix = '') => {
     return gql
 }
 
-export default function accessLogToGraphQL(log) {
+export default function accessLogToGraphQL(log: AccessLog): string {
     return convertRecursive(log, '')
 }
 
 // this line is for syntax highlighting and prettier formatting
-const gql = (x) => x[0]
+const gql = (x: any): string => x[0]
+
+type GQLTypeSummary = {
+    name: string
+}
+
+export type GQLSchema = {
+    queryType: GQLTypeSummary
+    mutationType?: GQLTypeSummary
+    subscriptionType?: GQLTypeSummary
+    types: Array<GQLType>
+}
+
+type GQLTypeKind = 'SCALAR' | 'OBJECT' | 'INTERFACE' | 'UNION' | 'ENUM' | 'INPUT_OBJECT' | 'LIST' | 'NON_NULL'
+
+type GQLType = {
+    kind: GQLTypeKind
+    name?: string
+    description?: string
+    fields: Array<GQLField>
+    inputFields: Array<GQLInputValue>
+    interfaces: Array<GQLTypeRef>
+    enumValues: Array<{
+        name: string
+        description: string
+    }>
+    possibleTypes: Array<GQLTypeRef>
+}
+
+type GQLField = {
+    name: string
+    description: string
+    deprecationReason: string
+    args: Array<GQLInputValue>
+    type: GQLTypeRef
+}
+
+type GQLInputValue = {
+    name: string
+    description: string
+    type: GQLTypeRef
+}
+
+export type GQLTypeRef = {
+    kind: GQLTypeKind
+    name: string
+    ofType: GQLTypeRef
+}
+
 
 export const SUCCINCT_INTROSPECTION_QUERY = gql`
     query IntrospectionQuery {

@@ -1,4 +1,6 @@
-export default function convertGQLSchemaToTypescript(schema) {
+import { GQLSchema, GQLTypeRef } from './graphql'
+
+export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
     const INDENT = '    ' // 4 spaces
     let ts = ''
 
@@ -37,7 +39,7 @@ export default function convertGQLSchemaToTypescript(schema) {
     }
 
     for (let type of schema.types) {
-        if (BUILTIN_TYPES.indexOf(type.name) !== -1) continue
+        if (BUILTIN_TYPES.indexOf(type.name!) !== -1) continue
         if (type.kind === 'OBJECT') {
             if (type.description) ts += '/** ' + type.description + ' */\n'
             ts += 'export type ' + type.name + ' = GQLType & {\n'
@@ -120,8 +122,8 @@ export default function convertGQLSchemaToTypescript(schema) {
         } else if (type.kind === 'SCALAR') {
             if (type.name === 'String' || type.name === 'Boolean') continue
             if (type.description) ts += '/** ' + type.description + ' */\n'
-            if (type.name in SCALAR_MAP) {
-                ts += 'export type ' + type.name + ' = ' + SCALAR_MAP[type.name] + '\n\n'
+            if (type.name! in SCALAR_MAP) {
+                ts += 'export type ' + type.name + ' = ' + SCALAR_MAP[type.name!] + '\n\n'
             } else {
                 ts += 'export type ' + type.name + ' = any\n\n'
             }
@@ -140,7 +142,7 @@ export default function convertGQLSchemaToTypescript(schema) {
                 'export type ' +
                 type.name +
                 ' = ' +
-                type.enumValues.map((val) => JSON.stringify(val.name)).join(' | ') +
+                type.enumValues!.map((val) => JSON.stringify(val.name)).join(' | ') +
                 '\n\n'
         } else if (type.kind === 'INPUT_OBJECT') {
             if (type.description) ts += '/** ' + type.description + ' */\n'
@@ -163,7 +165,7 @@ export default function convertGQLSchemaToTypescript(schema) {
     return ts
 }
 
-function GQLType2TS(type) {
+function GQLType2TS(type: GQLTypeRef): string {
     if (type.kind === 'LIST') return GQLType2TS(type.ofType) + '[]'
     if (type.kind === 'NON_NULL') return GQLType2TS(type.ofType)
     if (type.name === 'String') return 'string'
@@ -177,6 +179,6 @@ function GQLType2TS(type) {
     throw new Error(`Unable to handle type "${type.kind}" named "${type.name}"`)
 }
 
-function IsGQLTypeNullable(type) {
+function IsGQLTypeNullable(type: GQLTypeRef): boolean {
     return type.kind !== 'NON_NULL'
 }

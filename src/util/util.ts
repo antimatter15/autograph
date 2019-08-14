@@ -1,4 +1,4 @@
-export function hashArguments(args) {
+export function hashArguments(args: any): string {
     // This is a simple implementation of Dan Bernstein's djb2 non-cryptographic hash algorithm
     // which should suffice to keep adjacent gql queries with different arguments from colliding
     let json = JSON.stringify(args || {})
@@ -7,7 +7,7 @@ export function hashArguments(args) {
     return Math.abs(hash).toString(36)
 }
 
-export function shallowCompare(a, b) {
+export function shallowCompare(a: any, b: any): boolean {
     return JSON.stringify(a) === JSON.stringify(b)
 }
 
@@ -15,6 +15,6 @@ export function nextFrame() {
     return Promise.resolve(true)
 }
 
-export function invar(invariant, message) {
+export function invar(invariant: boolean, message: string) {
     if (!invariant) throw new Error(message)
 }
