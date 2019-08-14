@@ -1,0 +1,15 @@
+{
+  "name": "prerender",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "parcel": "^1.12.3",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "scheduler": "^0.15.0"
+  },
+  "browserslist": [
+    "last 1 Chrome versions"
+  ]
+}
