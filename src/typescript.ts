@@ -44,7 +44,7 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
             if (type.description) ts += '/** ' + type.description + ' */\n'
             ts += 'export type ' + type.name + ' = GQLType & {\n'
 
-            for (let field of type.fields) {
+            for (let field of type.fields!) {
                 if (field.description) ts += INDENT + '/** ' + field.description + ' */\n'
                 if (field.deprecationReason)
                     ts += INDENT + '/** @deprecated ' + field.deprecationReason + ' */\n'
@@ -93,7 +93,7 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
 
             ts += 'export interface ' + type.name + ' extends GQLType {\n'
 
-            for (let field of type.fields) {
+            for (let field of type.fields!) {
                 if (field.description) ts += INDENT + '/** ' + field.description + ' */\n'
                 if (field.deprecationReason)
                     ts += INDENT + '/** @deprecated ' + field.deprecationReason + ' */\n'
@@ -110,7 +110,7 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
             // hero.asDroid.primaryFunction and compile that into an inline fragment
             for (let obj of schema.types) {
                 if (obj.kind !== 'OBJECT') continue
-                if (!obj.interfaces.some((interf) => interf.name === type.name)) continue
+                if (!obj.interfaces!.some((interf) => interf.name === type.name)) continue
                 ts +=
                     INDENT +
                     '/** Use `as' +
@@ -133,7 +133,7 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
                 'export type ' +
                 type.name +
                 ' = ' +
-                type.possibleTypes.map((type) => GQLType2TS(type)).join(' | ') +
+                type.possibleTypes!.map((type) => GQLType2TS(type)).join(' | ') +
                 '\n\n'
         } else if (type.kind === 'ENUM') {
             if (type.description) ts += '/** ' + type.description + ' */\n'
@@ -148,7 +148,7 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
             if (type.description) ts += '/** ' + type.description + ' */\n'
 
             ts += 'export type ' + type.name + ' = {\n'
-            for (let field of type.inputFields) {
+            for (let field of type.inputFields!) {
                 if (field.description) ts += INDENT + '/** ' + field.description + ' */\n'
                 ts +=
                     INDENT +

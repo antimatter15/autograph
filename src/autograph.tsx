@@ -3,7 +3,7 @@ import * as parser from 'graphql/language/parser'
 import _dryRender, { elementFromFiber } from './dryrender/dryrender'
 import makeFixedArray from './util/fixarray'
 import { hashArguments, shallowCompare, nextFrame } from './util/util'
-import accessLogToGraphQL, { AccessLog, SUCCINCT_INTROSPECTION_QUERY, GQLSchema, GQLTypeRef, GQLType } from './graphql'
+import accessLogToGraphQL, { AccessLog, SUCCINCT_INTROSPECTION_QUERY, GQLSchema, GQLTypeRef, GQLType, AutographSentinels } from './graphql'
 import convertGQLSchemaToTypescript from './typescript'
 import * as eager from './util/eager'
 
@@ -191,8 +191,8 @@ class AutographQuery {
     dataError: null | any
     data: any
 
-    deps: { [key: string]: any }
-    lastDeps: { [key: string]: any }
+    deps: AccessLog
+    lastDeps: AccessLog
     version: number
 
     constructor(root: AutographModel, config: AutographQueryConfig) {
@@ -579,12 +579,9 @@ class AutographQuery {
             }
 
             data.__get = true
-            if (type.name === 'ID') return 'Autograph ID'
-            if (type.name === 'String') return 'Autograph String'
-            if (type.name === 'Int') return 42
-            if (type.name === 'Float') return 17.76
+            
+            if(type.name! in AutographSentinels) return AutographSentinels[type.name!];
             if (type.name === 'Boolean') return true
-
             if (type.kind === 'ENUM') {
                 let sub = schema.types.find((k) => k.name === type.name)
                 if (!sub) throw new Error(`Unable to find type "${type.name}" in schema.`)

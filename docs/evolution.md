@@ -561,7 +561,7 @@ Suspense is suspenseful!
 
 - mutations api
 - support enums within queries
-- 
+- cancel subtrees which include sentinel values
 
 
 ## Future?

@@ -1,12 +1,25 @@
 import { hashArguments } from './util/util'
 
+export const AutographSentinels = {
+    ID: 'Autograph ID',
+    String: 'Autograph String',
+    Float: 3481093128397,
+    Int: 123719283783
+}
+
 // TODO: instead of encoding the value inline, store it to be sent as a variable.
-const encodeValue = (obj: any): string =>
-    typeof obj === 'object'
-        ? Array.isArray(obj)
+const encodeValue = (obj: any): string => {
+    if(typeof obj === 'object'){
+        return Array.isArray(obj)
             ? '[' + obj.map(encodeValue).join(', ') + ']'
             : '{' + encodeKV(obj) + '}'
-        : JSON.stringify(obj)
+    }
+    if(Object.values(AutographSentinels).includes(obj)){
+        throw new Error('Found Autograph sentinel value.')
+    }
+    return JSON.stringify(obj)
+}
+    
 
 const encodeKV = (obj: {[key: string]: any}): string =>
     Object.keys(obj)
@@ -37,18 +50,22 @@ const convertRecursive = (log: AccessLog, prefix = '') => {
         if (key === '__directive') continue
         let info = JSON.parse(key)
         if (info.type === 'METHOD') {
-            gql +=
-                indent(
-                    prefix +
-                        info.name +
-                        '___' +
-                        hashArguments(info.args) +
-                        ': ' +
-                        info.name +
-                        (Object.keys(info.args).length > 0 ? '(' + encodeKV(info.args) + ')' : '') +
-                        ' ' +
-                        convertRecursive(log[key] as AccessLog)
-                ) + '\n'
+            try {
+                gql +=
+                    indent(
+                        prefix +
+                            info.name +
+                            '___' +
+                            hashArguments(info.args) +
+                            ': ' +
+                            info.name +
+                            (Object.keys(info.args).length > 0 ? '(' + encodeKV(info.args) + ')' : '') +
+                            ' ' +
+                            convertRecursive(log[key] as AccessLog)
+                    ) + '\n'
+            } catch (err) {
+                // autograph sentinel value found, skip subtree
+            }
         } else if (info.type === 'PROP') {
             gql +=
                 indent(
