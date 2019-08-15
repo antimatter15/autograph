@@ -419,7 +419,7 @@ class AutographQuery {
                 let sub = schema.types.find((k) => k.name === type.name)
                 if (!sub) throw new Error(`Unable to find type "${type.name}" in schema.`)
 
-                for (let field of sub.fields) {
+                for (let field of sub.fields!) {
                     if (field.args.length === 0) {
                         if (!isDry && subpath({ type: 'PROP', name: field.name }) !== undefined) {
                             let next = subpath({ type: 'PROP', name: field.name })
@@ -459,7 +459,8 @@ class AutographQuery {
                                     .map((k) => k.name)
                                     // ensure that the names are within graphql spec to guard against code injection
                                     // security issues
-                                    // note thatthere are 
+                                    // note that there are valid graphql names which are not valid 
+                                    // javascript names, so we wrap this in a try catch
                                     .filter((k) => /^[_A-Za-z][_0-9A-Za-z]*$/.test(k))
                                     .join(', ')}}`
                                 handler = eval(
@@ -474,7 +475,7 @@ class AutographQuery {
                 if (sub.kind === 'INTERFACE') {
                     for (let type of schema.types) {
                         if (type.kind !== 'OBJECT') continue
-                        if (!type.interfaces.some((k) => k.name === sub!.name)) continue
+                        if (!type.interfaces!.some((k) => k.name === sub!.name)) continue
 
                         Object.defineProperty(handle, 'as' + type.name, {
                             get: () => {
@@ -574,7 +575,7 @@ class AutographQuery {
             if (type.kind === 'UNION') {
                 let sub = schema.types.find((k) => k.name === type.name)
                 if (!sub) throw new Error(`Unable to find type "${type.name}" in schema.`)
-                return this._createAccessor(data, sub.possibleTypes[0], state, path)
+                return this._createAccessor(data, sub.possibleTypes![0], state, path)
             }
 
             data.__get = true
@@ -587,7 +588,7 @@ class AutographQuery {
             if (type.kind === 'ENUM') {
                 let sub = schema.types.find((k) => k.name === type.name)
                 if (!sub) throw new Error(`Unable to find type "${type.name}" in schema.`)
-                return sub.enumValues[0].name
+                return sub.enumValues![0].name
             }
             if (type.kind === 'SCALAR') return { __gqlScalarName: type.name }
             throw new Error(`Unable to handle ${type.kind} named "${type.name}"`)

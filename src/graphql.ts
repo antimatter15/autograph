@@ -22,6 +22,7 @@ const indent = (x: string): string =>
 export type AccessLog = {
     __directive?: string
     __get?: boolean
+    [key: string]: AccessLog | string | boolean | undefined
 }
 
 
@@ -46,7 +47,7 @@ const convertRecursive = (log: AccessLog, prefix = '') => {
                         info.name +
                         (Object.keys(info.args).length > 0 ? '(' + encodeKV(info.args) + ')' : '') +
                         ' ' +
-                        convertRecursive(log[key])
+                        convertRecursive(log[key] as AccessLog)
                 ) + '\n'
         } else if (info.type === 'PROP') {
             gql +=
@@ -54,7 +55,7 @@ const convertRecursive = (log: AccessLog, prefix = '') => {
                     (prefix ? prefix + info.name + ': ' : '') +
                         info.name +
                         ' ' +
-                        convertRecursive(log[key])
+                        convertRecursive(log[key] as AccessLog)
                 ) + '\n'
         } else if (info.type === 'AS') {
             gql +=
@@ -62,7 +63,7 @@ const convertRecursive = (log: AccessLog, prefix = '') => {
                     '... on ' +
                         info.name +
                         ' ' +
-                        convertRecursive(log[key], '__AS_' + info.name + '___')
+                        convertRecursive(log[key] as AccessLog, '__AS_' + info.name + '___')
                 ) + '\n'
         } else if (info.type === 'FEAT') {
             // ignore these
@@ -103,14 +104,14 @@ export type GQLType = {
     kind: GQLTypeKind
     name?: string
     description?: string
-    fields: Array<GQLField>
-    inputFields: Array<GQLInputValue>
-    interfaces: Array<GQLTypeRef>
-    enumValues: Array<{
+    fields?: Array<GQLField>
+    inputFields?: Array<GQLInputValue>
+    interfaces?: Array<GQLTypeRef>
+    enumValues?: Array<{
         name: string
         description: string
     }>
-    possibleTypes: Array<GQLTypeRef>
+    possibleTypes?: Array<GQLTypeRef>
 }
 
 type GQLField = {

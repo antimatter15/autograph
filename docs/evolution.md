@@ -557,7 +557,11 @@ Loading Guards are essentially lightweight anonymous Suspense blocks.
 
 Suspense is suspenseful!
 
+## TODO
 
+- mutations api
+- support enums within queries
+- 
 
 
 ## Future?
