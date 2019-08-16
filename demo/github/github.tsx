@@ -8,6 +8,7 @@ import {
     withQuery,
     Query,
     AutographBasicClient,
+    Loading,
 } from '../../src/autograph'
 import * as GQL from './github.schema'
 
@@ -28,9 +29,26 @@ function App() {
     let repositories = query.viewer.repositories({ first: 5, after: null })
     return (
         <div>
-            {repositories.nodes.map(repo => <div>{repo.name}</div>)}
+            {repositories.nodes.map(repo => <RepoCard repo={repo} key={repo.id} />)}
         </div>
     )
+}
+
+
+function RepoCard({ repo }: { repo: GQL.Repository }){
+    let [ expanded, setExpanded ] = React.useState(false)
+    let query: GQL.Query = useQuery()
+
+    return <div>
+        {repo.name}
+        <button onClick={e => setExpanded(k => !k)}>Toggle</button>
+        {expanded && <Loading>{() => <div>
+            {query.repository({
+                owner: query.viewer.login,
+                name: repo.name
+            }).description}
+        </div>}</Loading>}
+    </div>
 }
 
 let dom = (
