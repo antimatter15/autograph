@@ -249,18 +249,23 @@ class AutographQuery {
 
     refetch() {
         let gql = accessLogToGraphQL(this.deps)
-        console.groupCollapsed('GraphQL Query')
-        console.log(gql)
-        console.groupEnd()
         this.version++
         this.dataPromise = this.client
             .fetchQuery(gql)
             .then((data: any) => {
+                console.groupCollapsed('GraphQL Query')
+                console.log(gql)
+                console.log(data)
+                console.groupEnd()
                 this.data = data
                 this.dataPromise = null
                 this.notify()
             })
             .catch((err: any) => {
+                console.groupCollapsed('GraphQL Query [ERROR]')
+                console.log(gql)
+                console.log(err)
+                console.groupEnd()
                 this.dataError = err
                 this.dataPromise = null
                 this.notify()
