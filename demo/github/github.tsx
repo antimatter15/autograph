@@ -8,7 +8,7 @@ import {
     withQuery,
     Query,
     AutographBasicClient,
-    Loading,
+    LoadingBoundary,
 } from '../../src/autograph'
 import * as GQL from './github.schema'
 
@@ -47,12 +47,14 @@ function RepoCard({ repo, defaultShow }: { defaultShow: boolean, repo: GQL.Repos
     return <div>
         {repo.name}
         <button onClick={e => setExpanded(k => !k)}>Toggle</button>
-        {expanded && <Loading>{() => <div>
+        {expanded && <LoadingBoundary>{() => {
+            console.log(expanded, repo.name)
+        return <div>
             {query.repository({
                 owner: query.viewer.login,
                 name: repo.name
             }).description}
-        </div>}</Loading>}
+        </div>}}</LoadingBoundary>}
     </div>
 }
 

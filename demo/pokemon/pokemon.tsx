@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { createRoot, Loading, useQuery, Directive, Eager } from '../../src/autograph'
+import { createRoot, LoadingBoundary, useQuery, Directive, Eager } from '../../src/autograph'
 import * as GQL from './pokemon.schema'
 
 const AutographRoot = createRoot({
@@ -16,7 +16,7 @@ function AppLoadingGuard() {
         <div>
             <input key="thang" type="text" value={text} onChange={(e) => setText(e.target.value)} />
             <div>
-                <Loading>
+                <LoadingBoundary>
                     {() => {
                         let pokemon = query.pokemon({ name: text })
                         return pokemon ? (
@@ -25,7 +25,7 @@ function AppLoadingGuard() {
                             <div>No matching pokemon</div>
                         )
                     }}
-                </Loading>
+                </LoadingBoundary>
             </div>
         </div>
     )
@@ -104,7 +104,7 @@ function Pokedex({ pokemon }: { pokemon: GQL.Pokemon }) {
 
             <a onClick={(e) => setExpand((x) => !x)}>{expand ? '▲ Collapse' : '▶ Expand'}</a>
             {Eager(expand) && (
-                <Loading fallback={<div>Loading attacks...</div>}>
+                <LoadingBoundary fallback={<div>Loading attacks...</div>}>
                     {() => (
                         <ul>
                             {pokemon.attacks.fast.map((k, i) => (
@@ -119,7 +119,7 @@ function Pokedex({ pokemon }: { pokemon: GQL.Pokemon }) {
                             ))}
                         </ul>
                     )}
-                </Loading>
+                </LoadingBoundary>
             )}
         </div>
     )

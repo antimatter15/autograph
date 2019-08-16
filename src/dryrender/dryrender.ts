@@ -88,6 +88,8 @@ export default function dryRender(node: React.ReactNode, fiber: ReactFiber | nul
             return
         }
     }
+    
+    console.log(fiber)
 
     if (fiber && !(fiber.type === (node as JSX.Element).type)) {
         console.log('Fiber-node type mismatch', fiber.type, (node as JSX.Element).type)

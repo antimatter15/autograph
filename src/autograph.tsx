@@ -509,7 +509,7 @@ export function Get(fn: () => any, defaultValue: any = undefined): any {
 
 // <Loading>{() => }</Loading>
 // Functionally it's a micro-suspense boundary
-export function Loading(props: {
+export function LoadingBoundary(props: {
     children: () => JSX.Element
     fallback?: JSX.Element
 }): JSX.Element {
