@@ -364,7 +364,6 @@ class AutographQuery {
                     if (!this.dataPromise) {
                         this.root.dryRender()
                         if (!this.dataPromise) {
-                            console.log(data, type)
                             throw new Error('Some sort of rendering or query generation problem!')
                         }
                     }
@@ -442,7 +441,7 @@ class AutographQuery {
                         value: this.data,
                     })
                 }
-                
+
                 if(state.data === null && !isQueryRoot){
                     return null
                 }

@@ -1,7 +1,7 @@
-import { createAccessor } from '../accessor'
 import { buildASTSchema, graphql } from 'graphql'
 import accessLogToGraphQL, { SUCCINCT_INTROSPECTION_QUERY, GQLSchema, GQLType } from '../graphql'
 import gql from 'graphql-tag'
+import { createAccessor } from '../accessor';
 
 export async function parseGraphQL(ast: any): Promise<GQLSchema> {
     let doc = buildASTSchema(ast, {
