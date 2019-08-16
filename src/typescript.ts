@@ -1,5 +1,7 @@
 import { GQLSchema, GQLTypeRef } from './graphql'
 
+// We try to generate code here which is both valid Flow and Typescript
+
 export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
     const INDENT = '    ' // 4 spaces
     let ts = ''
@@ -18,7 +20,7 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
 
     ts += 'type GQLType = {\n'
     ts += INDENT + '/** The name of the object type */\n'
-    ts += INDENT + '__typename: string\n'
+    ts += INDENT + '__typename: string,\n'
     ts += '}\n\n'
 
     const BUILTIN_TYPES = [
@@ -65,27 +67,27 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
                             .join(', ') +
                         ' }): ' +
                         GQLType2TS(field.type) +
-                        (IsGQLTypeNullable(field.type) ? ' | undefined' : '') +
-                        '\n'
+                        (IsGQLTypeNullable(field.type) ? ' | null' : '') +
+                        ',\n'
                 } else {
                     ts +=
                         INDENT +
                         field.name +
                         (IsGQLTypeNullable(field.type) ? '?: ' : ': ') +
                         GQLType2TS(field.type) +
-                        '\n'
+                        ',\n'
                 }
             }
 
             if (type.name === schema.queryType.name) {
                 ts += '\n'
                 ts += INDENT + '/** Check this to determine whether the query is loading */\n'
-                ts += INDENT + '_loading?: boolean\n'
+                ts += INDENT + '_loading?: boolean,\n'
                 ts += INDENT + '/** Check this to display error messages */\n'
-                ts += INDENT + '_error?: any\n'
+                ts += INDENT + '_error?: any,\n'
                 ts +=
                     INDENT + '/** This field is defined when Autograph is executing a dry run */\n'
-                ts += INDENT + '_dry?: boolean\n'
+                ts += INDENT + '_dry?: boolean,\n'
             }
             ts += '}\n\n'
         } else if (type.kind === 'INTERFACE') {
@@ -102,7 +104,7 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
                     field.name +
                     (IsGQLTypeNullable(field.type) ? '?: ' : ': ') +
                     GQLType2TS(field.type) +
-                    '\n'
+                    ',\n'
             }
 
             // This way, for instance if we have Droid, Human implementing Character
@@ -155,7 +157,7 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
                     field.name +
                     (IsGQLTypeNullable(field.type) ? '?: ' : ': ') +
                     GQLType2TS(field.type) +
-                    '\n'
+                    ',\n'
             }
             ts += '}\n\n'
         } else {
