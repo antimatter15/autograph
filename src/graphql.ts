@@ -19,8 +19,7 @@ const containsSentinel = (obj: any): boolean => {
     if(typeof obj === 'object' && obj){
         return Array.isArray(obj)
             ? obj.some(k => containsSentinel(k))
-            : Object.entries(obj).some(([key, val]) => 
-                containsSentinel(key) ||
+            : Object.values(obj).some(val => 
                 containsSentinel(val))
     }
     return Object.values(AutographSentinels).includes(obj)

@@ -147,7 +147,7 @@ class AutographModel {
         for (let query of Object.values(this.queries)) {
             if (!(JSON.stringify({ type: 'FEAT', name: '_error' }) in query.deps)) {
                 console.warn(
-                    `It appears that the query "${query.config.id}" does not include an error handler.`
+                    `It appears that the query "${query.config.id}" does not include an error handler.\nConsider adding an error handler by checking for query._error.`
                 )
             }
             if (!shallowCompare(query.deps, query.lastDeps)) {
