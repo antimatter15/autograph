@@ -177,7 +177,7 @@ export default function dryRender(node: React.ReactNode, fiber: ReactFiber | nul
         // It appears that sometimes Suspense fallbacks and children are embedded inside a fragment
         // of the suspense element. This is a total hack and we don't have a good unit test which demonstrates
         // this issue.
-        dryRender(node.props.children, (fiberChild && fiberChild.tag == 7) ? fiberChild.child : fiberChild)
+        dryRender(node.props.children, (fiberChild && fiberChild.tag == 7 && fiberChild.child) ? fiberChild.child : fiberChild)
         // dryRender(node.props.children, fiberChild)        
     } else if (ReactIs.isStrictMode(node) || ReactIs.isProfiler(node)) {
         dryRender(node.props.children, fiber && fiber.child)
@@ -312,7 +312,11 @@ function mapChildFibers(fiber: ReactFiber | null) {
     let childFibers = new Map()
     let ptr = fiber
     if (fiber && fiber.tag === 7 /* FRAGMENT */) {
-        ptr = fiber.child
+        let fptr = fiber.child;
+        while (fptr) {
+            childFibers.set(fptr.key !== null ? fptr.key : fptr.index, fptr)
+            fptr = fptr.sibling
+        }
     }
     while (ptr) {
         childFibers.set(ptr.key !== null ? ptr.key : ptr.index, ptr)
