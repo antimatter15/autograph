@@ -342,7 +342,7 @@ class AutographQuery {
         // let obj: any = this.__createAccessor(data, type, state, path)
 
         let obj: any = createAccessor({
-            accessLog: this.deps,
+            accessLog: info.isDry ? this.deps : {},
             data: this.data,
             typeRef: info.typeRef,
             path: [],
