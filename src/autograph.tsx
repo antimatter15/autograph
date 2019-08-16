@@ -12,9 +12,6 @@ const AutographContext = React.createContext(null)
 let lastHandleValue: any;
 let lastHandlePointer: AccessLog | null
 
-const SHOW_ARGUMENTS_DEV = true
-const __DEV__ = true // TODO: process.env.NODE_ENV?
-
 type BasicClientConfig = {
     url: string
     headers?: { [name: string]: string }
@@ -597,7 +594,7 @@ export function useQuery(config = 'default', handleOptions: any = {}) {
             update()
         }
         return () => query.unsubscribe(update)
-    }, [])
+    }, [ originalVersion, query ])
     return query.createHandle(handleOptions)
 }
 
