@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import renderer, { act } from 'react-test-renderer'
 import dryRender, { findFiberRoot, elementFromFiber } from '../dryrender'
 import PropTypes from 'prop-types'
+import { promised } from 'q';
 
 test('Stateful Class Component (normal setState)', async () => {
     let callRender = jest.fn()
@@ -397,6 +398,45 @@ test('suspense rehydrate', () => {
     dryRender(elementFromFiber(root.child), root.child)
     expect(lastMessage).toBe('derp')
 })
+
+// test('suspense rehydrate badbroke', () => {
+//     let lastMessage = 'wumbo'
+// ​
+//     let K = React.createContext('l')
+// ​
+//     function StatefulDemo() {
+//         if(lastMessage === 'wumbo'){
+//             lastMessage = 'derp'
+//             throw Promise.resolve(true)
+//         }
+        
+//         return <button>broke</button>
+//     }
+// ​
+//     const node = (
+//         <React.Suspense fallback={<div>hi</div>}>
+//             <K.Provider value={'k'}>
+//                 <div key="ylo">merp</div>
+//                 <StatefulDemo key="xyz" />
+//             </K.Provider>
+//         </React.Suspense>
+//     )
+//     let component: any;
+//  ​   act(() => {
+//         component = renderer.create(node)
+//     })
+    
+//     let root = findFiberRoot((component.root as any)._fiber)
+// ​
+//     // expect(lastMessage).toBe('wumbo')
+//     dryRender(elementFromFiber(root.child), root.child)
+//     // expect(lastMessage).toBe('wumbo')
+//     act(() => component.root.findByType('button').props.onClick())
+// ​
+//     expect(lastMessage).toBe('derp')
+//     dryRender(elementFromFiber(root.child), root.child)
+//     expect(lastMessage).toBe('derp')
+// })
 
 test('fragment rehydrate', () => {
     let lastMessage

@@ -43,24 +43,33 @@ function App() {
 function RepoCard({ repo, defaultShow }: { defaultShow: boolean, repo: GQL.Repository }){
     let [ expanded, setExpanded ] = React.useState(defaultShow)
     let query: GQL.Query = useQuery()
-
+    // {expanded && <LoadingBoundary>{() => {
+    //     console.log(expanded, repo.name)
+    // return <div>
+    //     {query.repository({
+    //         owner: query.viewer.login,
+    //         name: repo.name
+    //     }).description}
+    // </div>}}</LoadingBoundary>}
     return <div>
         {repo.name}
         <button onClick={e => setExpanded(k => !k)}>Toggle</button>
-        {expanded && <LoadingBoundary>{() => {
-            console.log(expanded, repo.name)
-        return <div>
+        {expanded && <div>
             {query.repository({
                 owner: query.viewer.login,
                 name: repo.name
             }).description}
-        </div>}}</LoadingBoundary>}
+        </div>}
     </div>
 }
 
+let Blah = React.createContext(null)
+
 let dom = (
     <AutographRoot>
-        <App />
+        <Blah.Provider value={234}>
+            <App />
+        </Blah.Provider>
     </AutographRoot>
 )
 
