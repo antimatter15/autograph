@@ -1,5 +1,3 @@
-import { hashArguments } from './util/util'
-
 export const AutographSentinels = {
     ID: 'Autograph ID',
     String: 'Autograph String',
@@ -54,9 +52,7 @@ const convertRecursive = (log: AccessLog, prefix = '') => {
                 gql +=
                     indent(
                         prefix +
-                            info.name +
-                            '___' +
-                            hashArguments(info.args) +
+                            info.key +
                             ': ' +
                             info.name +
                             (Object.keys(info.args).length > 0 ? '(' + encodeKV(info.args) + ')' : '') +

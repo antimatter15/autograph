@@ -6,6 +6,7 @@ import { hashArguments, shallowCompare, nextFrame } from './util/util'
 import accessLogToGraphQL, { AccessLog, SUCCINCT_INTROSPECTION_QUERY, GQLSchema, GQLTypeRef, GQLType, AutographSentinels } from './graphql'
 import convertGQLSchemaToTypescript from './typescript'
 import * as eager from './util/eager'
+import { createAccessor } from './accessor';
 
 const AutographContext = React.createContext(null)
 let lastHandleValue: any;
@@ -157,10 +158,11 @@ class AutographModel {
         }
     }
 }
-type AccessorState = {
+type AccessorInfo = {
     isDry: boolean
     handleOptions: HandleOptions
     version: number
+    typeRef: GQLTypeRef
 }
 
 type HandleOptions = {
@@ -171,17 +173,17 @@ type HandleOptions = {
     cacheOnly?: boolean
 }
 
-type PathComponent = {
-    type: 'AS',
-    name: string
-} | {
-    type: 'PROP'
-    name: string
-} | {
-    type: 'METHOD'
-    name: string
-    args: any
-}
+// type PathComponent = {
+//     type: 'AS',
+//     name: string
+// } | {
+//     type: 'PROP'
+//     name: string
+// } | {
+//     type: 'METHOD'
+//     name: string
+//     args: any
+// }
 
 class AutographQuery {
     root: AutographModel
@@ -278,10 +280,11 @@ class AutographQuery {
         }
 
         if (this.root.currentlyDryRendering) {
-            return this._createAccessor(this.deps, queryRoot as GQLType, {
+            return this._createAccessor(this.deps, {
                 isDry: true,
                 handleOptions,
                 version: this.version,
+                typeRef: queryRoot
             })
         } else {
             if (!this.client.schemaData && !this.client.schemaPromise && !this.client.schemaError) {
@@ -320,276 +323,133 @@ class AutographQuery {
             if (handleOptions.error && this.dataError) {
                 throw this.dataError
             }
-            return this._createAccessor(this.data, queryRoot, {
+            return this._createAccessor(this.data, {
                 isDry: false,
                 handleOptions,
                 version: this.version,
+                typeRef: queryRoot, 
             })
         }
     }
 
-    _createAccessor(data: any, type: GQLTypeRef, state: AccessorState, path: Array<string> = []) {
+    _createAccessor(data: any, info: AccessorInfo) {
         // this allows directives to work
-        let obj: any = this.__createAccessor(data, type, state, path)
-        if (state.isDry) {
-            lastHandleValue = obj
-            lastHandlePointer = data
-        }
-        return obj
-    }
-    __createAccessor(data: any, type: GQLTypeRef, state: AccessorState, path: Array<string>) {
-        let schema: GQLSchema = this.client.schemaData
-        let { isDry, handleOptions, version } = state
+        // let obj: any = this.__createAccessor(data, type, state, path)
 
-        const subpath = (obj: PathComponent) => {
-            if (isDry) {
-                let key = JSON.stringify(obj)
-                return data[key] || (data[key] = {})
-            } else {
-                if (data) {
-                    if (obj.type === 'AS') {
-                        let n = {}
-                        for (let key in data) {
-                            if (key.startsWith('__AS_' + obj.name)) {
-                                n[key.slice(key.indexOf('___') + 3)] = data[key]
-                            }
+        let obj: any = createAccessor({
+            accessLog: this.deps,
+            data: this.data,
+            typeRef: info.typeRef,
+            path: [],
+        }, {
+            schema: this.client.schemaData,
+            isDry: info.isDry,
+            returnValueHook: (value, state, config) => {
+                if (config.isDry) {
+                    lastHandleValue = value
+                    lastHandlePointer = state.accessLog
+                }
+            },
+            accessHook: (state, config) => {
+                if(config.isDry){
+                    ensureDuringRender()
+                }
+                
+                let isQueryRoot = state.typeRef.kind === '__NOSCHEMA' || config.schema.queryType.name === state.typeRef.name;
+
+                // if(state.typeRef)
+                // if (handleOptions.cacheOnly) return null
+
+                if(state.data === undefined && !isQueryRoot && !config.isDry){
+                    if (!this.dataPromise) {
+                        this.root.dryRender()
+                        if (!this.dataPromise) {
+                            console.log(data, type)
+                            throw new Error('Some sort of rendering or query generation problem!')
                         }
-                        return n
-                    } else if (obj.type === 'PROP') {
-                        return data[obj.name]
-                    } else if (obj.type === 'METHOD') {
-                        return data[obj.name + '___' + hashArguments(obj.args)]
                     }
-                }
 
-                return undefined
-            }
-        }
+                    // if we go from not-loading to loading then we abort the current render
+                    // and then try again immediately (with the appropriate query loading state
+                    // configured). otherwise we suspend for the duration of the data fetching
+                    // process because that means we're trying to use suspense. this allows us
+                    // to use both the classic `query._loading` style guards as well as the
+                    // loading guards and falling back to suspense
 
-        const isQueryRoot = type.kind === '__NOSCHEMA' || schema.queryType.name === type.name
+                    this.root.lastFetchError = new Error(
+                        `No loading boundary found while fetching query.${state.path.join(
+                            '.'
+                        )}. This may cause the entire application to unmount while the data is loading. To fix this consider adding one of the following: \n\n` +
+                            `\n` +
+                            `Add a loading guard to a component before you access data: 
+                    if(query._loading) return <div>Loading...</div>\n\n` +
+                            `Add an inline Loading placeholder around a certain subtree: 
+                    <Loading fallback={<div>Loading...</div>}>{() => }</Loading>\n\n` +
+                            `Wrap your component in a suspense boundary: 
+                    <React.Suspense fallback={<div>Loading...</div>}></React.Suspense>\n`
+                    )
 
-        if (!isDry) ensureDuringRender()
-
-        if (!isDry && data === undefined && !isQueryRoot) {
-            if (handleOptions.cacheOnly) return null
-
-            if (!this.dataPromise) {
-                this.root.dryRender()
-                if (!this.dataPromise) {
-                    console.log(data, type)
-                    throw new Error('Some sort of rendering or query generation problem!')
-                }
-            }
-
-            // if we go from not-loading to loading then we abort the current render
-            // and then try again immediately (with the appropriate query loading state
-            // configured). otherwise we suspend for the duration of the data fetching
-            // process because that means we're trying to use suspense. this allows us
-            // to use both the classic `query._loading` style guards as well as the
-            // loading guards and falling back to suspense
-
-            this.root.lastFetchError = new Error(
-                `No loading boundary found while fetching query.${path.join(
-                    '.'
-                )}. This may cause the entire application to unmount while the data is loading. To fix this consider adding one of the following: \n\n` +
-                    `\n` +
-                    `Add a loading guard to a component before you access data: 
-            if(query._loading) return <div>Loading...</div>\n\n` +
-                    `Add an inline Loading placeholder around a certain subtree: 
-            <Loading fallback={<div>Loading...</div>}>{() => }</Loading>\n\n` +
-                    `Wrap your component in a suspense boundary: 
-            <React.Suspense fallback={<div>Loading...</div>}></React.Suspense>\n`
-            )
-
-            if (this.version !== version) {
-                throw nextFrame()
-            } else {
-                throw this.dataPromise
-            }
-        }
-
-        if (!isDry && data === null && !isQueryRoot) {
-            return null
-        }
-
-        if (type.kind === 'INTERFACE' || type.kind === 'OBJECT' || isQueryRoot) {
-            let handle = {}
-
-            if (schema) {
-                let sub = schema.types.find((k) => k.name === type.name)
-                if (!sub) throw new Error(`Unable to find type "${type.name}" in schema.`)
-
-                for (let field of sub.fields!) {
-                    if (field.args.length === 0) {
-                        if (!isDry && subpath({ type: 'PROP', name: field.name }) !== undefined) {
-                            let next = subpath({ type: 'PROP', name: field.name })
-                            handle[field.name] = this._createAccessor(next, field.type, state, [
-                                ...path,
-                                field.name,
-                            ])
-                        } else {
-                            Object.defineProperty(handle, field.name, {
-                                // configurable: true,
-                                get: () => {
-                                    let next = subpath({ type: 'PROP', name: field.name })
-                                    return this._createAccessor(next, field.type, state, [
-                                        ...path,
-                                        field.name,
-                                    ])
-                                },
-                            })
-                        }
+                    if (this.version !== info.version) {
+                        throw nextFrame()
                     } else {
-                        let run = (args: any) => {
-                            let next = subpath({
-                                type: 'METHOD',
-                                name: field.name,
-                                args: args || {},
-                            })
-                            return this._createAccessor(next, field.type, state, [
-                                ...path,
-                                field.name,
-                            ])
-                        }
-
-                        let handler = run;
-                        if (SHOW_ARGUMENTS_DEV && __DEV__) {
-                            try {
-                                let argStr = `{${field.args
-                                    .map((k) => k.name)
-                                    // ensure that the names are within graphql spec to guard against code injection
-                                    // security issues
-                                    // note that there are valid graphql names which are not valid 
-                                    // javascript names, so we wrap this in a try catch
-                                    .filter((k) => /^[_A-Za-z][_0-9A-Za-z]*$/.test(k))
-                                    .join(', ')}}`
-                                handler = eval(
-                                    `(function(${argStr}={}){ return run(arguments[0])} )`
-                                )        
-                            } catch (err) { }
-                        }
-                        handle[field.name] = handler
+                        throw this.dataPromise
                     }
                 }
+            },
+            
+            accessHandleHook: (handle, state, config) => {
+                let { isDry } = config;
+                let isQueryRoot = config.schema.queryType.name === state.typeRef.name;
 
-                if (sub.kind === 'INTERFACE') {
-                    for (let type of schema.types) {
-                        if (type.kind !== 'OBJECT') continue
-                        if (!type.interfaces!.some((k) => k.name === sub!.name)) continue
+                if(isQueryRoot){
+                    // allow functions to distinguish between the dry run and the real execution
+                    // for instance to specifically gate side effects
+                    Object.defineProperty(handle, '_dry', {
+                        enumerable: false,
+                        value: isDry,
+                    })
 
-                        Object.defineProperty(handle, 'as' + type.name, {
-                            get: () => {
-                                let next = subpath({ type: 'AS', name: type.name! })
-                                return this._createAccessor(next, type, state, [
-                                    ...path,
-                                    'as' + type.name,
-                                ])
+                    Object.defineProperty(handle, '_loading', {
+                        enumerable: false,
+                        value: isDry
+                            ? // if we are in a dry run and we haven't loaded our schema,
+                            // we set loading to true so we don't hit some sort of
+                            // error because we don't know which fields to create
+                            !!this.client.schemaPromise
+                            : // we are either loading the schema or the data for this query
+                            !!(this.client.schemaPromise || this.dataPromise),
+                    })
+
+                    // we may have to deal with either schema or data errors
+
+                    if (isDry) {
+                        Object.defineProperty(handle, '_error', {
+                            enumerable: false,
+                            get() {
+                                data[JSON.stringify({ type: 'FEAT', name: '_error' })] = true
+                                return null
                             },
                         })
+                    } else {
+                        Object.defineProperty(handle, '_error', {
+                            enumerable: false,
+                            value: this.client.schemaError || this.dataError,
+                        })
                     }
-                }
 
-                Object.defineProperty(handle, '__typename', {
-                    enumerable: false,
-                    value: type.name,
-                    // get: () => {
-                    //     if(isDry){
-                    //         subpath({ type: 'PROP', name: '__typename' }).__get = true;
-                    //     }
-                    //     return type.name
-                    // }
-                })
-            }
-
-            if (isQueryRoot) {
-                // allow functions to distinguish between the dry run and the real execution
-                // for instance to specifically gate side effects
-                Object.defineProperty(handle, '_dry', {
-                    enumerable: false,
-                    value: isDry,
-                })
-
-                Object.defineProperty(handle, '_loading', {
-                    enumerable: false,
-                    value: isDry
-                        ? // if we are in a dry run and we haven't loaded our schema,
-                          // we set loading to true so we don't hit some sort of
-                          // error because we don't know which fields to create
-                          !!this.client.schemaPromise
-                        : // we are either loading the schema or the data for this query
-                          !!(this.client.schemaPromise || this.dataPromise),
-                })
-
-                // we may have to deal with either schema or data errors
-
-                if (isDry) {
-                    Object.defineProperty(handle, '_error', {
+                    Object.defineProperty(handle, '_data', {
                         enumerable: false,
-                        get() {
-                            data[JSON.stringify({ type: 'FEAT', name: '_error' })] = true
-                            return null
-                        },
-                    })
-                } else {
-                    Object.defineProperty(handle, '_error', {
-                        enumerable: false,
-                        value: this.client.schemaError || this.dataError,
+                        value: this.data,
                     })
                 }
-
-                Object.defineProperty(handle, '_data', {
-                    enumerable: false,
-                    value: this.data,
-                })
+                
+                if(state.data === null && !isQueryRoot){
+                    return null
+                }
+                return Object.freeze(handle)
             }
-
-            return Object.freeze(handle)
-            // For developer experience, delete the getters after the render process
-            // has been completed?
-
-            // We could use proxies as well, but proxies get displayed in the
-            // chrome console in an ugly way, so that defeats the point
-
-            // Nevermind this doesn't work because some component might later
-            // access a field that should trigger a re-render...
-            // setTimeout(() => {
-            //     for(let prop of Object.getOwnPropertyNames(handle)){
-            //         let desc = Object.getOwnPropertyDescriptor(handle, prop);
-            //         if(desc.get) delete handle[prop];
-            //     }
-            // }, 0)
-            // return handle
-        }
-
-        if (type.kind === 'NON_NULL') return this._createAccessor(data, type.ofType!, state, path)
-
-        if (!isDry) {
-            // if there is data then we return it
-            if (type.kind === 'LIST') {
-                return data.map((x: any) => this._createAccessor(x, type.ofType!, state, path))
-            }
-            return data
-        } else {
-            if (type.kind === 'LIST')
-                return makeFixedArray([this._createAccessor(data, type.ofType!, state, path)])
-            if (type.kind === 'UNION') {
-                let sub = schema.types.find((k) => k.name === type.name)
-                if (!sub) throw new Error(`Unable to find type "${type.name}" in schema.`)
-                return this._createAccessor(data, sub.possibleTypes![0], state, path)
-            }
-
-            data.__get = true
-            
-            if(type.name! in AutographSentinels) return AutographSentinels[type.name!];
-            if (type.name === 'Boolean') return true
-            if (type.kind === 'ENUM') {
-                let sub = schema.types.find((k) => k.name === type.name)
-                if (!sub) throw new Error(`Unable to find type "${type.name}" in schema.`)
-                return sub.enumValues![0].name
-            }
-            if (type.kind === 'SCALAR') return { __gqlScalarName: type.name }
-            throw new Error(`Unable to handle ${type.kind} named "${type.name}"`)
-        }
+        })
+        return obj
     }
 }
 

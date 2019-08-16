@@ -82,7 +82,7 @@ test('Property Method', () => {
     expect(
         accessLogToGraphQL({
             '{"type": "PROP", "name": "users"}': {
-                '{"type": "METHOD", "name": "name", "args": {"capitalize": true}}': {
+                '{"type": "METHOD", "key": "name___7xk9a7", "name": "name", "args": {"capitalize": true}}': {
                     __get: true,
                 },
             },
@@ -100,7 +100,7 @@ test('Property Method (No args)', () => {
     expect(
         accessLogToGraphQL({
             '{"type": "PROP", "name": "users"}': {
-                '{"type": "METHOD", "name": "name", "args": {}}': {
+                '{"type": "METHOD", "key": "name___3horh", "name": "name", "args": {}}': {
                     __get: true,
                 },
             },
@@ -119,7 +119,7 @@ test('Property Method (Array)', () => {
     expect(
         accessLogToGraphQL({
             '{"type": "PROP", "name": "users"}': {
-                '{"type": "METHOD", "name": "name", "args": {"whitelist": ["Steve", "Charles"]}}': {
+                '{"type": "METHOD", "key": "name___7708j7", "name": "name", "args": {"whitelist": ["Steve", "Charles"]}}': {
                     __get: true,
                 },
             },
@@ -137,7 +137,7 @@ test('Property Method (Object)', () => {
     expect(
         accessLogToGraphQL({
             '{"type": "PROP", "name": "users"}': {
-                '{"type": "METHOD", "name": "name", "args": {"rename": {"Steve":  "Charles"} }}': {
+                '{"type": "METHOD", "name": "name", "key": "name___nk8ia2", "args": {"rename": {"Steve":  "Charles"} }}': {
                     __get: true,
                 },
             },
@@ -156,7 +156,7 @@ test('Inline Fragment', () => {
         accessLogToGraphQL({
             '{"type": "PROP", "name": "users"}': {
                 '{"type": "AS", "name": "Human"}': {
-                    '{"type": "METHOD", "name": "name", "args": {"rename": {"Steve":  "Charles"} }}': {
+                    '{"type": "METHOD", "name": "name", "key": "name___nk8ia2", "args": {"rename": {"Steve":  "Charles"} }}': {
                         __get: true,
                     },
                     '{"type": "PROP", "name": "name"}': {
