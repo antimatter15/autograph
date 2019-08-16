@@ -120,7 +120,7 @@ test('Property Field (with Directive 2)', () => {
 //     ).toMatchInlineSnapshot(`
 //                 "{
 //                   users {
-//                     name___7xk9a7: name(capitalize: true) 
+//                     name___7xk9a7: name(capitalize: true)
 //                   }
 //                 }"
 //         `)
@@ -143,7 +143,7 @@ test('Property Field (with Directive 2)', () => {
 //         Object {
 //           "query": "{
 //           users {
-//             name___3horh: name 
+//             name___3horh: name
 //           }
 //         }",
 //           "variables": Object {},
@@ -166,7 +166,7 @@ test('Property Field (with Directive 2)', () => {
 //     ).toMatchInlineSnapshot(`
 //                 "{
 //                   users {
-//                     name___7708j7: name(whitelist: [\\"Steve\\", \\"Charles\\"]) 
+//                     name___7708j7: name(whitelist: [\\"Steve\\", \\"Charles\\"])
 //                   }
 //                 }"
 //         `)
@@ -187,7 +187,7 @@ test('Property Field (with Directive 2)', () => {
 //     ).toMatchInlineSnapshot(`
 //                 "{
 //                   users {
-//                     name___nk8ia2: name(rename: {Steve: \\"Charles\\"}) 
+//                     name___nk8ia2: name(rename: {Steve: \\"Charles\\"})
 //                   }
 //                 }"
 //         `)
@@ -215,8 +215,8 @@ test('Property Field (with Directive 2)', () => {
 //                 "{
 //                   users {
 //                     ... on Human {
-//                       __AS_Human___name___nk8ia2: name(rename: {Steve: \\"Charles\\"}) 
-//                       __AS_Human___name: name 
+//                       __AS_Human___name___nk8ia2: name(rename: {Steve: \\"Charles\\"})
+//                       __AS_Human___name: name
 //                       __AS_Human___flumbo: flumbo {
 //                         __typename
 //                       }

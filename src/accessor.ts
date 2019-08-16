@@ -1,6 +1,6 @@
-import { AccessLog, GQLSchema, GQLTypeRef, AutographSentinels, AccessorComponent } from "./graphql";
-import makeFixedArray from "./util/fixarray";
-import { hashArguments } from "./util/util";
+import { AccessLog, GQLSchema, GQLTypeRef, AutographSentinels, AccessorComponent } from './graphql'
+import makeFixedArray from './util/fixarray'
+import { hashArguments } from './util/util'
 
 // type HandleOptions = {
 //     error?: boolean
@@ -9,14 +9,14 @@ import { hashArguments } from "./util/util";
 // }
 
 type AccessorState = {
-    accessLog: AccessLog,
-    data: { [key: string]: any } | undefined,
-    typeRef: GQLTypeRef,
-    path: Array<string|number>
+    accessLog: AccessLog
+    data: { [key: string]: any } | undefined
+    typeRef: GQLTypeRef
+    path: Array<string | number>
 }
 
 type AccessorConfig = {
-    schema: GQLSchema,
+    schema: GQLSchema
     isDry: boolean
 
     accessHook?: (state: AccessorState, config: AccessorConfig) => void
@@ -28,131 +28,156 @@ type AccessorConfig = {
 
 export function createAccessor(state: AccessorState, config: AccessorConfig): any {
     let value = createAccessorCore(state, config)
-    if(config.returnValueHook){
+    if (config.returnValueHook) {
         config.returnValueHook(value, state, config)
     }
-    return value;
+    return value
 }
 
 function createAccessorCore(state: AccessorState, config: AccessorConfig): any {
-    const { accessLog, data, typeRef, path } = state;
-    const { schema, isDry } = config;
-    
-    if(config.accessHook){
+    const { accessLog, data, typeRef, path } = state
+    const { schema, isDry } = config
+
+    if (config.accessHook) {
         config.accessHook(state, config)
     }
 
     const subpath = (args: {
-        component: AccessorComponent,
-        typeRef: AccessorState['typeRef'],
-        data: AccessorState['data'],
-        path: AccessorState['path'],
+        component: AccessorComponent
+        typeRef: AccessorState['typeRef']
+        data: AccessorState['data']
+        path: AccessorState['path']
     }) => {
         let k = JSON.stringify(args.component)
-        let subLog = (accessLog[k] = (accessLog[k] as AccessLog || {}))
-        return createAccessor({
-            accessLog: subLog,
-            typeRef: args.typeRef,
-            data: args.data,
-            path: args.path
-        }, config)
+        let subLog = (accessLog[k] = (accessLog[k] as AccessLog) || {})
+        return createAccessor(
+            {
+                accessLog: subLog,
+                typeRef: args.typeRef,
+                data: args.data,
+                path: args.path,
+            },
+            config
+        )
     }
 
-    if(typeRef.kind === 'NON_NULL'){
+    if (typeRef.kind === 'NON_NULL') {
         // if a type is required, just recurse down to the underlying type
-        return createAccessor({
-            path: path,
-            typeRef: typeRef.ofType!,
-            data: data,
-            accessLog: accessLog
-        }, config)
-    }else if(typeRef.kind === 'LIST'){
-        if(data !== undefined){
-            return data.map((k: any, i: number) =>
-                createAccessor({
-                    data: k,
-                    accessLog: accessLog,
-                    typeRef: typeRef.ofType!, 
-                    path: [...path, i]
-                }, config))
-        }else{
-            return makeFixedArray([createAccessor({
-                data: undefined,
+        return createAccessor(
+            {
+                path: path,
+                typeRef: typeRef.ofType!,
+                data: data,
                 accessLog: accessLog,
-                typeRef: typeRef.ofType!, 
-                path: [...path, 0]
-            }, config)])
+            },
+            config
+        )
+    } else if (typeRef.kind === 'LIST') {
+        if (data !== undefined) {
+            return data.map((k: any, i: number) =>
+                createAccessor(
+                    {
+                        data: k,
+                        accessLog: accessLog,
+                        typeRef: typeRef.ofType!,
+                        path: [...path, i],
+                    },
+                    config
+                )
+            )
+        } else {
+            return makeFixedArray([
+                createAccessor(
+                    {
+                        data: undefined,
+                        accessLog: accessLog,
+                        typeRef: typeRef.ofType!,
+                        path: [...path, 0],
+                    },
+                    config
+                ),
+            ])
         }
-    }else if(typeRef.kind === 'ENUM'){
-        accessLog.__get = true;
-        if(data !== undefined){
+    } else if (typeRef.kind === 'ENUM') {
+        accessLog.__get = true
+        if (data !== undefined) {
             return data
-        }else{
+        } else {
             let type = schema.types.find((k) => k.name === typeRef.name)
             if (!type) throw new Error(`Unable to find type "${typeRef.name}" in schema.`)
 
             return type.enumValues![0].name
         }
-    }else if(typeRef.kind === 'SCALAR'){
-        accessLog.__get = true;
-        if(data !== undefined){
+    } else if (typeRef.kind === 'SCALAR') {
+        accessLog.__get = true
+        if (data !== undefined) {
             return data
-        }else if(typeRef.name === 'Boolean'){
+        } else if (typeRef.name === 'Boolean') {
             return true
-        }else if(typeRef.name! in AutographSentinels){
+        } else if (typeRef.name! in AutographSentinels) {
             return AutographSentinels[typeRef.name!]
-        }else{
+        } else {
             return { _gqlCustomScalar: typeRef.name }
         }
-    }else if(typeRef.kind === 'UNION' || typeRef.kind === 'INTERFACE' || typeRef.kind === 'OBJECT'){
+    } else if (
+        typeRef.kind === 'UNION' ||
+        typeRef.kind === 'INTERFACE' ||
+        typeRef.kind === 'OBJECT'
+    ) {
         let handle = {}
 
         let type = schema.types.find((k) => k.name === typeRef.name)
         if (!type) throw new Error(`Unable to find type "${typeRef.name}" in schema.`)
 
-        if(typeRef.kind === 'INTERFACE' || typeRef.kind === 'OBJECT'){
-            for(let field of type.fields!){
-                if(field.args.length === 0){
+        if (typeRef.kind === 'INTERFACE' || typeRef.kind === 'OBJECT') {
+            for (let field of type.fields!) {
+                if (field.args.length === 0) {
                     const getProp = () => {
-                        let key = field.name;
+                        let key = field.name
                         return subpath({
-                            component: {    
+                            component: {
                                 type: 'PROP',
                                 name: field.name,
                             },
                             typeRef: field.type,
-                            data: (typeof data === 'object' && data && key in data) ? data[key] : undefined,
-                            path: [...path, field.name]
+                            data:
+                                typeof data === 'object' && data && key in data
+                                    ? data[key]
+                                    : undefined,
+                            path: [...path, field.name],
                         })
                     }
 
                     // if this is a field which has no arguments
                     // stick in the value if it is available
                     // otherwise fill itwith getters
-                    if(!isDry && data && data[field.name]){
+                    if (!isDry && data && data[field.name]) {
                         handle[field.name] = getProp()
-                    }else{
+                    } else {
                         Object.defineProperty(handle, field.name, {
-                            get: () => getProp()
+                            get: () => getProp(),
                         })
                     }
-                }else{
+                } else {
                     // if this is a field which takes arguments
                     // compile it into a method
 
                     const getMethod = (args: { [key: string]: any } = {}) => {
-                        let key = field.name + '___' + hashArguments(args);
+                        let key = field.name + '___' + hashArguments(args)
                         return subpath({
                             component: {
                                 type: 'METHOD',
                                 object: typeRef.name!,
                                 name: field.name,
                                 args: args || {},
-                                key: key
+                                key: key,
                             },
                             typeRef: field.type,
-                            data: (typeof data === 'object' && data && key in data) ? data[key] : undefined,
-                            path: [...path, field.name + '(' + JSON.stringify(args) + ')']
+                            data:
+                                typeof data === 'object' && data && key in data
+                                    ? data[key]
+                                    : undefined,
+                            path: [...path, field.name + '(' + JSON.stringify(args) + ')'],
                         })
                     }
 
@@ -161,13 +186,13 @@ function createAccessorCore(state: AccessorState, config: AccessorConfig): any {
             }
         }
 
-        let validInlineFragments: Array<GQLTypeRef> = type.possibleTypes || [];
+        let validInlineFragments: Array<GQLTypeRef> = type.possibleTypes || []
         // if(typeRef.kind === 'INTERFACE'){
         //     // if type.kind === 'INTERFACE' then we need to add potential
         //     // inline fragments for each of the types which implement this
         //     // interface
-            
-        //     validInlineFragments = schema.types.filter(k => 
+
+        //     validInlineFragments = schema.types.filter(k =>
         //         k.kind === 'OBJECT' &&
         //         k.interfaces!.some(k => k.name === typeRef.name))
         // }else if(typeRef.kind === 'UNION'){
@@ -176,12 +201,12 @@ function createAccessorCore(state: AccessorState, config: AccessorConfig): any {
         //     validInlineFragments = type.possibleTypes!;
         // }
 
-        for(let subref of validInlineFragments){
+        for (let subref of validInlineFragments) {
             Object.defineProperty(handle, 'as' + subref.name, {
                 get: () => {
-                    // Right now the 
-                    let subData = undefined;
-                    if(typeof data === 'object' && data){
+                    // Right now the
+                    let subData = undefined
+                    if (typeof data === 'object' && data) {
                         subData = {}
                         for (let key in data) {
                             if (key.startsWith('__AS_' + subref.name)) {
@@ -196,39 +221,40 @@ function createAccessorCore(state: AccessorState, config: AccessorConfig): any {
                         },
                         typeRef: subref,
                         data: subData,
-                        path: [...path, subref.name!]
+                        path: [...path, subref.name!],
                     })
-                }
+                },
             })
         }
-
 
         // Every accessor object includes a __typename field
         Object.defineProperty(handle, '__typename', {
             enumerable: false,
             get: () => {
-                accessLog[JSON.stringify({
-                    type: 'PROP',
-                    name: '__typename',
-                } as AccessorComponent)] = {
-                    __get: true
+                accessLog[
+                    JSON.stringify({
+                        type: 'PROP',
+                        name: '__typename',
+                    } as AccessorComponent)
+                ] = {
+                    __get: true,
                 }
-                if(data && data.__typename){
+                if (data && data.__typename) {
                     return data.__typename
-                }else if(typeRef.kind === 'OBJECT'){
+                } else if (typeRef.kind === 'OBJECT') {
                     return typeRef.name
-                }else{
+                } else {
                     return validInlineFragments[0].name
                 }
-            }
+            },
         })
 
-        if(config.accessHandleHook){
+        if (config.accessHandleHook) {
             return config.accessHandleHook(handle, state, config)
-        }else{
+        } else {
             return Object.freeze(handle)
         }
-    }else{
+    } else {
         throw new Error(`Unable to handle ${typeRef.kind} named "${typeRef.name}"`)
     }
 }
@@ -236,21 +262,21 @@ function createAccessorCore(state: AccessorState, config: AccessorConfig): any {
 const SHOW_ARGUMENTS_DEV = true
 const __DEV__ = true // TODO: process.env.NODE_ENV?
 
-
-function withPrettyArgs(__fn: (args: {[key: string]: any}) => any, args: Array<string>): typeof __fn {
+function withPrettyArgs(
+    __fn: (args: { [key: string]: any }) => any,
+    args: Array<string>
+): typeof __fn {
     if (SHOW_ARGUMENTS_DEV && __DEV__) {
         try {
             let argStr = `{${args
                 // ensure that the names are within graphql spec to guard against code injection
                 // security issues
-                // note that there are valid graphql names which are not valid 
+                // note that there are valid graphql names which are not valid
                 // javascript names, so we wrap this in a try catch
                 .filter((k) => /^[_A-Za-z][_0-9A-Za-z]*$/.test(k))
                 .join(', ')}}`
-            return eval(
-                `(function(${argStr}={}){ return __fn(arguments[0])} )`
-            )        
-        } catch (err) { }
+            return eval(`(function(${argStr}={}){ return __fn(arguments[0])} )`)
+        } catch (err) {}
     }
     return __fn
 }

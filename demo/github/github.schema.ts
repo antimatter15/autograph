@@ -14,13 +14,34 @@ export type Query = GQLType & {
     /** Return a list of known open source licenses */
     licenses: License[]
     /** Get alphabetically sorted list of Marketplace categories */
-    marketplaceCategories(args?: { includeCategories?: string[], excludeEmpty?: boolean, excludeSubcategories?: boolean }): MarketplaceCategory[]
+    marketplaceCategories(args?: {
+        includeCategories?: string[]
+        excludeEmpty?: boolean
+        excludeSubcategories?: boolean
+    }): MarketplaceCategory[]
     /** Look up a Marketplace category by its slug. */
-    marketplaceCategory(args: { slug: string, useTopicAliases?: boolean }): MarketplaceCategory | undefined
+    marketplaceCategory(args: {
+        slug: string
+        useTopicAliases?: boolean
+    }): MarketplaceCategory | undefined
     /** Look up a single Marketplace listing */
     marketplaceListing(args: { slug: string }): MarketplaceListing | undefined
     /** Look up Marketplace listings */
-    marketplaceListings(args?: { after?: string, before?: string, first?: Int, last?: Int, categorySlug?: string, useTopicAliases?: boolean, viewerCanAdmin?: boolean, adminId?: ID, organizationId?: ID, allStates?: boolean, slugs?: string[], primaryCategoryOnly?: boolean, withFreeTrialsOnly?: boolean }): MarketplaceListingConnection
+    marketplaceListings(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        categorySlug?: string
+        useTopicAliases?: boolean
+        viewerCanAdmin?: boolean
+        adminId?: ID
+        organizationId?: ID
+        allStates?: boolean
+        slugs?: string[]
+        primaryCategoryOnly?: boolean
+        withFreeTrialsOnly?: boolean
+    }): MarketplaceListingConnection
     /** Return information about the GitHub instance */
     meta: GitHubMetadata
     /** Fetches an object given its ID. */
@@ -34,19 +55,44 @@ export type Query = GQLType & {
     /** Hack to workaround https://github.com/facebook/relay/issues/112 re-exposing the root query object */
     relay: Query
     /** Lookup a given repository by the owner and repository name. */
-    repository(args: { owner: string, name: string }): Repository | undefined
+    repository(args: { owner: string; name: string }): Repository | undefined
     /** Lookup a repository owner (ie. either a User or an Organization) by login. */
     repositoryOwner(args: { login: string }): RepositoryOwner | undefined
     /** Lookup resource by a URL. */
     resource(args: { url: URI }): UniformResourceLocatable | undefined
     /** Perform a search across resources. */
-    search(args: { after?: string, before?: string, first?: Int, last?: Int, query: string, type: SearchType }): SearchResultItemConnection
+    search(args: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        query: string
+        type: SearchType
+    }): SearchResultItemConnection
     /** GitHub Security Advisories */
-    securityAdvisories(args?: { orderBy?: SecurityAdvisoryOrder, identifier?: SecurityAdvisoryIdentifierFilter, publishedSince?: DateTime, updatedSince?: DateTime, after?: string, before?: string, first?: Int, last?: Int }): SecurityAdvisoryConnection
+    securityAdvisories(args?: {
+        orderBy?: SecurityAdvisoryOrder
+        identifier?: SecurityAdvisoryIdentifierFilter
+        publishedSince?: DateTime
+        updatedSince?: DateTime
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): SecurityAdvisoryConnection
     /** Fetch a Security Advisory by its GHSA ID */
     securityAdvisory(args: { ghsaId: string }): SecurityAdvisory | undefined
     /** Software Vulnerabilities documented by GitHub Security Advisories */
-    securityVulnerabilities(args?: { orderBy?: SecurityVulnerabilityOrder, ecosystem?: SecurityAdvisoryEcosystem, package?: string, severities?: SecurityAdvisorySeverity[], after?: string, before?: string, first?: Int, last?: Int }): SecurityVulnerabilityConnection
+    securityVulnerabilities(args?: {
+        orderBy?: SecurityVulnerabilityOrder
+        ecosystem?: SecurityAdvisoryEcosystem
+        package?: string
+        severities?: SecurityAdvisorySeverity[]
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): SecurityVulnerabilityConnection
     /** Look up a single Sponsors Listing */
     sponsorsListing(args: { slug: string }): SponsorsListing | undefined
     /** Look up a topic by name. */
@@ -449,13 +495,22 @@ export type User = GQLType & {
     /** The user's public profile bio as HTML. */
     bioHTML: HTML
     /** A list of commit comments made by this user. */
-    commitComments(args?: { after?: string, before?: string, first?: Int, last?: Int }): CommitCommentConnection
+    commitComments(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): CommitCommentConnection
     /** The user's public profile company. */
     company?: string
     /** The user's public profile company as HTML. */
     companyHTML: HTML
     /** The collection of contributions this user has made to different repositories. */
-    contributionsCollection(args?: { organizationID?: ID, from?: DateTime, to?: DateTime }): ContributionsCollection
+    contributionsCollection(args?: {
+        organizationID?: ID
+        from?: DateTime
+        to?: DateTime
+    }): ContributionsCollection
     /** Identifies the date and time when the object was created. */
     createdAt: DateTime
     /** Identifies the primary key from the database. */
@@ -463,15 +518,37 @@ export type User = GQLType & {
     /** The user's publicly visible profile email. */
     email: string
     /** A list of users the given user is followed by. */
-    followers(args?: { after?: string, before?: string, first?: Int, last?: Int }): FollowerConnection
+    followers(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): FollowerConnection
     /** A list of users the given user is following. */
-    following(args?: { after?: string, before?: string, first?: Int, last?: Int }): FollowingConnection
+    following(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): FollowingConnection
     /** Find gist by repo name. */
     gist(args: { name: string }): Gist | undefined
     /** A list of gist comments made by this user. */
-    gistComments(args?: { after?: string, before?: string, first?: Int, last?: Int }): GistCommentConnection
+    gistComments(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): GistCommentConnection
     /** A list of the Gists the user has created. */
-    gists(args?: { privacy?: GistPrivacy, orderBy?: GistOrder, after?: string, before?: string, first?: Int, last?: Int }): GistConnection
+    gists(args?: {
+        privacy?: GistPrivacy
+        orderBy?: GistOrder
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): GistConnection
     id: ID
     /** Whether or not this user is a participant in the GitHub Security Bug Bounty. */
     isBountyHunter: boolean
@@ -488,9 +565,23 @@ export type User = GQLType & {
     /** Whether or not this user is the viewing user. */
     isViewer: boolean
     /** A list of issue comments made by this user. */
-    issueComments(args?: { after?: string, before?: string, first?: Int, last?: Int }): IssueCommentConnection
+    issueComments(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): IssueCommentConnection
     /** A list of issues associated with this user. */
-    issues(args?: { orderBy?: IssueOrder, labels?: string[], states?: IssueState[], filterBy?: IssueFilters, after?: string, before?: string, first?: Int, last?: Int }): IssueConnection
+    issues(args?: {
+        orderBy?: IssueOrder
+        labels?: string[]
+        states?: IssueState[]
+        filterBy?: IssueFilters
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): IssueConnection
     /** Showcases a selection of repositories and gists that the profile owner has either curated or that have been selected automatically based on popularity. */
     itemShowcase: ProfileItemShowcase
     /** The user's public profile location. */
@@ -502,48 +593,163 @@ export type User = GQLType & {
     /** Find an organization by its login that the user belongs to. */
     organization(args: { login: string }): Organization | undefined
     /** A list of organizations the user belongs to. */
-    organizations(args?: { after?: string, before?: string, first?: Int, last?: Int }): OrganizationConnection
+    organizations(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): OrganizationConnection
     /** A list of repositories and gists this profile owner can pin to their profile. */
-    pinnableItems(args?: { types?: PinnableItemType[], after?: string, before?: string, first?: Int, last?: Int }): PinnableItemConnection
+    pinnableItems(args?: {
+        types?: PinnableItemType[]
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PinnableItemConnection
     /** A list of repositories and gists this profile owner has pinned to their profile */
-    pinnedItems(args?: { types?: PinnableItemType[], after?: string, before?: string, first?: Int, last?: Int }): PinnableItemConnection
+    pinnedItems(args?: {
+        types?: PinnableItemType[]
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PinnableItemConnection
     /** Returns how many more items this profile owner can pin to their profile. */
     pinnedItemsRemaining: Int
     /** A list of repositories this user has pinned to their profile */
     /** @deprecated pinnedRepositories will be removed Use ProfileOwner.pinnedItems instead. Removal on 2019-10-01 UTC. */
-    pinnedRepositories(args?: { privacy?: RepositoryPrivacy, orderBy?: RepositoryOrder, affiliations?: RepositoryAffiliation[], ownerAffiliations?: RepositoryAffiliation[], isLocked?: boolean, after?: string, before?: string, first?: Int, last?: Int }): RepositoryConnection
+    pinnedRepositories(args?: {
+        privacy?: RepositoryPrivacy
+        orderBy?: RepositoryOrder
+        affiliations?: RepositoryAffiliation[]
+        ownerAffiliations?: RepositoryAffiliation[]
+        isLocked?: boolean
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): RepositoryConnection
     /** Find project by number. */
     project(args: { number: Int }): Project | undefined
     /** A list of projects under the owner. */
-    projects(args?: { orderBy?: ProjectOrder, search?: string, states?: ProjectState[], after?: string, before?: string, first?: Int, last?: Int }): ProjectConnection
+    projects(args?: {
+        orderBy?: ProjectOrder
+        search?: string
+        states?: ProjectState[]
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): ProjectConnection
     /** The HTTP path listing user's projects */
     projectsResourcePath: URI
     /** The HTTP URL listing user's projects */
     projectsUrl: URI
     /** A list of public keys associated with this user. */
-    publicKeys(args?: { after?: string, before?: string, first?: Int, last?: Int }): PublicKeyConnection
+    publicKeys(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PublicKeyConnection
     /** A list of pull requests associated with this user. */
-    pullRequests(args?: { states?: PullRequestState[], labels?: string[], headRefName?: string, baseRefName?: string, orderBy?: IssueOrder, after?: string, before?: string, first?: Int, last?: Int }): PullRequestConnection
+    pullRequests(args?: {
+        states?: PullRequestState[]
+        labels?: string[]
+        headRefName?: string
+        baseRefName?: string
+        orderBy?: IssueOrder
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PullRequestConnection
     /** A list of registry packages under the owner. */
-    registryPackages(args?: { after?: string, before?: string, first?: Int, last?: Int, name?: string, names?: string[], repositoryId?: ID, packageType?: RegistryPackageType, registryPackageType?: string, publicOnly?: boolean }): RegistryPackageConnection
+    registryPackages(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        name?: string
+        names?: string[]
+        repositoryId?: ID
+        packageType?: RegistryPackageType
+        registryPackageType?: string
+        publicOnly?: boolean
+    }): RegistryPackageConnection
     /** A list of registry packages for a particular search query. */
-    registryPackagesForQuery(args?: { after?: string, before?: string, first?: Int, last?: Int, query?: string, packageType?: RegistryPackageType }): RegistryPackageConnection
+    registryPackagesForQuery(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        query?: string
+        packageType?: RegistryPackageType
+    }): RegistryPackageConnection
     /** A list of repositories that the user owns. */
-    repositories(args?: { privacy?: RepositoryPrivacy, orderBy?: RepositoryOrder, affiliations?: RepositoryAffiliation[], ownerAffiliations?: RepositoryAffiliation[], isLocked?: boolean, after?: string, before?: string, first?: Int, last?: Int, isFork?: boolean }): RepositoryConnection
+    repositories(args?: {
+        privacy?: RepositoryPrivacy
+        orderBy?: RepositoryOrder
+        affiliations?: RepositoryAffiliation[]
+        ownerAffiliations?: RepositoryAffiliation[]
+        isLocked?: boolean
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        isFork?: boolean
+    }): RepositoryConnection
     /** A list of repositories that the user recently contributed to. */
-    repositoriesContributedTo(args?: { privacy?: RepositoryPrivacy, orderBy?: RepositoryOrder, isLocked?: boolean, includeUserRepositories?: boolean, contributionTypes?: RepositoryContributionType[], after?: string, before?: string, first?: Int, last?: Int }): RepositoryConnection
+    repositoriesContributedTo(args?: {
+        privacy?: RepositoryPrivacy
+        orderBy?: RepositoryOrder
+        isLocked?: boolean
+        includeUserRepositories?: boolean
+        contributionTypes?: RepositoryContributionType[]
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): RepositoryConnection
     /** Find Repository. */
     repository(args: { name: string }): Repository | undefined
     /** The HTTP path for this user */
     resourcePath: URI
     /** Replies this user has saved */
-    savedReplies(args?: { after?: string, before?: string, first?: Int, last?: Int, orderBy?: SavedReplyOrder }): SavedReplyConnection | undefined
+    savedReplies(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        orderBy?: SavedReplyOrder
+    }): SavedReplyConnection | undefined
     /** This object's sponsorships as the maintainer. */
-    sponsorshipsAsMaintainer(args?: { after?: string, before?: string, first?: Int, last?: Int, includePrivate?: boolean, orderBy?: SponsorshipOrder }): SponsorshipConnection
+    sponsorshipsAsMaintainer(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        includePrivate?: boolean
+        orderBy?: SponsorshipOrder
+    }): SponsorshipConnection
     /** This object's sponsorships as the sponsor. */
-    sponsorshipsAsSponsor(args?: { after?: string, before?: string, first?: Int, last?: Int, orderBy?: SponsorshipOrder }): SponsorshipConnection
+    sponsorshipsAsSponsor(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        orderBy?: SponsorshipOrder
+    }): SponsorshipConnection
     /** Repositories the user has starred. */
-    starredRepositories(args?: { ownedByViewer?: boolean, orderBy?: StarOrder, after?: string, before?: string, first?: Int, last?: Int }): StarredRepositoryConnection
+    starredRepositories(args?: {
+        ownedByViewer?: boolean
+        orderBy?: StarOrder
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): StarredRepositoryConnection
     /** The user's description of what they're currently doing. */
     status?: UserStatus
     /** Identifies the date and time when the object was last updated. */
@@ -559,7 +765,17 @@ export type User = GQLType & {
     /** Whether or not this user is followed by the viewer. */
     viewerIsFollowing: boolean
     /** A list of repositories the given user is watching. */
-    watching(args?: { privacy?: RepositoryPrivacy, orderBy?: RepositoryOrder, affiliations?: RepositoryAffiliation[], ownerAffiliations?: RepositoryAffiliation[], isLocked?: boolean, after?: string, before?: string, first?: Int, last?: Int }): RepositoryConnection
+    watching(args?: {
+        privacy?: RepositoryPrivacy
+        orderBy?: RepositoryOrder
+        affiliations?: RepositoryAffiliation[]
+        ownerAffiliations?: RepositoryAffiliation[]
+        isLocked?: boolean
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): RepositoryConnection
     /** A URL pointing to the user's public website/blog. */
     websiteUrl?: URI
 }
@@ -653,7 +869,12 @@ export type RegistryPackage = GQLType & {
     /** Identifies the type of the package. */
     packageType: RegistryPackageType
     /** List the prerelease versions for this package. */
-    preReleaseVersions(args?: { after?: string, before?: string, first?: Int, last?: Int }): RegistryPackageVersionConnection | undefined
+    preReleaseVersions(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): RegistryPackageVersionConnection | undefined
     /** The type of the package. */
     registryPackageType?: string
     /** repository that the release is associated with */
@@ -661,36 +882,88 @@ export type RegistryPackage = GQLType & {
     /** Statistics about package activity. */
     statistics?: RegistryPackageStatistics
     /** list of tags for this package */
-    tags(args?: { after?: string, before?: string, first?: Int, last?: Int }): RegistryPackageTagConnection
+    tags(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): RegistryPackageTagConnection
     /** List the topics for this package. */
-    topics(args?: { after?: string, before?: string, first?: Int, last?: Int }): TopicConnection | undefined
+    topics(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): TopicConnection | undefined
     /** Find package version by version string. */
     version(args: { version: string }): RegistryPackageVersion | undefined
     /** Find package version by version string. */
-    versionByPlatform(args: { version: string, platform: string }): RegistryPackageVersion | undefined
+    versionByPlatform(args: {
+        version: string
+        platform: string
+    }): RegistryPackageVersion | undefined
     /** Find package version by manifest SHA256. */
     versionBySha256(args: { sha256: string }): RegistryPackageVersion | undefined
     /** list of versions for this package */
-    versions(args?: { after?: string, before?: string, first?: Int, last?: Int }): RegistryPackageVersionConnection
+    versions(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): RegistryPackageVersionConnection
     /** List package versions with a specific metadatum. */
-    versionsByMetadatum(args: { metadatum: RegistryPackageMetadatum, after?: string, before?: string, first?: Int, last?: Int }): RegistryPackageVersionConnection | undefined
+    versionsByMetadatum(args: {
+        metadatum: RegistryPackageMetadatum
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): RegistryPackageVersionConnection | undefined
 }
 
 /** The possible types of a registry package. */
-export type RegistryPackageType = "NPM" | "RUBYGEMS" | "MAVEN" | "DOCKER" | "DEBIAN" | "NUGET" | "PYTHON"
+export type RegistryPackageType =
+    | 'NPM'
+    | 'RUBYGEMS'
+    | 'MAVEN'
+    | 'DOCKER'
+    | 'DEBIAN'
+    | 'NUGET'
+    | 'PYTHON'
 
 /** A repository contains the content for a project. */
 export type Repository = GQLType & {
     /** A list of users that can be assigned to issues in this repository. */
-    assignableUsers(args?: { after?: string, before?: string, first?: Int, last?: Int }): UserConnection
+    assignableUsers(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): UserConnection
     /** A list of branch protection rules for this repository. */
-    branchProtectionRules(args?: { after?: string, before?: string, first?: Int, last?: Int }): BranchProtectionRuleConnection
+    branchProtectionRules(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): BranchProtectionRuleConnection
     /** Returns the code of conduct for this repository */
     codeOfConduct?: CodeOfConduct
     /** A list of collaborators associated with the repository. */
-    collaborators(args?: { affiliation?: CollaboratorAffiliation, after?: string, before?: string, first?: Int, last?: Int }): RepositoryCollaboratorConnection | undefined
+    collaborators(args?: {
+        affiliation?: CollaboratorAffiliation
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): RepositoryCollaboratorConnection | undefined
     /** A list of commit comments associated with the repository. */
-    commitComments(args?: { after?: string, before?: string, first?: Int, last?: Int }): CommitCommentConnection
+    commitComments(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): CommitCommentConnection
     /** Identifies the date and time when the object was created. */
     createdAt: DateTime
     /** Identifies the primary key from the database. */
@@ -698,9 +971,21 @@ export type Repository = GQLType & {
     /** The Ref associated with the repository's default branch. */
     defaultBranchRef?: Ref
     /** A list of deploy keys that are on this repository. */
-    deployKeys(args?: { after?: string, before?: string, first?: Int, last?: Int }): DeployKeyConnection
+    deployKeys(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): DeployKeyConnection
     /** Deployments associated with the repository */
-    deployments(args?: { environments?: string[], orderBy?: DeploymentOrder, after?: string, before?: string, first?: Int, last?: Int }): DeploymentConnection
+    deployments(args?: {
+        environments?: string[]
+        orderBy?: DeploymentOrder
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): DeploymentConnection
     /** The description of the repository. */
     description?: string
     /** The description of the repository rendered to HTML. */
@@ -710,7 +995,17 @@ export type Repository = GQLType & {
     /** Returns how many forks there are of this repository in the whole network. */
     forkCount: Int
     /** A list of direct forked repositories. */
-    forks(args?: { privacy?: RepositoryPrivacy, orderBy?: RepositoryOrder, affiliations?: RepositoryAffiliation[], ownerAffiliations?: RepositoryAffiliation[], isLocked?: boolean, after?: string, before?: string, first?: Int, last?: Int }): RepositoryConnection
+    forks(args?: {
+        privacy?: RepositoryPrivacy
+        orderBy?: RepositoryOrder
+        affiliations?: RepositoryAffiliation[]
+        ownerAffiliations?: RepositoryAffiliation[]
+        isLocked?: boolean
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): RepositoryConnection
     /** Indicates if the repository has issues feature enabled. */
     hasIssuesEnabled: boolean
     /** Indicates if the repository has wiki feature enabled. */
@@ -737,25 +1032,58 @@ export type Repository = GQLType & {
     /** Returns a single issue-like object from the current repository by number. */
     issueOrPullRequest(args: { number: Int }): IssueOrPullRequest | undefined
     /** A list of issues that have been opened in the repository. */
-    issues(args?: { orderBy?: IssueOrder, labels?: string[], states?: IssueState[], filterBy?: IssueFilters, after?: string, before?: string, first?: Int, last?: Int }): IssueConnection
+    issues(args?: {
+        orderBy?: IssueOrder
+        labels?: string[]
+        states?: IssueState[]
+        filterBy?: IssueFilters
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): IssueConnection
     /** Returns a single label by name */
     label(args: { name: string }): Label | undefined
     /** A list of labels associated with the repository. */
-    labels(args?: { after?: string, before?: string, first?: Int, last?: Int, query?: string }): LabelConnection | undefined
+    labels(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        query?: string
+    }): LabelConnection | undefined
     /** A list containing a breakdown of the language composition of the repository. */
-    languages(args?: { after?: string, before?: string, first?: Int, last?: Int, orderBy?: LanguageOrder }): LanguageConnection | undefined
+    languages(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        orderBy?: LanguageOrder
+    }): LanguageConnection | undefined
     /** The license associated with the repository */
     licenseInfo?: License
     /** The reason the repository has been locked. */
     lockReason?: RepositoryLockReason
     /** A list of Users that can be mentioned in the context of the repository. */
-    mentionableUsers(args?: { after?: string, before?: string, first?: Int, last?: Int }): UserConnection
+    mentionableUsers(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): UserConnection
     /** Whether or not PRs are merged with a merge commit on this repository. */
     mergeCommitAllowed: boolean
     /** Returns a single milestone from the current repository by number. */
     milestone(args: { number: Int }): Milestone | undefined
     /** A list of milestones associated with the repository. */
-    milestones(args?: { after?: string, before?: string, first?: Int, last?: Int, states?: MilestoneState[], orderBy?: MilestoneOrder }): MilestoneConnection | undefined
+    milestones(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        states?: MilestoneState[]
+        orderBy?: MilestoneOrder
+    }): MilestoneConnection | undefined
     /** The repository's original mirror URL. */
     mirrorUrl?: URI
     /** The name of the repository. */
@@ -763,7 +1091,7 @@ export type Repository = GQLType & {
     /** The repository's name with owner. */
     nameWithOwner: string
     /** A Git object in the repository */
-    object(args?: { oid?: GitObjectID, expression?: string }): GitObject | undefined
+    object(args?: { oid?: GitObjectID; expression?: string }): GitObject | undefined
     /** The image used to represent this repository in Open Graph data. */
     openGraphImageUrl: URI
     /** The User owner of the repository. */
@@ -775,7 +1103,15 @@ export type Repository = GQLType & {
     /** Find project by number. */
     project(args: { number: Int }): Project | undefined
     /** A list of projects under the owner. */
-    projects(args?: { orderBy?: ProjectOrder, search?: string, states?: ProjectState[], after?: string, before?: string, first?: Int, last?: Int }): ProjectConnection
+    projects(args?: {
+        orderBy?: ProjectOrder
+        search?: string
+        states?: ProjectState[]
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): ProjectConnection
     /** The HTTP path listing the repository's projects */
     projectsResourcePath: URI
     /** The HTTP URL listing the repository's projects */
@@ -783,7 +1119,17 @@ export type Repository = GQLType & {
     /** Returns a single pull request from the current repository by number. */
     pullRequest(args: { number: Int }): PullRequest | undefined
     /** A list of pull requests that have been opened in the repository. */
-    pullRequests(args?: { states?: PullRequestState[], labels?: string[], headRefName?: string, baseRefName?: string, orderBy?: IssueOrder, after?: string, before?: string, first?: Int, last?: Int }): PullRequestConnection
+    pullRequests(args?: {
+        states?: PullRequestState[]
+        labels?: string[]
+        headRefName?: string
+        baseRefName?: string
+        orderBy?: IssueOrder
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PullRequestConnection
     /** Identifies when the repository was last pushed to. */
     pushedAt?: DateTime
     /** Whether or not rebase-merging is enabled on this repository. */
@@ -791,15 +1137,45 @@ export type Repository = GQLType & {
     /** Fetch a given ref from the repository */
     ref(args: { qualifiedName: string }): Ref | undefined
     /** Fetch a list of refs from the repository */
-    refs(args: { after?: string, before?: string, first?: Int, last?: Int, refPrefix: string, direction?: OrderDirection, orderBy?: RefOrder }): RefConnection | undefined
+    refs(args: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        refPrefix: string
+        direction?: OrderDirection
+        orderBy?: RefOrder
+    }): RefConnection | undefined
     /** A list of registry packages under the owner. */
-    registryPackages(args?: { after?: string, before?: string, first?: Int, last?: Int, name?: string, names?: string[], repositoryId?: ID, packageType?: RegistryPackageType, registryPackageType?: string, publicOnly?: boolean }): RegistryPackageConnection
+    registryPackages(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        name?: string
+        names?: string[]
+        repositoryId?: ID
+        packageType?: RegistryPackageType
+        registryPackageType?: string
+        publicOnly?: boolean
+    }): RegistryPackageConnection
     /** Lookup a single release given various criteria. */
     release(args: { tagName: string }): Release | undefined
     /** List of releases which are dependent on this repository. */
-    releases(args?: { after?: string, before?: string, first?: Int, last?: Int, orderBy?: ReleaseOrder }): ReleaseConnection
+    releases(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        orderBy?: ReleaseOrder
+    }): ReleaseConnection
     /** A list of applied repository-topic associations for this repository. */
-    repositoryTopics(args?: { after?: string, before?: string, first?: Int, last?: Int }): RepositoryTopicConnection
+    repositoryTopics(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): RepositoryTopicConnection
     /** The HTTP path for this repository */
     resourcePath: URI
     /** A description of the repository, rendered to HTML without any links in it. */
@@ -809,7 +1185,13 @@ export type Repository = GQLType & {
     /** The SSH URL to clone this repository */
     sshUrl: GitSSHRemote
     /** A list of users who have starred this starrable. */
-    stargazers(args?: { after?: string, before?: string, first?: Int, last?: Int, orderBy?: StarOrder }): StargazerConnection
+    stargazers(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        orderBy?: StarOrder
+    }): StargazerConnection
     /** The repository from which this repository was generated, if any. */
     templateRepository?: Repository
     /** Identifies the date and time when the object was last updated. */
@@ -833,7 +1215,7 @@ export type Repository = GQLType & {
     /** Identifies if the viewer is watching, not watching, or ignoring the subscribable entity. */
     viewerSubscription?: SubscriptionState
     /** A list of users watching the repository. */
-    watchers(args?: { after?: string, before?: string, first?: Int, last?: Int }): UserConnection
+    watchers(args?: { after?: string; before?: string; first?: Int; last?: Int }): UserConnection
 }
 
 /** Represents an owner of a Project. */
@@ -868,7 +1250,12 @@ export type Project = GQLType & {
     /** Identifies the date and time when the object was closed. */
     closedAt?: DateTime
     /** List of columns in the project */
-    columns(args?: { after?: string, before?: string, first?: Int, last?: Int }): ProjectColumnConnection
+    columns(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): ProjectColumnConnection
     /** Identifies the date and time when the object was created. */
     createdAt: DateTime
     /** The actor who originally created the project. */
@@ -883,7 +1270,13 @@ export type Project = GQLType & {
     /** The project's owner. Currently limited to repositories, organizations, and users. */
     owner: ProjectOwner
     /** List of pending cards in this project */
-    pendingCards(args?: { after?: string, before?: string, first?: Int, last?: Int, archivedStates?: ProjectCardArchivedState[] }): ProjectCardConnection
+    pendingCards(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        archivedStates?: ProjectCardArchivedState[]
+    }): ProjectCardConnection
     /** The HTTP path for this project */
     resourcePath: URI
     /** Whether the project is open or closed. */
@@ -935,7 +1328,7 @@ export interface Updatable extends GQLType {
 }
 
 /** State of the project; either 'open' or 'closed' */
-export type ProjectState = "OPEN" | "CLOSED"
+export type ProjectState = 'OPEN' | 'CLOSED'
 
 /** A string containing HTML code. */
 export type HTML = any
@@ -963,7 +1356,13 @@ export type ProjectColumnEdge = GQLType & {
 /** A column inside a project. */
 export type ProjectColumn = GQLType & {
     /** List of cards in the column */
-    cards(args?: { after?: string, before?: string, first?: Int, last?: Int, archivedStates?: ProjectCardArchivedState[] }): ProjectCardConnection
+    cards(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        archivedStates?: ProjectCardArchivedState[]
+    }): ProjectCardConnection
     /** Identifies the date and time when the object was created. */
     createdAt: DateTime
     /** Identifies the primary key from the database. */
@@ -984,7 +1383,7 @@ export type ProjectColumn = GQLType & {
 }
 
 /** The semantic purpose of the column - todo, in progress, or done. */
-export type ProjectColumnPurpose = "TODO" | "IN_PROGRESS" | "DONE"
+export type ProjectColumnPurpose = 'TODO' | 'IN_PROGRESS' | 'DONE'
 
 /** The connection type for ProjectCard. */
 export type ProjectCardConnection = GQLType & {
@@ -1040,7 +1439,7 @@ associated with a column, they will not become pending in the future.
 }
 
 /** Various content states of a ProjectCard */
-export type ProjectCardState = "CONTENT_ONLY" | "NOTE_ONLY" | "REDACTED"
+export type ProjectCardState = 'CONTENT_ONLY' | 'NOTE_ONLY' | 'REDACTED'
 
 /** Types that can be inside Project Cards. */
 export type ProjectCardItem = Issue | PullRequest
@@ -1050,7 +1449,7 @@ export type Issue = GQLType & {
     /** Reason that the conversation was locked. */
     activeLockReason?: LockReason
     /** A list of Users assigned to this object. */
-    assignees(args?: { after?: string, before?: string, first?: Int, last?: Int }): UserConnection
+    assignees(args?: { after?: string; before?: string; first?: Int; last?: Int }): UserConnection
     /** The actor who authored the comment. */
     author?: Actor
     /** Author's association with the subject of the comment. */
@@ -1066,7 +1465,12 @@ export type Issue = GQLType & {
     /** Identifies the date and time when the object was closed. */
     closedAt?: DateTime
     /** A list of comments associated with the Issue. */
-    comments(args?: { after?: string, before?: string, first?: Int, last?: Int }): IssueCommentConnection
+    comments(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): IssueCommentConnection
     /** Identifies the date and time when the object was created. */
     createdAt: DateTime
     /** Check if this comment was created via an email reply. */
@@ -1079,7 +1483,12 @@ export type Issue = GQLType & {
     /** Check if this comment was edited and includes an edit with the creation data */
     includesCreatedEdit: boolean
     /** A list of labels associated with the object. */
-    labels(args?: { after?: string, before?: string, first?: Int, last?: Int }): LabelConnection | undefined
+    labels(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): LabelConnection | undefined
     /** The moment the editor made the last edit */
     lastEditedAt?: DateTime
     /** `true` if the object is locked */
@@ -1089,15 +1498,33 @@ export type Issue = GQLType & {
     /** Identifies the issue number. */
     number: Int
     /** A list of Users that are participating in the Issue conversation. */
-    participants(args?: { after?: string, before?: string, first?: Int, last?: Int }): UserConnection
+    participants(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): UserConnection
     /** List of project cards associated with this issue. */
-    projectCards(args?: { after?: string, before?: string, first?: Int, last?: Int, archivedStates?: ProjectCardArchivedState[] }): ProjectCardConnection
+    projectCards(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        archivedStates?: ProjectCardArchivedState[]
+    }): ProjectCardConnection
     /** Identifies when the comment was published at. */
     publishedAt?: DateTime
     /** A list of reactions grouped by content left on the subject. */
     reactionGroups?: ReactionGroup[]
     /** A list of Reactions left on the Issue. */
-    reactions(args?: { after?: string, before?: string, first?: Int, last?: Int, content?: ReactionContent, orderBy?: ReactionOrder }): ReactionConnection
+    reactions(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        content?: ReactionContent
+        orderBy?: ReactionOrder
+    }): ReactionConnection
     /** The repository associated with this node. */
     repository: Repository
     /** The HTTP path for this issue */
@@ -1106,9 +1533,23 @@ export type Issue = GQLType & {
     state: IssueState
     /** A list of events, comments, commits, etc. associated with the issue. */
     /** @deprecated `timeline` will be removed Use Issue.timelineItems instead. Removal on 2019-10-01 UTC. */
-    timeline(args?: { since?: DateTime, after?: string, before?: string, first?: Int, last?: Int }): IssueTimelineConnection
+    timeline(args?: {
+        since?: DateTime
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): IssueTimelineConnection
     /** A list of events, comments, commits, etc. associated with the issue. */
-    timelineItems(args?: { since?: DateTime, skip?: Int, itemTypes?: IssueTimelineItemsItemType[], after?: string, before?: string, first?: Int, last?: Int }): IssueTimelineItemsConnection
+    timelineItems(args?: {
+        since?: DateTime
+        skip?: Int
+        itemTypes?: IssueTimelineItemsItemType[]
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): IssueTimelineItemsConnection
     /** Identifies the issue title. */
     title: string
     /** Identifies the date and time when the object was last updated. */
@@ -1116,7 +1557,12 @@ export type Issue = GQLType & {
     /** The HTTP URL for this issue */
     url: URI
     /** A list of edits to this content. */
-    userContentEdits(args?: { after?: string, before?: string, first?: Int, last?: Int }): UserContentEditConnection | undefined
+    userContentEdits(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): UserContentEditConnection | undefined
     /** Can user react to this subject */
     viewerCanReact: boolean
     /** Check if the viewer is able to change their subscription status for the repository. */
@@ -1248,7 +1694,14 @@ export type UserContentEdit = GQLType & {
 }
 
 /** A comment author association with repository. */
-export type CommentAuthorAssociation = "MEMBER" | "OWNER" | "COLLABORATOR" | "CONTRIBUTOR" | "FIRST_TIME_CONTRIBUTOR" | "FIRST_TIMER" | "NONE"
+export type CommentAuthorAssociation =
+    | 'MEMBER'
+    | 'OWNER'
+    | 'COLLABORATOR'
+    | 'CONTRIBUTOR'
+    | 'FIRST_TIME_CONTRIBUTOR'
+    | 'FIRST_TIMER'
+    | 'NONE'
 
 /** Comments that can be updated. */
 export interface UpdatableComment extends GQLType {
@@ -1271,7 +1724,14 @@ export interface UpdatableComment extends GQLType {
 }
 
 /** The possible errors that will prevent a user from updating a comment. */
-export type CommentCannotUpdateReason = "ARCHIVED" | "INSUFFICIENT_ACCESS" | "LOCKED" | "LOGIN_REQUIRED" | "MAINTENANCE" | "VERIFIED_EMAIL_REQUIRED" | "DENIED"
+export type CommentCannotUpdateReason =
+    | 'ARCHIVED'
+    | 'INSUFFICIENT_ACCESS'
+    | 'LOCKED'
+    | 'LOGIN_REQUIRED'
+    | 'MAINTENANCE'
+    | 'VERIFIED_EMAIL_REQUIRED'
+    | 'DENIED'
 
 /** An object that can have labels assigned to it. */
 export interface Labelable extends GQLType {
@@ -1315,11 +1775,30 @@ export type Label = GQLType & {
     /** Indicates whether or not this is a default label. */
     isDefault: boolean
     /** A list of issues associated with this label. */
-    issues(args?: { orderBy?: IssueOrder, labels?: string[], states?: IssueState[], filterBy?: IssueFilters, after?: string, before?: string, first?: Int, last?: Int }): IssueConnection
+    issues(args?: {
+        orderBy?: IssueOrder
+        labels?: string[]
+        states?: IssueState[]
+        filterBy?: IssueFilters
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): IssueConnection
     /** Identifies the label name. */
     name: string
     /** A list of pull requests associated with this label. */
-    pullRequests(args?: { states?: PullRequestState[], labels?: string[], headRefName?: string, baseRefName?: string, orderBy?: IssueOrder, after?: string, before?: string, first?: Int, last?: Int }): PullRequestConnection
+    pullRequests(args?: {
+        states?: PullRequestState[]
+        labels?: string[]
+        headRefName?: string
+        baseRefName?: string
+        orderBy?: IssueOrder
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PullRequestConnection
     /** The repository associated with this label. */
     repository: Repository
     /** The HTTP path for this label. */
@@ -1359,13 +1838,13 @@ export type IssueOrder = {
 }
 
 /** Properties by which issue connections can be ordered. */
-export type IssueOrderField = "CREATED_AT" | "UPDATED_AT" | "COMMENTS"
+export type IssueOrderField = 'CREATED_AT' | 'UPDATED_AT' | 'COMMENTS'
 
 /** Possible directions in which to order a list of items when provided an `orderBy` argument. */
-export type OrderDirection = "ASC" | "DESC"
+export type OrderDirection = 'ASC' | 'DESC'
 
 /** The possible states of an issue. */
-export type IssueState = "OPEN" | "CLOSED"
+export type IssueState = 'OPEN' | 'CLOSED'
 
 /** Ways in which to filter lists of issues. */
 export type IssueFilters = {
@@ -1414,7 +1893,7 @@ export type PullRequest = GQLType & {
     /** The number of additions in this pull request. */
     additions: Int
     /** A list of Users assigned to this object. */
-    assignees(args?: { after?: string, before?: string, first?: Int, last?: Int }): UserConnection
+    assignees(args?: { after?: string; before?: string; first?: Int; last?: Int }): UserConnection
     /** The actor who authored the comment. */
     author?: Actor
     /** Author's association with the subject of the comment. */
@@ -1440,9 +1919,19 @@ export type PullRequest = GQLType & {
     /** Identifies the date and time when the object was closed. */
     closedAt?: DateTime
     /** A list of comments associated with the pull request. */
-    comments(args?: { after?: string, before?: string, first?: Int, last?: Int }): IssueCommentConnection
+    comments(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): IssueCommentConnection
     /** A list of commits present in this pull request's head branch not present in the base branch. */
-    commits(args?: { after?: string, before?: string, first?: Int, last?: Int }): PullRequestCommitConnection
+    commits(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PullRequestCommitConnection
     /** Identifies the date and time when the object was created. */
     createdAt: DateTime
     /** Check if this comment was created via an email reply. */
@@ -1454,7 +1943,12 @@ export type PullRequest = GQLType & {
     /** The actor who edited this pull request's body. */
     editor?: Actor
     /** Lists the files changed within this pull request. */
-    files(args?: { after?: string, before?: string, first?: Int, last?: Int }): PullRequestChangedFileConnection | undefined
+    files(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PullRequestChangedFileConnection | undefined
     /** Identifies the head Ref associated with the pull request. */
     headRef?: Ref
     /** Identifies the name of the head Ref associated with the pull request, even if the ref has been deleted. */
@@ -1471,7 +1965,12 @@ export type PullRequest = GQLType & {
     /** The head and base repositories are different. */
     isCrossRepository: boolean
     /** A list of labels associated with the object. */
-    labels(args?: { after?: string, before?: string, first?: Int, last?: Int }): LabelConnection | undefined
+    labels(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): LabelConnection | undefined
     /** The moment the editor made the last edit */
     lastEditedAt?: DateTime
     /** `true` if the pull request is locked */
@@ -1493,19 +1992,37 @@ export type PullRequest = GQLType & {
     /** Identifies the pull request number. */
     number: Int
     /** A list of Users that are participating in the Pull Request conversation. */
-    participants(args?: { after?: string, before?: string, first?: Int, last?: Int }): UserConnection
+    participants(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): UserConnection
     /** The permalink to the pull request. */
     permalink: URI
     /** The commit that GitHub automatically generated to test if this pull request could be merged. This field will not return a value if the pull request is merged, or if the test merge commit is still being generated. See the `mergeable` field for more details on the mergeability of the pull request. */
     potentialMergeCommit?: Commit
     /** List of project cards associated with this pull request. */
-    projectCards(args?: { after?: string, before?: string, first?: Int, last?: Int, archivedStates?: ProjectCardArchivedState[] }): ProjectCardConnection
+    projectCards(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        archivedStates?: ProjectCardArchivedState[]
+    }): ProjectCardConnection
     /** Identifies when the comment was published at. */
     publishedAt?: DateTime
     /** A list of reactions grouped by content left on the subject. */
     reactionGroups?: ReactionGroup[]
     /** A list of Reactions left on the Issue. */
-    reactions(args?: { after?: string, before?: string, first?: Int, last?: Int, content?: ReactionContent, orderBy?: ReactionOrder }): ReactionConnection
+    reactions(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        content?: ReactionContent
+        orderBy?: ReactionOrder
+    }): ReactionConnection
     /** The repository associated with this node. */
     repository: Repository
     /** The HTTP path for this pull request. */
@@ -1515,20 +2032,51 @@ export type PullRequest = GQLType & {
     /** The HTTP URL for reverting this pull request. */
     revertUrl: URI
     /** A list of review requests associated with the pull request. */
-    reviewRequests(args?: { after?: string, before?: string, first?: Int, last?: Int }): ReviewRequestConnection | undefined
+    reviewRequests(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): ReviewRequestConnection | undefined
     /** The list of all review threads for this pull request. */
-    reviewThreads(args?: { after?: string, before?: string, first?: Int, last?: Int }): PullRequestReviewThreadConnection
+    reviewThreads(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PullRequestReviewThreadConnection
     /** A list of reviews associated with the pull request. */
-    reviews(args?: { after?: string, before?: string, first?: Int, last?: Int, states?: PullRequestReviewState[], author?: string }): PullRequestReviewConnection | undefined
+    reviews(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        states?: PullRequestReviewState[]
+        author?: string
+    }): PullRequestReviewConnection | undefined
     /** Identifies the state of the pull request. */
     state: PullRequestState
     /** A list of reviewer suggestions based on commit history and past review comments. */
     suggestedReviewers: SuggestedReviewer[]
     /** A list of events, comments, commits, etc. associated with the pull request. */
     /** @deprecated `timeline` will be removed Use PullRequest.timelineItems instead. Removal on 2019-10-01 UTC. */
-    timeline(args?: { since?: DateTime, after?: string, before?: string, first?: Int, last?: Int }): PullRequestTimelineConnection
+    timeline(args?: {
+        since?: DateTime
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PullRequestTimelineConnection
     /** A list of events, comments, commits, etc. associated with the pull request. */
-    timelineItems(args?: { since?: DateTime, skip?: Int, itemTypes?: PullRequestTimelineItemsItemType[], after?: string, before?: string, first?: Int, last?: Int }): PullRequestTimelineItemsConnection
+    timelineItems(args?: {
+        since?: DateTime
+        skip?: Int
+        itemTypes?: PullRequestTimelineItemsItemType[]
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PullRequestTimelineItemsConnection
     /** Identifies the pull request title. */
     title: string
     /** Identifies the date and time when the object was last updated. */
@@ -1536,7 +2084,12 @@ export type PullRequest = GQLType & {
     /** The HTTP URL for this pull request. */
     url: URI
     /** A list of edits to this content. */
-    userContentEdits(args?: { after?: string, before?: string, first?: Int, last?: Int }): UserContentEditConnection | undefined
+    userContentEdits(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): UserContentEditConnection | undefined
     /** Whether or not the viewer can apply suggestion. */
     viewerCanApplySuggestion: boolean
     /** Can user react to this subject */
@@ -1566,7 +2119,7 @@ export interface Lockable extends GQLType {
 }
 
 /** The possible reasons that an issue or pull request was locked. */
-export type LockReason = "OFF_TOPIC" | "TOO_HEATED" | "RESOLVED" | "SPAM"
+export type LockReason = 'OFF_TOPIC' | 'TOO_HEATED' | 'RESOLVED' | 'SPAM'
 
 /** A GitHub App. */
 export type App = GQLType & {
@@ -1714,14 +2267,14 @@ the Marketplace as verified.
  */
     viewerCanRequestApproval: boolean
     /** Indicates whether the current user has an active subscription to this Marketplace listing.
- */
+     */
     viewerHasPurchased: boolean
     /** Indicates if the current user has purchased a subscription to this Marketplace listing
 for all of the organizations the user owns.
  */
     viewerHasPurchasedForAllOrganizations: boolean
     /** Does the current viewer role allow them to administer this Marketplace listing.
- */
+     */
     viewerIsListingAdmin: boolean
 }
 
@@ -1730,7 +2283,14 @@ export type Organization = GQLType & {
     /** Determine if this repository owner has any items that can be pinned to their profile. */
     anyPinnableItems(args?: { type?: PinnableItemType }): boolean
     /** Audit log entries of the organization */
-    auditLog(args?: { after?: string, before?: string, first?: Int, last?: Int, query?: string, orderBy?: AuditLogOrder }): OrganizationAuditEntryConnection
+    auditLog(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        query?: string
+        orderBy?: AuditLogOrder
+    }): OrganizationAuditEntryConnection
     /** A URL pointing to the organization's public avatar. */
     avatarUrl(args?: { size?: Int }): URI
     /** Identifies the primary key from the database. */
@@ -1749,9 +2309,20 @@ export type Organization = GQLType & {
     /** The organization's login name. */
     login: string
     /** Get the status messages members of this entity have set that are either public or visible only to the organization. */
-    memberStatuses(args?: { after?: string, before?: string, first?: Int, last?: Int, orderBy?: UserStatusOrder }): UserStatusConnection
+    memberStatuses(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        orderBy?: UserStatusOrder
+    }): UserStatusConnection
     /** A list of users who are members of this organization. */
-    membersWithRole(args?: { after?: string, before?: string, first?: Int, last?: Int }): OrganizationMemberConnection
+    membersWithRole(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): OrganizationMemberConnection
     /** The organization's public profile name. */
     name?: string
     /** The HTTP path creating a new team */
@@ -1761,30 +2332,94 @@ export type Organization = GQLType & {
     /** The billing email for the organization. */
     organizationBillingEmail?: string
     /** A list of users who have been invited to join this organization. */
-    pendingMembers(args?: { after?: string, before?: string, first?: Int, last?: Int }): UserConnection
+    pendingMembers(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): UserConnection
     /** A list of repositories and gists this profile owner can pin to their profile. */
-    pinnableItems(args?: { types?: PinnableItemType[], after?: string, before?: string, first?: Int, last?: Int }): PinnableItemConnection
+    pinnableItems(args?: {
+        types?: PinnableItemType[]
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PinnableItemConnection
     /** A list of repositories and gists this profile owner has pinned to their profile */
-    pinnedItems(args?: { types?: PinnableItemType[], after?: string, before?: string, first?: Int, last?: Int }): PinnableItemConnection
+    pinnedItems(args?: {
+        types?: PinnableItemType[]
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PinnableItemConnection
     /** Returns how many more items this profile owner can pin to their profile. */
     pinnedItemsRemaining: Int
     /** A list of repositories this user has pinned to their profile */
     /** @deprecated pinnedRepositories will be removed Use ProfileOwner.pinnedItems instead. Removal on 2019-10-01 UTC. */
-    pinnedRepositories(args?: { privacy?: RepositoryPrivacy, orderBy?: RepositoryOrder, affiliations?: RepositoryAffiliation[], ownerAffiliations?: RepositoryAffiliation[], isLocked?: boolean, after?: string, before?: string, first?: Int, last?: Int }): RepositoryConnection
+    pinnedRepositories(args?: {
+        privacy?: RepositoryPrivacy
+        orderBy?: RepositoryOrder
+        affiliations?: RepositoryAffiliation[]
+        ownerAffiliations?: RepositoryAffiliation[]
+        isLocked?: boolean
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): RepositoryConnection
     /** Find project by number. */
     project(args: { number: Int }): Project | undefined
     /** A list of projects under the owner. */
-    projects(args?: { orderBy?: ProjectOrder, search?: string, states?: ProjectState[], after?: string, before?: string, first?: Int, last?: Int }): ProjectConnection
+    projects(args?: {
+        orderBy?: ProjectOrder
+        search?: string
+        states?: ProjectState[]
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): ProjectConnection
     /** The HTTP path listing organization's projects */
     projectsResourcePath: URI
     /** The HTTP URL listing organization's projects */
     projectsUrl: URI
     /** A list of registry packages under the owner. */
-    registryPackages(args?: { after?: string, before?: string, first?: Int, last?: Int, name?: string, names?: string[], repositoryId?: ID, packageType?: RegistryPackageType, registryPackageType?: string, publicOnly?: boolean }): RegistryPackageConnection
+    registryPackages(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        name?: string
+        names?: string[]
+        repositoryId?: ID
+        packageType?: RegistryPackageType
+        registryPackageType?: string
+        publicOnly?: boolean
+    }): RegistryPackageConnection
     /** A list of registry packages for a particular search query. */
-    registryPackagesForQuery(args?: { after?: string, before?: string, first?: Int, last?: Int, query?: string, packageType?: RegistryPackageType }): RegistryPackageConnection
+    registryPackagesForQuery(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        query?: string
+        packageType?: RegistryPackageType
+    }): RegistryPackageConnection
     /** A list of repositories that the user owns. */
-    repositories(args?: { privacy?: RepositoryPrivacy, orderBy?: RepositoryOrder, affiliations?: RepositoryAffiliation[], ownerAffiliations?: RepositoryAffiliation[], isLocked?: boolean, after?: string, before?: string, first?: Int, last?: Int, isFork?: boolean }): RepositoryConnection
+    repositories(args?: {
+        privacy?: RepositoryPrivacy
+        orderBy?: RepositoryOrder
+        affiliations?: RepositoryAffiliation[]
+        ownerAffiliations?: RepositoryAffiliation[]
+        isLocked?: boolean
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        isFork?: boolean
+    }): RepositoryConnection
     /** Find Repository. */
     repository(args: { name: string }): Repository | undefined
     /** When true the organization requires all members, billing managers, and outside collaborators to enable two-factor authentication. */
@@ -1796,7 +2431,19 @@ export type Organization = GQLType & {
     /** Find an organization's team by its slug. */
     team(args: { slug: string }): Team | undefined
     /** A list of teams in this organization. */
-    teams(args?: { privacy?: TeamPrivacy, role?: TeamRole, query?: string, userLogins?: string[], orderBy?: TeamOrder, ldapMapped?: boolean, rootTeamsOnly?: boolean, after?: string, before?: string, first?: Int, last?: Int }): TeamConnection
+    teams(args?: {
+        privacy?: TeamPrivacy
+        role?: TeamRole
+        query?: string
+        userLogins?: string[]
+        orderBy?: TeamOrder
+        ldapMapped?: boolean
+        rootTeamsOnly?: boolean
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): TeamConnection
     /** The HTTP path listing organization's teams */
     teamsResourcePath: URI
     /** The HTTP URL listing organization's teams */
@@ -1877,7 +2524,7 @@ export type RepositoryEdge = GQLType & {
 }
 
 /** The privacy of a repository */
-export type RepositoryPrivacy = "PUBLIC" | "PRIVATE"
+export type RepositoryPrivacy = 'PUBLIC' | 'PRIVATE'
 
 /** Ordering options for repository connections */
 export type RepositoryOrder = {
@@ -1888,10 +2535,10 @@ export type RepositoryOrder = {
 }
 
 /** Properties by which repository connections can be ordered. */
-export type RepositoryOrderField = "CREATED_AT" | "UPDATED_AT" | "PUSHED_AT" | "NAME" | "STARGAZERS"
+export type RepositoryOrderField = 'CREATED_AT' | 'UPDATED_AT' | 'PUSHED_AT' | 'NAME' | 'STARGAZERS'
 
 /** The affiliation of a user to a repository */
-export type RepositoryAffiliation = "OWNER" | "COLLABORATOR" | "ORGANIZATION_MEMBER"
+export type RepositoryAffiliation = 'OWNER' | 'COLLABORATOR' | 'ORGANIZATION_MEMBER'
 
 /** Represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point). */
 export type Float = number
@@ -1959,7 +2606,7 @@ export type UserStatusOrder = {
 }
 
 /** Properties by which user status connections can be ordered. */
-export type UserStatusOrderField = "UPDATED_AT"
+export type UserStatusOrderField = 'UPDATED_AT'
 
 /** Represents any entity on GitHub that has a profile page. */
 export interface ProfileOwner extends GQLType {
@@ -1997,7 +2644,12 @@ export type ProfileItemShowcase = GQLType & {
     /** Whether or not the owner has pinned any repositories or gists. */
     hasPinnedItems: boolean
     /** The repositories and gists in the showcase. If the profile owner has any pinned items, those will be returned. Otherwise, the profile owner's popular repositories will be returned. */
-    items(args?: { after?: string, before?: string, first?: Int, last?: Int }): PinnableItemConnection
+    items(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PinnableItemConnection
 }
 
 /** The connection type for PinnableItem. */
@@ -2026,15 +2678,26 @@ export type PinnableItem = Gist | Repository
 /** A Gist. */
 export type Gist = GQLType & {
     /** A list of comments associated with the gist */
-    comments(args?: { after?: string, before?: string, first?: Int, last?: Int }): GistCommentConnection
+    comments(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): GistCommentConnection
     /** Identifies the date and time when the object was created. */
     createdAt: DateTime
     /** The gist description. */
     description?: string
     /** The files in this gist. */
-    files(args?: { limit?: Int, oid?: GitObjectID }): GistFile[] | undefined
+    files(args?: { limit?: Int; oid?: GitObjectID }): GistFile[] | undefined
     /** A list of forks associated with the gist */
-    forks(args?: { after?: string, before?: string, first?: Int, last?: Int, orderBy?: GistOrder }): GistConnection
+    forks(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        orderBy?: GistOrder
+    }): GistConnection
     id: ID
     /** Identifies if the gist is a fork. */
     isFork: boolean
@@ -2049,7 +2712,13 @@ export type Gist = GQLType & {
     /** The HTML path to this resource. */
     resourcePath: URI
     /** A list of users who have starred this starrable. */
-    stargazers(args?: { after?: string, before?: string, first?: Int, last?: Int, orderBy?: StarOrder }): StargazerConnection
+    stargazers(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        orderBy?: StarOrder
+    }): StargazerConnection
     /** Identifies the date and time when the object was last updated. */
     updatedAt: DateTime
     /** The HTTP URL for this Gist. */
@@ -2103,7 +2772,7 @@ export type StarOrder = {
 }
 
 /** Properties by which star connections can be ordered. */
-export type StarOrderField = "STARRED_AT"
+export type StarOrderField = 'STARRED_AT'
 
 /** A subset of repository info. */
 export interface RepositoryInfo extends GQLType {
@@ -2164,10 +2833,10 @@ export interface RepositoryInfo extends GQLType {
 }
 
 /** The repository's visibility level. */
-export type RepositoryVisibility = "PRIVATE" | "PUBLIC" | "INTERNAL"
+export type RepositoryVisibility = 'PRIVATE' | 'PUBLIC' | 'INTERNAL'
 
 /** The possible reasons a given repository could be in a locked state. */
-export type RepositoryLockReason = "MOVING" | "BILLING" | "RENAME" | "MIGRATING"
+export type RepositoryLockReason = 'MOVING' | 'BILLING' | 'RENAME' | 'MIGRATING'
 
 /** A repository's open source license */
 export type License = GQLType & {
@@ -2253,7 +2922,13 @@ first. Returns up to 10 Topics.
  */
     relatedTopics(args?: { first?: Int }): Topic[]
     /** A list of users who have starred this starrable. */
-    stargazers(args?: { after?: string, before?: string, first?: Int, last?: Int, orderBy?: StarOrder }): StargazerConnection
+    stargazers(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        orderBy?: StarOrder
+    }): StargazerConnection
     /** Returns a boolean indicating whether the viewing user has starred this starrable. */
     viewerHasStarred: boolean
 }
@@ -2276,7 +2951,13 @@ export type Release = GQLType & {
     /** Identifies the date and time when the release was created. */
     publishedAt?: DateTime
     /** List of releases assets which are dependent on this release. */
-    releaseAssets(args?: { after?: string, before?: string, first?: Int, last?: Int, name?: string }): ReleaseAssetConnection
+    releaseAssets(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        name?: string
+    }): ReleaseAssetConnection
     /** The HTTP path for this issue */
     resourcePath: URI
     /** The Git tag the release points to */
@@ -2292,7 +2973,17 @@ export type Release = GQLType & {
 /** Represents a Git reference. */
 export type Ref = GQLType & {
     /** A list of pull requests with this ref as the head ref. */
-    associatedPullRequests(args?: { states?: PullRequestState[], labels?: string[], headRefName?: string, baseRefName?: string, orderBy?: IssueOrder, after?: string, before?: string, first?: Int, last?: Int }): PullRequestConnection
+    associatedPullRequests(args?: {
+        states?: PullRequestState[]
+        labels?: string[]
+        headRefName?: string
+        baseRefName?: string
+        orderBy?: IssueOrder
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PullRequestConnection
     id: ID
     /** The ref name. */
     name: string
@@ -2382,7 +3073,13 @@ export type Commit = GQLType & {
     /** The number of additions in this commit. */
     additions: Int
     /** The pull requests associated with a commit */
-    associatedPullRequests(args?: { after?: string, before?: string, first?: Int, last?: Int, orderBy?: PullRequestOrder }): PullRequestConnection | undefined
+    associatedPullRequests(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        orderBy?: PullRequestOrder
+    }): PullRequestConnection | undefined
     /** Authorship details of the commit. */
     author?: GitActor
     /** Check if the committer and the author match. */
@@ -2394,7 +3091,12 @@ export type Commit = GQLType & {
     /** The number of changed files in this commit. */
     changedFiles: Int
     /** Comments made on the commit. */
-    comments(args?: { after?: string, before?: string, first?: Int, last?: Int }): CommitCommentConnection
+    comments(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): CommitCommentConnection
     /** The HTTP path for this Git object */
     commitResourcePath: URI
     /** The HTTP URL for this Git object */
@@ -2408,9 +3110,25 @@ export type Commit = GQLType & {
     /** The number of deletions in this commit. */
     deletions: Int
     /** The deployments associated with a commit. */
-    deployments(args?: { environments?: string[], orderBy?: DeploymentOrder, after?: string, before?: string, first?: Int, last?: Int }): DeploymentConnection | undefined
+    deployments(args?: {
+        environments?: string[]
+        orderBy?: DeploymentOrder
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): DeploymentConnection | undefined
     /** The linear commit history starting from (and including) this commit, in the same order as `git log`. */
-    history(args?: { after?: string, before?: string, first?: Int, last?: Int, path?: string, author?: CommitAuthor, since?: GitTimestamp, until?: GitTimestamp }): CommitHistoryConnection
+    history(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        path?: string
+        author?: CommitAuthor
+        since?: GitTimestamp
+        until?: GitTimestamp
+    }): CommitHistoryConnection
     id: ID
     /** The Git commit message */
     message: string
@@ -2425,7 +3143,7 @@ export type Commit = GQLType & {
     /** The Git object ID */
     oid: GitObjectID
     /** The parents of a commit. */
-    parents(args?: { after?: string, before?: string, first?: Int, last?: Int }): CommitConnection
+    parents(args?: { after?: string; before?: string; first?: Int; last?: Int }): CommitConnection
     /** The datetime when this commit was pushed. */
     pushedDate?: DateTime
     /** The Repository this commit belongs to */
@@ -2476,7 +3194,7 @@ export interface Subscribable extends GQLType {
 }
 
 /** The possible states of a subscription. */
-export type SubscriptionState = "UNSUBSCRIBED" | "SUBSCRIBED" | "IGNORED"
+export type SubscriptionState = 'UNSUBSCRIBED' | 'SUBSCRIBED' | 'IGNORED'
 
 /** Represents a Git tree. */
 export type Tree = GQLType & {
@@ -2636,7 +3354,14 @@ export type CommitComment = GQLType & {
     /** A list of reactions grouped by content left on the subject. */
     reactionGroups?: ReactionGroup[]
     /** A list of Reactions left on the Issue. */
-    reactions(args?: { after?: string, before?: string, first?: Int, last?: Int, content?: ReactionContent, orderBy?: ReactionOrder }): ReactionConnection
+    reactions(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        content?: ReactionContent
+        orderBy?: ReactionOrder
+    }): ReactionConnection
     /** The repository associated with this node. */
     repository: Repository
     /** The HTTP path permalink for this commit comment. */
@@ -2646,7 +3371,12 @@ export type CommitComment = GQLType & {
     /** The HTTP URL permalink for this commit comment. */
     url: URI
     /** A list of edits to this content. */
-    userContentEdits(args?: { after?: string, before?: string, first?: Int, last?: Int }): UserContentEditConnection | undefined
+    userContentEdits(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): UserContentEditConnection | undefined
     /** Check if the current viewer can delete this object. */
     viewerCanDelete: boolean
     /** Check if the current viewer can minimize this object. */
@@ -2711,13 +3441,26 @@ export type ReactionGroup = GQLType & {
     /** The subject that was reacted to. */
     subject: Reactable
     /** Users who have reacted to the reaction subject with the emotion represented by this reaction group */
-    users(args?: { after?: string, before?: string, first?: Int, last?: Int }): ReactingUserConnection
+    users(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): ReactingUserConnection
     /** Whether or not the authenticated user has left a reaction on the subject. */
     viewerHasReacted: boolean
 }
 
 /** Emojis that can be attached to Issues, Pull Requests and Comments. */
-export type ReactionContent = "THUMBS_UP" | "THUMBS_DOWN" | "LAUGH" | "HOORAY" | "CONFUSED" | "HEART" | "ROCKET" | "EYES"
+export type ReactionContent =
+    | 'THUMBS_UP'
+    | 'THUMBS_DOWN'
+    | 'LAUGH'
+    | 'HOORAY'
+    | 'CONFUSED'
+    | 'HEART'
+    | 'ROCKET'
+    | 'EYES'
 
 /** The connection type for User. */
 export type ReactingUserConnection = GQLType & {
@@ -2786,7 +3529,7 @@ export type ReactionOrder = {
 }
 
 /** A list of fields that reactions can be ordered by. */
-export type ReactionOrderField = "CREATED_AT"
+export type ReactionOrderField = 'CREATED_AT'
 
 /** Information about a signature (GPG or S/MIME) on a Commit or Tag. */
 export interface GitSignature extends GQLType {
@@ -2813,7 +3556,24 @@ export interface GitSignature extends GQLType {
 }
 
 /** The state of a Git signature. */
-export type GitSignatureState = "VALID" | "INVALID" | "MALFORMED_SIG" | "UNKNOWN_KEY" | "BAD_EMAIL" | "UNVERIFIED_EMAIL" | "NO_USER" | "UNKNOWN_SIG_TYPE" | "UNSIGNED" | "GPGVERIFY_UNAVAILABLE" | "GPGVERIFY_ERROR" | "NOT_SIGNING_KEY" | "EXPIRED_KEY" | "OCSP_PENDING" | "OCSP_ERROR" | "BAD_CERT" | "OCSP_REVOKED"
+export type GitSignatureState =
+    | 'VALID'
+    | 'INVALID'
+    | 'MALFORMED_SIG'
+    | 'UNKNOWN_KEY'
+    | 'BAD_EMAIL'
+    | 'UNVERIFIED_EMAIL'
+    | 'NO_USER'
+    | 'UNKNOWN_SIG_TYPE'
+    | 'UNSIGNED'
+    | 'GPGVERIFY_UNAVAILABLE'
+    | 'GPGVERIFY_ERROR'
+    | 'NOT_SIGNING_KEY'
+    | 'EXPIRED_KEY'
+    | 'OCSP_PENDING'
+    | 'OCSP_ERROR'
+    | 'BAD_CERT'
+    | 'OCSP_REVOKED'
 
 /** Represents a commit status. */
 export type Status = GQLType & {
@@ -2829,7 +3589,7 @@ export type Status = GQLType & {
 }
 
 /** The possible commit status states. */
-export type StatusState = "EXPECTED" | "ERROR" | "FAILURE" | "PENDING" | "SUCCESS"
+export type StatusState = 'EXPECTED' | 'ERROR' | 'FAILURE' | 'PENDING' | 'SUCCESS'
 
 /** Represents an individual commit status context */
 export type StatusContext = GQLType & {
@@ -2872,7 +3632,7 @@ export type Bot = GQLType & {
 }
 
 /** The possible states of a pull request. */
-export type PullRequestState = "OPEN" | "CLOSED" | "MERGED"
+export type PullRequestState = 'OPEN' | 'CLOSED' | 'MERGED'
 
 /** Represents a Git blame. */
 export type Blame = GQLType & {
@@ -2940,7 +3700,12 @@ export type Deployment = GQLType & {
     /** The current state of the deployment. */
     state?: DeploymentState
     /** A list of statuses associated with the deployment. */
-    statuses(args?: { after?: string, before?: string, first?: Int, last?: Int }): DeploymentStatusConnection | undefined
+    statuses(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): DeploymentStatusConnection | undefined
     /** The deployment task. */
     task?: string
     /** Identifies the date and time when the object was last updated. */
@@ -2989,10 +3754,26 @@ export type DeploymentStatus = GQLType & {
 }
 
 /** The possible states for a deployment status. */
-export type DeploymentStatusState = "PENDING" | "SUCCESS" | "FAILURE" | "INACTIVE" | "ERROR" | "QUEUED" | "IN_PROGRESS"
+export type DeploymentStatusState =
+    | 'PENDING'
+    | 'SUCCESS'
+    | 'FAILURE'
+    | 'INACTIVE'
+    | 'ERROR'
+    | 'QUEUED'
+    | 'IN_PROGRESS'
 
 /** The possible states in which a deployment can be. */
-export type DeploymentState = "ABANDONED" | "ACTIVE" | "DESTROYED" | "ERROR" | "FAILURE" | "INACTIVE" | "PENDING" | "QUEUED" | "IN_PROGRESS"
+export type DeploymentState =
+    | 'ABANDONED'
+    | 'ACTIVE'
+    | 'DESTROYED'
+    | 'ERROR'
+    | 'FAILURE'
+    | 'INACTIVE'
+    | 'PENDING'
+    | 'QUEUED'
+    | 'IN_PROGRESS'
 
 /** Ordering options for deployment connections */
 export type DeploymentOrder = {
@@ -3003,7 +3784,7 @@ export type DeploymentOrder = {
 }
 
 /** Properties by which deployment connections can be ordered. */
-export type DeploymentOrderField = "CREATED_AT"
+export type DeploymentOrderField = 'CREATED_AT'
 
 /** Ways in which lists of issues can be ordered upon return. */
 export type PullRequestOrder = {
@@ -3014,7 +3795,7 @@ export type PullRequestOrder = {
 }
 
 /** Properties by which pull_requests connections can be ordered. */
-export type PullRequestOrderField = "CREATED_AT" | "UPDATED_AT"
+export type PullRequestOrderField = 'CREATED_AT' | 'UPDATED_AT'
 
 /** The connection type for ReleaseAsset. */
 export type ReleaseAssetConnection = GQLType & {
@@ -3084,11 +3865,22 @@ export type RegistryPackageVersionEdge = GQLType & {
 /** A package version contains the information about a specific package version. */
 export type RegistryPackageVersion = GQLType & {
     /** list of dependencies for this package */
-    dependencies(args?: { after?: string, before?: string, first?: Int, last?: Int, type?: RegistryPackageDependencyType }): RegistryPackageDependencyConnection
+    dependencies(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        type?: RegistryPackageDependencyType
+    }): RegistryPackageDependencyConnection
     /** A file associated with this registry package version */
     fileByName(args: { filename: string }): RegistryPackageFile | undefined
     /** List of files associated with this registry package version */
-    files(args?: { after?: string, before?: string, first?: Int, last?: Int }): RegistryPackageFileConnection
+    files(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): RegistryPackageFileConnection
     id: ID
     /** A single line of text to install this package version. */
     installationCommand?: string
@@ -3166,7 +3958,13 @@ export type RegistryPackageDependency = GQLType & {
 }
 
 /** The possible types of a registry package dependency. */
-export type RegistryPackageDependencyType = "DEFAULT" | "DEV" | "TEST" | "PEER" | "OPTIONAL" | "BUNDLED"
+export type RegistryPackageDependencyType =
+    | 'DEFAULT'
+    | 'DEV'
+    | 'TEST'
+    | 'PEER'
+    | 'OPTIONAL'
+    | 'BUNDLED'
 
 /** The connection type for RegistryPackageFile. */
 export type RegistryPackageFileConnection = GQLType & {
@@ -3283,7 +4081,7 @@ export type ReleaseOrder = {
 }
 
 /** Properties by which release connections can be ordered. */
-export type ReleaseOrderField = "CREATED_AT" | "NAME"
+export type ReleaseOrderField = 'CREATED_AT' | 'NAME'
 
 /** The connection type for GistComment. */
 export type GistCommentConnection = GQLType & {
@@ -3341,7 +4139,12 @@ export type GistComment = GQLType & {
     /** Identifies the date and time when the object was last updated. */
     updatedAt: DateTime
     /** A list of edits to this content. */
-    userContentEdits(args?: { after?: string, before?: string, first?: Int, last?: Int }): UserContentEditConnection | undefined
+    userContentEdits(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): UserContentEditConnection | undefined
     /** Check if the current viewer can delete this object. */
     viewerCanDelete: boolean
     /** Check if the current viewer can minimize this object. */
@@ -3383,7 +4186,7 @@ export type GistOrder = {
 }
 
 /** Properties by which gist connections can be ordered. */
-export type GistOrderField = "CREATED_AT" | "UPDATED_AT" | "PUSHED_AT"
+export type GistOrderField = 'CREATED_AT' | 'UPDATED_AT' | 'PUSHED_AT'
 
 /** A file in a gist. */
 export type GistFile = GQLType & {
@@ -3417,7 +4220,15 @@ export type Language = GQLType & {
 }
 
 /** Represents items that can be pinned to a profile page or dashboard. */
-export type PinnableItemType = "REPOSITORY" | "GIST" | "ISSUE" | "PROJECT" | "PULL_REQUEST" | "USER" | "ORGANIZATION" | "TEAM"
+export type PinnableItemType =
+    | 'REPOSITORY'
+    | 'GIST'
+    | 'ISSUE'
+    | 'PROJECT'
+    | 'PULL_REQUEST'
+    | 'USER'
+    | 'ORGANIZATION'
+    | 'TEAM'
 
 /** A list of projects associated with the owner. */
 export type ProjectConnection = GQLType & {
@@ -3448,7 +4259,7 @@ export type ProjectOrder = {
 }
 
 /** Properties by which project connections can be ordered. */
-export type ProjectOrderField = "CREATED_AT" | "UPDATED_AT" | "NAME"
+export type ProjectOrderField = 'CREATED_AT' | 'UPDATED_AT' | 'NAME'
 
 /** The connection type for OrganizationAuditEntry. */
 export type OrganizationAuditEntryConnection = GQLType & {
@@ -3471,7 +4282,64 @@ export type OrganizationAuditEntryEdge = GQLType & {
 }
 
 /** An audit entry in an organization audit log. */
-export type OrganizationAuditEntry = MembersCanDeleteReposClearAuditEntry | MembersCanDeleteReposDisableAuditEntry | MembersCanDeleteReposEnableAuditEntry | OauthApplicationCreateAuditEntry | OrgAddBillingManagerAuditEntry | OrgAddMemberAuditEntry | OrgBlockUserAuditEntry | OrgConfigDisableCollaboratorsOnlyAuditEntry | OrgConfigEnableCollaboratorsOnlyAuditEntry | OrgDisableOauthAppRestrictionsAuditEntry | OrgDisableSamlAuditEntry | OrgDisableTwoFactorRequirementAuditEntry | OrgEnableOauthAppRestrictionsAuditEntry | OrgEnableSamlAuditEntry | OrgEnableTwoFactorRequirementAuditEntry | OrgInviteMemberAuditEntry | OrgInviteToBusinessAuditEntry | OrgOauthAppAccessApprovedAuditEntry | OrgOauthAppAccessDeniedAuditEntry | OrgOauthAppAccessRequestedAuditEntry | OrgRemoveBillingManagerAuditEntry | OrgRemoveMemberAuditEntry | OrgRemoveOutsideCollaboratorAuditEntry | OrgRestoreMemberAuditEntry | OrgUnblockUserAuditEntry | OrgUpdateDefaultRepositoryPermissionAuditEntry | OrgUpdateMemberAuditEntry | OrgUpdateMemberRepositoryCreationPermissionAuditEntry | OrgUpdateMemberRepositoryInvitationPermissionAuditEntry | PrivateRepositoryForkingDisableAuditEntry | PrivateRepositoryForkingEnableAuditEntry | RepoAccessAuditEntry | RepoAddMemberAuditEntry | RepoAddTopicAuditEntry | RepoArchivedAuditEntry | RepoChangeMergeSettingAuditEntry | RepoConfigDisableAnonymousGitAccessAuditEntry | RepoConfigDisableCollaboratorsOnlyAuditEntry | RepoConfigDisableContributorsOnlyAuditEntry | RepoConfigDisableSockpuppetDisallowedAuditEntry | RepoConfigEnableAnonymousGitAccessAuditEntry | RepoConfigEnableCollaboratorsOnlyAuditEntry | RepoConfigEnableContributorsOnlyAuditEntry | RepoConfigEnableSockpuppetDisallowedAuditEntry | RepoConfigLockAnonymousGitAccessAuditEntry | RepoConfigUnlockAnonymousGitAccessAuditEntry | RepoCreateAuditEntry | RepoDestroyAuditEntry | RepoRemoveMemberAuditEntry | RepoRemoveTopicAuditEntry | RepositoryVisibilityChangeDisableAuditEntry | RepositoryVisibilityChangeEnableAuditEntry | TeamAddMemberAuditEntry | TeamAddRepositoryAuditEntry | TeamChangeParentTeamAuditEntry | TeamRemoveMemberAuditEntry | TeamRemoveRepositoryAuditEntry
+export type OrganizationAuditEntry =
+    | MembersCanDeleteReposClearAuditEntry
+    | MembersCanDeleteReposDisableAuditEntry
+    | MembersCanDeleteReposEnableAuditEntry
+    | OauthApplicationCreateAuditEntry
+    | OrgAddBillingManagerAuditEntry
+    | OrgAddMemberAuditEntry
+    | OrgBlockUserAuditEntry
+    | OrgConfigDisableCollaboratorsOnlyAuditEntry
+    | OrgConfigEnableCollaboratorsOnlyAuditEntry
+    | OrgDisableOauthAppRestrictionsAuditEntry
+    | OrgDisableSamlAuditEntry
+    | OrgDisableTwoFactorRequirementAuditEntry
+    | OrgEnableOauthAppRestrictionsAuditEntry
+    | OrgEnableSamlAuditEntry
+    | OrgEnableTwoFactorRequirementAuditEntry
+    | OrgInviteMemberAuditEntry
+    | OrgInviteToBusinessAuditEntry
+    | OrgOauthAppAccessApprovedAuditEntry
+    | OrgOauthAppAccessDeniedAuditEntry
+    | OrgOauthAppAccessRequestedAuditEntry
+    | OrgRemoveBillingManagerAuditEntry
+    | OrgRemoveMemberAuditEntry
+    | OrgRemoveOutsideCollaboratorAuditEntry
+    | OrgRestoreMemberAuditEntry
+    | OrgUnblockUserAuditEntry
+    | OrgUpdateDefaultRepositoryPermissionAuditEntry
+    | OrgUpdateMemberAuditEntry
+    | OrgUpdateMemberRepositoryCreationPermissionAuditEntry
+    | OrgUpdateMemberRepositoryInvitationPermissionAuditEntry
+    | PrivateRepositoryForkingDisableAuditEntry
+    | PrivateRepositoryForkingEnableAuditEntry
+    | RepoAccessAuditEntry
+    | RepoAddMemberAuditEntry
+    | RepoAddTopicAuditEntry
+    | RepoArchivedAuditEntry
+    | RepoChangeMergeSettingAuditEntry
+    | RepoConfigDisableAnonymousGitAccessAuditEntry
+    | RepoConfigDisableCollaboratorsOnlyAuditEntry
+    | RepoConfigDisableContributorsOnlyAuditEntry
+    | RepoConfigDisableSockpuppetDisallowedAuditEntry
+    | RepoConfigEnableAnonymousGitAccessAuditEntry
+    | RepoConfigEnableCollaboratorsOnlyAuditEntry
+    | RepoConfigEnableContributorsOnlyAuditEntry
+    | RepoConfigEnableSockpuppetDisallowedAuditEntry
+    | RepoConfigLockAnonymousGitAccessAuditEntry
+    | RepoConfigUnlockAnonymousGitAccessAuditEntry
+    | RepoCreateAuditEntry
+    | RepoDestroyAuditEntry
+    | RepoRemoveMemberAuditEntry
+    | RepoRemoveTopicAuditEntry
+    | RepositoryVisibilityChangeDisableAuditEntry
+    | RepositoryVisibilityChangeEnableAuditEntry
+    | TeamAddMemberAuditEntry
+    | TeamAddRepositoryAuditEntry
+    | TeamChangeParentTeamAuditEntry
+    | TeamRemoveMemberAuditEntry
+    | TeamRemoveRepositoryAuditEntry
 
 /** An entry in the audit log. */
 export interface AuditEntry extends GQLType {
@@ -3803,7 +4671,14 @@ pull request.
     /** A list of reactions grouped by content left on the subject. */
     reactionGroups?: ReactionGroup[]
     /** A list of Reactions left on the Issue. */
-    reactions(args?: { after?: string, before?: string, first?: Int, last?: Int, content?: ReactionContent, orderBy?: ReactionOrder }): ReactionConnection
+    reactions(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        content?: ReactionContent
+        orderBy?: ReactionOrder
+    }): ReactionConnection
     /** The repository associated with this node. */
     repository: Repository
     /** The HTTP path for this issue comment */
@@ -3813,7 +4688,12 @@ pull request.
     /** The HTTP URL for this issue comment */
     url: URI
     /** A list of edits to this content. */
-    userContentEdits(args?: { after?: string, before?: string, first?: Int, last?: Int }): UserContentEditConnection | undefined
+    userContentEdits(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): UserContentEditConnection | undefined
     /** Check if the current viewer can delete this object. */
     viewerCanDelete: boolean
     /** Check if the current viewer can minimize this object. */
@@ -3829,7 +4709,7 @@ pull request.
 }
 
 /** The possible PubSub channels for an issue. */
-export type IssuePubSubTopic = "UPDATED" | "MARKASREAD" | "TIMELINE" | "STATE"
+export type IssuePubSubTopic = 'UPDATED' | 'MARKASREAD' | 'TIMELINE' | 'STATE'
 
 /** Audit log entry for a members_can_delete_repos.clear event. */
 export type MembersCanDeleteReposClearAuditEntry = GQLType & {
@@ -3940,10 +4820,10 @@ export type OrganizationInvitation = GQLType & {
 }
 
 /** The possible organization invitation types. */
-export type OrganizationInvitationType = "USER" | "EMAIL"
+export type OrganizationInvitationType = 'USER' | 'EMAIL'
 
 /** The possible organization invitation roles. */
-export type OrganizationInvitationRole = "DIRECT_MEMBER" | "ADMIN" | "BILLING_MANAGER" | "REINSTATE"
+export type OrganizationInvitationRole = 'DIRECT_MEMBER' | 'ADMIN' | 'BILLING_MANAGER' | 'REINSTATE'
 
 /** The connection type for Team. */
 export type TeamConnection = GQLType & {
@@ -3968,11 +4848,19 @@ export type TeamEdge = GQLType & {
 /** A team of users in an organization. */
 export type Team = GQLType & {
     /** A list of teams that are ancestors of this team. */
-    ancestors(args?: { after?: string, before?: string, first?: Int, last?: Int }): TeamConnection
+    ancestors(args?: { after?: string; before?: string; first?: Int; last?: Int }): TeamConnection
     /** A URL pointing to the team's avatar. */
     avatarUrl(args?: { size?: Int }): URI | undefined
     /** List of child teams belonging to this team */
-    childTeams(args?: { orderBy?: TeamOrder, userLogins?: string[], immediateOnly?: boolean, after?: string, before?: string, first?: Int, last?: Int }): TeamConnection
+    childTeams(args?: {
+        orderBy?: TeamOrder
+        userLogins?: string[]
+        immediateOnly?: boolean
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): TeamConnection
     /** The slug corresponding to the organization and team. */
     combinedSlug: string
     /** Identifies the date and time when the object was created. */
@@ -3985,11 +4873,31 @@ export type Team = GQLType & {
     editTeamUrl: URI
     id: ID
     /** A list of pending invitations for users to this team */
-    invitations(args?: { after?: string, before?: string, first?: Int, last?: Int }): OrganizationInvitationConnection | undefined
+    invitations(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): OrganizationInvitationConnection | undefined
     /** Get the status messages members of this entity have set that are either public or visible only to the organization. */
-    memberStatuses(args?: { after?: string, before?: string, first?: Int, last?: Int, orderBy?: UserStatusOrder }): UserStatusConnection
+    memberStatuses(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        orderBy?: UserStatusOrder
+    }): UserStatusConnection
     /** A list of users who are members of this team. */
-    members(args?: { after?: string, before?: string, first?: Int, last?: Int, query?: string, membership?: TeamMembershipType, role?: TeamMemberRole, orderBy?: TeamMemberOrder }): TeamMemberConnection
+    members(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        query?: string
+        membership?: TeamMembershipType
+        role?: TeamMemberRole
+        orderBy?: TeamMemberOrder
+    }): TeamMemberConnection
     /** The HTTP path for the team' members */
     membersResourcePath: URI
     /** The HTTP URL for the team' members */
@@ -4007,7 +4915,14 @@ export type Team = GQLType & {
     /** The level of privacy the team has. */
     privacy: TeamPrivacy
     /** A list of repositories this team has access to. */
-    repositories(args?: { after?: string, before?: string, first?: Int, last?: Int, query?: string, orderBy?: TeamRepositoryOrder }): TeamRepositoryConnection
+    repositories(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        query?: string
+        orderBy?: TeamRepositoryOrder
+    }): TeamRepositoryConnection
     /** The HTTP path for this team's repositories */
     repositoriesResourcePath: URI
     /** The HTTP URL for this team's repositories */
@@ -4033,7 +4948,7 @@ export type Team = GQLType & {
 }
 
 /** The possible team privacy values. */
-export type TeamPrivacy = "SECRET" | "VISIBLE"
+export type TeamPrivacy = 'SECRET' | 'VISIBLE'
 
 /** The connection type for User. */
 export type TeamMemberConnection = GQLType & {
@@ -4061,10 +4976,10 @@ export type TeamMemberEdge = GQLType & {
 }
 
 /** The possible team member roles; either 'maintainer' or 'member'. */
-export type TeamMemberRole = "MAINTAINER" | "MEMBER"
+export type TeamMemberRole = 'MAINTAINER' | 'MEMBER'
 
 /** Defines which types of team members are included in the returned list. Can be one of IMMEDIATE, CHILD_TEAM or ALL. */
-export type TeamMembershipType = "IMMEDIATE" | "CHILD_TEAM" | "ALL"
+export type TeamMembershipType = 'IMMEDIATE' | 'CHILD_TEAM' | 'ALL'
 
 /** Ordering options for team member connections */
 export type TeamMemberOrder = {
@@ -4075,7 +4990,7 @@ export type TeamMemberOrder = {
 }
 
 /** Properties by which team member connections can be ordered. */
-export type TeamMemberOrderField = "LOGIN" | "CREATED_AT"
+export type TeamMemberOrderField = 'LOGIN' | 'CREATED_AT'
 
 /** The connection type for Repository. */
 export type TeamRepositoryConnection = GQLType & {
@@ -4099,7 +5014,7 @@ export type TeamRepositoryEdge = GQLType & {
 }
 
 /** The access level to a repository */
-export type RepositoryPermission = "ADMIN" | "MAINTAIN" | "WRITE" | "TRIAGE" | "READ"
+export type RepositoryPermission = 'ADMIN' | 'MAINTAIN' | 'WRITE' | 'TRIAGE' | 'READ'
 
 /** Ordering options for team repository connections */
 export type TeamRepositoryOrder = {
@@ -4110,7 +5025,13 @@ export type TeamRepositoryOrder = {
 }
 
 /** Properties by which team repository connections can be ordered. */
-export type TeamRepositoryOrderField = "CREATED_AT" | "UPDATED_AT" | "PUSHED_AT" | "NAME" | "PERMISSION" | "STARGAZERS"
+export type TeamRepositoryOrderField =
+    | 'CREATED_AT'
+    | 'UPDATED_AT'
+    | 'PUSHED_AT'
+    | 'NAME'
+    | 'PERMISSION'
+    | 'STARGAZERS'
 
 /** Represents a connection between a team (parent) and a project (child). */
 export type TeamProjectEdge = GQLType & {
@@ -4155,7 +5076,7 @@ export type TeamOrder = {
 }
 
 /** Properties by which team connections can be ordered. */
-export type TeamOrderField = "NAME"
+export type TeamOrderField = 'NAME'
 
 /** Represents a team's eligibility to be a child team of another */
 export type TeamEligibilityEdge = GQLType & {
@@ -4166,7 +5087,7 @@ export type TeamEligibilityEdge = GQLType & {
 }
 
 /** The possible default permissions for repositories. */
-export type DefaultRepositoryPermissionField = "NONE" | "READ" | "WRITE" | "ADMIN"
+export type DefaultRepositoryPermissionField = 'NONE' | 'READ' | 'WRITE' | 'ADMIN'
 
 /** The connection type for ExternalIdentity. */
 export type ExternalIdentityConnection = GQLType & {
@@ -4236,7 +5157,7 @@ export type PublicKey = GQLType & {
 export type X509Certificate = any
 
 /** The possible states in which authentication can be configured with an identity provider. */
-export type IdentityProviderConfigurationState = "ENFORCED" | "CONFIGURED" | "UNCONFIGURED"
+export type IdentityProviderConfigurationState = 'ENFORCED' | 'CONFIGURED' | 'UNCONFIGURED'
 
 /** An ISO-8601 encoded date string. */
 export type Date = any
@@ -4397,10 +5318,13 @@ export interface OauthApplicationAuditEntryData extends GQLType {
 }
 
 /** The state of an OAuth Application when it was created. */
-export type OauthApplicationCreateAuditEntryState = "ACTIVE" | "SUSPENDED" | "PENDING_DELETION"
+export type OauthApplicationCreateAuditEntryState = 'ACTIVE' | 'SUSPENDED' | 'PENDING_DELETION'
 
 /** The state of an OAuth Application when its tokens were revoked. */
-export type OauthApplicationRevokeTokensAuditEntryState = "ACTIVE" | "SUSPENDED" | "PENDING_DELETION"
+export type OauthApplicationRevokeTokensAuditEntryState =
+    | 'ACTIVE'
+    | 'SUSPENDED'
+    | 'PENDING_DELETION'
 
 /** Audit log entry for a org.add_billing_manager */
 export type OrgAddBillingManagerAuditEntry = GQLType & {
@@ -4481,7 +5405,7 @@ export type OrgAddMemberAuditEntry = GQLType & {
 }
 
 /** The permissions available to members on an Organization. */
-export type OrgAddMemberAuditEntryPermission = "READ" | "ADMIN"
+export type OrgAddMemberAuditEntryPermission = 'READ' | 'ADMIN'
 
 /** Audit log entry for a org.block_user */
 export type OrgBlockUserAuditEntry = GQLType & {
@@ -5093,7 +6017,10 @@ export type OrgRemoveBillingManagerAuditEntry = GQLType & {
 }
 
 /** The reason a billing manager was removed from an Organization. */
-export type OrgRemoveBillingManagerAuditEntryReason = "TWO_FACTOR_REQUIREMENT_NON_COMPLIANCE" | "SAML_EXTERNAL_IDENTITY_MISSING" | "SAML_SSO_ENFORCEMENT_REQUIRES_EXTERNAL_IDENTITY"
+export type OrgRemoveBillingManagerAuditEntryReason =
+    | 'TWO_FACTOR_REQUIREMENT_NON_COMPLIANCE'
+    | 'SAML_EXTERNAL_IDENTITY_MISSING'
+    | 'SAML_SSO_ENFORCEMENT_REQUIRES_EXTERNAL_IDENTITY'
 
 /** Audit log entry for a org.remove_member event. */
 export type OrgRemoveMemberAuditEntry = GQLType & {
@@ -5137,10 +6064,18 @@ export type OrgRemoveMemberAuditEntry = GQLType & {
 }
 
 /** The reason a member was removed from an Organization. */
-export type OrgRemoveMemberAuditEntryReason = "TWO_FACTOR_REQUIREMENT_NON_COMPLIANCE" | "SAML_EXTERNAL_IDENTITY_MISSING" | "SAML_SSO_ENFORCEMENT_REQUIRES_EXTERNAL_IDENTITY"
+export type OrgRemoveMemberAuditEntryReason =
+    | 'TWO_FACTOR_REQUIREMENT_NON_COMPLIANCE'
+    | 'SAML_EXTERNAL_IDENTITY_MISSING'
+    | 'SAML_SSO_ENFORCEMENT_REQUIRES_EXTERNAL_IDENTITY'
 
 /** The type of membership a user has with an Organization. */
-export type OrgRemoveMemberAuditEntryMembershipType = "DIRECT_MEMBER" | "ADMIN" | "BILLING_MANAGER" | "UNAFFILIATED" | "OUTSIDE_COLLABORATOR"
+export type OrgRemoveMemberAuditEntryMembershipType =
+    | 'DIRECT_MEMBER'
+    | 'ADMIN'
+    | 'BILLING_MANAGER'
+    | 'UNAFFILIATED'
+    | 'OUTSIDE_COLLABORATOR'
 
 /** Audit log entry for a org.remove_outside_collaborator event. */
 export type OrgRemoveOutsideCollaboratorAuditEntry = GQLType & {
@@ -5184,10 +6119,15 @@ export type OrgRemoveOutsideCollaboratorAuditEntry = GQLType & {
 }
 
 /** The reason an outside collaborator was removed from an Organization. */
-export type OrgRemoveOutsideCollaboratorAuditEntryReason = "TWO_FACTOR_REQUIREMENT_NON_COMPLIANCE" | "SAML_EXTERNAL_IDENTITY_MISSING"
+export type OrgRemoveOutsideCollaboratorAuditEntryReason =
+    | 'TWO_FACTOR_REQUIREMENT_NON_COMPLIANCE'
+    | 'SAML_EXTERNAL_IDENTITY_MISSING'
 
 /** The type of membership a user has with an Organization. */
-export type OrgRemoveOutsideCollaboratorAuditEntryMembershipType = "OUTSIDE_COLLABORATOR" | "UNAFFILIATED" | "BILLING_MANAGER"
+export type OrgRemoveOutsideCollaboratorAuditEntryMembershipType =
+    | 'OUTSIDE_COLLABORATOR'
+    | 'UNAFFILIATED'
+    | 'BILLING_MANAGER'
 
 /** Audit log entry for a org.restore_member event. */
 export type OrgRestoreMemberAuditEntry = GQLType & {
@@ -5241,7 +6181,10 @@ export type OrgRestoreMemberAuditEntry = GQLType & {
 }
 
 /** Types of memberships that can be restored for an Organization member. */
-export type OrgRestoreMemberAuditEntryMembership = OrgRestoreMemberMembershipOrganizationAuditEntryData | OrgRestoreMemberMembershipRepositoryAuditEntryData | OrgRestoreMemberMembershipTeamAuditEntryData
+export type OrgRestoreMemberAuditEntryMembership =
+    | OrgRestoreMemberMembershipOrganizationAuditEntryData
+    | OrgRestoreMemberMembershipRepositoryAuditEntryData
+    | OrgRestoreMemberMembershipTeamAuditEntryData
 
 /** Metadata for an organization membership for org.restore_member actions */
 export type OrgRestoreMemberMembershipOrganizationAuditEntryData = GQLType & {
@@ -5450,7 +6393,11 @@ export type OrgUpdateDefaultRepositoryPermissionAuditEntry = GQLType & {
 }
 
 /** The default permission a repository can have in an Organization. */
-export type OrgUpdateDefaultRepositoryPermissionAuditEntryPermission = "READ" | "WRITE" | "ADMIN" | "NONE"
+export type OrgUpdateDefaultRepositoryPermissionAuditEntryPermission =
+    | 'READ'
+    | 'WRITE'
+    | 'ADMIN'
+    | 'NONE'
 
 /** Audit log entry for a org.update_member event. */
 export type OrgUpdateMemberAuditEntry = GQLType & {
@@ -5494,7 +6441,7 @@ export type OrgUpdateMemberAuditEntry = GQLType & {
 }
 
 /** The permissions available to members on an Organization. */
-export type OrgUpdateMemberAuditEntryPermission = "READ" | "ADMIN"
+export type OrgUpdateMemberAuditEntryPermission = 'READ' | 'ADMIN'
 
 /** Audit log entry for a org.update_member_repository_creation_permission event. */
 export type OrgUpdateMemberRepositoryCreationPermissionAuditEntry = GQLType & {
@@ -5538,7 +6485,7 @@ export type OrgUpdateMemberRepositoryCreationPermissionAuditEntry = GQLType & {
 }
 
 /** The permissions available for repository creation on an Organization. */
-export type OrgUpdateMemberRepositoryCreationPermissionAuditEntryVisibility = "ALL" | "PUBLIC"
+export type OrgUpdateMemberRepositoryCreationPermissionAuditEntryVisibility = 'ALL' | 'PUBLIC'
 
 /** Audit log entry for a org.update_member_repository_invitation_permission event. */
 export type OrgUpdateMemberRepositoryInvitationPermissionAuditEntry = GQLType & {
@@ -5729,7 +6676,7 @@ export type RepoAccessAuditEntry = GQLType & {
 }
 
 /** The privacy of a repository */
-export type RepoAccessAuditEntryVisibility = "INTERNAL" | "PRIVATE" | "PUBLIC"
+export type RepoAccessAuditEntryVisibility = 'INTERNAL' | 'PRIVATE' | 'PUBLIC'
 
 /** Audit log entry for a repo.add_member event. */
 export type RepoAddMemberAuditEntry = GQLType & {
@@ -5779,7 +6726,7 @@ export type RepoAddMemberAuditEntry = GQLType & {
 }
 
 /** The privacy of a repository */
-export type RepoAddMemberAuditEntryVisibility = "INTERNAL" | "PRIVATE" | "PUBLIC"
+export type RepoAddMemberAuditEntryVisibility = 'INTERNAL' | 'PRIVATE' | 'PUBLIC'
 
 /** Audit log entry for a repo.add_topic event. */
 export type RepoAddTopicAuditEntry = GQLType & {
@@ -5890,7 +6837,7 @@ export type RepoArchivedAuditEntry = GQLType & {
 }
 
 /** The privacy of a repository */
-export type RepoArchivedAuditEntryVisibility = "INTERNAL" | "PRIVATE" | "PUBLIC"
+export type RepoArchivedAuditEntryVisibility = 'INTERNAL' | 'PRIVATE' | 'PUBLIC'
 
 /** Audit log entry for a repo.change_merge_setting event. */
 export type RepoChangeMergeSettingAuditEntry = GQLType & {
@@ -5942,7 +6889,7 @@ export type RepoChangeMergeSettingAuditEntry = GQLType & {
 }
 
 /** The merge options available for pull requests to this repository. */
-export type RepoChangeMergeSettingAuditEntryMergeType = "MERGE" | "REBASE" | "SQUASH"
+export type RepoChangeMergeSettingAuditEntryMergeType = 'MERGE' | 'REBASE' | 'SQUASH'
 
 /** Audit log entry for a repo.config.disable_anonymous_git_access event. */
 export type RepoConfigDisableAnonymousGitAccessAuditEntry = GQLType & {
@@ -6446,7 +7393,7 @@ export type RepoCreateAuditEntry = GQLType & {
 }
 
 /** The privacy of a repository */
-export type RepoCreateAuditEntryVisibility = "INTERNAL" | "PRIVATE" | "PUBLIC"
+export type RepoCreateAuditEntryVisibility = 'INTERNAL' | 'PRIVATE' | 'PUBLIC'
 
 /** Audit log entry for a repo.destroy event. */
 export type RepoDestroyAuditEntry = GQLType & {
@@ -6496,7 +7443,7 @@ export type RepoDestroyAuditEntry = GQLType & {
 }
 
 /** The privacy of a repository */
-export type RepoDestroyAuditEntryVisibility = "INTERNAL" | "PRIVATE" | "PUBLIC"
+export type RepoDestroyAuditEntryVisibility = 'INTERNAL' | 'PRIVATE' | 'PUBLIC'
 
 /** Audit log entry for a repo.remove_member event. */
 export type RepoRemoveMemberAuditEntry = GQLType & {
@@ -6546,7 +7493,7 @@ export type RepoRemoveMemberAuditEntry = GQLType & {
 }
 
 /** The privacy of a repository */
-export type RepoRemoveMemberAuditEntryVisibility = "INTERNAL" | "PRIVATE" | "PUBLIC"
+export type RepoRemoveMemberAuditEntryVisibility = 'INTERNAL' | 'PRIVATE' | 'PUBLIC'
 
 /** Audit log entry for a repo.remove_topic event. */
 export type RepoRemoveTopicAuditEntry = GQLType & {
@@ -6959,14 +7906,19 @@ export type AuditLogOrder = {
 }
 
 /** Properties by which Audit Log connections can be ordered. */
-export type AuditLogOrderField = "CREATED_AT"
+export type AuditLogOrderField = 'CREATED_AT'
 
 /** An Identity Provider configured to provision SAML and SCIM identities for Organizations */
 export type OrganizationIdentityProvider = GQLType & {
     /** The digest algorithm used to sign SAML requests for the Identity Provider. */
     digestMethod?: URI
     /** External Identities provisioned by this Identity Provider */
-    externalIdentities(args?: { after?: string, before?: string, first?: Int, last?: Int }): ExternalIdentityConnection
+    externalIdentities(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): ExternalIdentityConnection
     id: ID
     /** The x509 certificate used by the Identity Provder to sign assertions and responses. */
     idpCertificate?: X509Certificate
@@ -7005,13 +7957,13 @@ export type OrganizationMemberEdge = GQLType & {
 }
 
 /** The possible roles within an organization for its members. */
-export type OrganizationMemberRole = "MEMBER" | "ADMIN"
+export type OrganizationMemberRole = 'MEMBER' | 'ADMIN'
 
 /** The role of a user on a team. */
-export type TeamRole = "ADMIN" | "MEMBER"
+export type TeamRole = 'ADMIN' | 'MEMBER'
 
 /** The privacy of a Gist */
-export type GistPrivacy = "PUBLIC" | "SECRET" | "ALL"
+export type GistPrivacy = 'PUBLIC' | 'SECRET' | 'ALL'
 
 /** Represents a pending collaborator on a repository. */
 export type PendingCollaboratorEdge = GQLType & {
@@ -7101,11 +8053,30 @@ export type Milestone = GQLType & {
     /** Just for debugging on review-lab */
     issuePrioritiesDebug: string
     /** A list of issues associated with the milestone. */
-    issues(args?: { orderBy?: IssueOrder, labels?: string[], states?: IssueState[], filterBy?: IssueFilters, after?: string, before?: string, first?: Int, last?: Int }): IssueConnection
+    issues(args?: {
+        orderBy?: IssueOrder
+        labels?: string[]
+        states?: IssueState[]
+        filterBy?: IssueFilters
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): IssueConnection
     /** Identifies the number of the milestone. */
     number: Int
     /** A list of pull requests associated with the milestone. */
-    pullRequests(args?: { states?: PullRequestState[], labels?: string[], headRefName?: string, baseRefName?: string, orderBy?: IssueOrder, after?: string, before?: string, first?: Int, last?: Int }): PullRequestConnection
+    pullRequests(args?: {
+        states?: PullRequestState[]
+        labels?: string[]
+        headRefName?: string
+        baseRefName?: string
+        orderBy?: IssueOrder
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PullRequestConnection
     /** The repository associated with this milestone. */
     repository: Repository
     /** The HTTP path for this milestone */
@@ -7121,7 +8092,7 @@ export type Milestone = GQLType & {
 }
 
 /** The possible states of a milestone. */
-export type MilestoneState = "OPEN" | "CLOSED"
+export type MilestoneState = 'OPEN' | 'CLOSED'
 
 /** The connection type for PullRequestChangedFile. */
 export type PullRequestChangedFileConnection = GQLType & {
@@ -7154,7 +8125,7 @@ export type PullRequestChangedFile = GQLType & {
 }
 
 /** Whether or not a PullRequest can be merged. */
-export type MergeableState = "MERGEABLE" | "CONFLICTING" | "UNKNOWN"
+export type MergeableState = 'MERGEABLE' | 'CONFLICTING' | 'UNKNOWN'
 
 /** A review comment associated with a given repository pull request. */
 export type PullRequestReviewComment = GQLType & {
@@ -7210,7 +8181,14 @@ export type PullRequestReviewComment = GQLType & {
     /** A list of reactions grouped by content left on the subject. */
     reactionGroups?: ReactionGroup[]
     /** A list of Reactions left on the Issue. */
-    reactions(args?: { after?: string, before?: string, first?: Int, last?: Int, content?: ReactionContent, orderBy?: ReactionOrder }): ReactionConnection
+    reactions(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        content?: ReactionContent
+        orderBy?: ReactionOrder
+    }): ReactionConnection
     /** The comment this is a reply to. */
     replyTo?: PullRequestReviewComment
     /** The repository associated with this node. */
@@ -7224,7 +8202,12 @@ export type PullRequestReviewComment = GQLType & {
     /** The HTTP URL permalink for this review comment. */
     url: URI
     /** A list of edits to this content. */
-    userContentEdits(args?: { after?: string, before?: string, first?: Int, last?: Int }): UserContentEditConnection | undefined
+    userContentEdits(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): UserContentEditConnection | undefined
     /** Check if the current viewer can delete this object. */
     viewerCanDelete: boolean
     /** Check if the current viewer can minimize this object. */
@@ -7252,7 +8235,12 @@ export type PullRequestReview = GQLType & {
     /** The body of this review rendered as plain text. */
     bodyText: string
     /** A list of review comments for the current pull request review. */
-    comments(args?: { after?: string, before?: string, first?: Int, last?: Int }): PullRequestReviewCommentConnection
+    comments(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PullRequestReviewCommentConnection
     /** Identifies the commit associated with this pull request review. */
     commit?: Commit
     /** Identifies the date and time when the object was created. */
@@ -7269,7 +8257,7 @@ export type PullRequestReview = GQLType & {
     /** The moment the editor made the last edit */
     lastEditedAt?: DateTime
     /** A list of teams that this review was made on behalf of. */
-    onBehalfOf(args?: { after?: string, before?: string, first?: Int, last?: Int }): TeamConnection
+    onBehalfOf(args?: { after?: string; before?: string; first?: Int; last?: Int }): TeamConnection
     /** Identifies when the comment was published at. */
     publishedAt?: DateTime
     /** Identifies the pull request associated with this pull request review. */
@@ -7277,7 +8265,14 @@ export type PullRequestReview = GQLType & {
     /** A list of reactions grouped by content left on the subject. */
     reactionGroups?: ReactionGroup[]
     /** A list of Reactions left on the Issue. */
-    reactions(args?: { after?: string, before?: string, first?: Int, last?: Int, content?: ReactionContent, orderBy?: ReactionOrder }): ReactionConnection
+    reactions(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        content?: ReactionContent
+        orderBy?: ReactionOrder
+    }): ReactionConnection
     /** The repository associated with this node. */
     repository: Repository
     /** The HTTP path permalink for this PullRequestReview. */
@@ -7291,7 +8286,12 @@ export type PullRequestReview = GQLType & {
     /** The HTTP URL permalink for this PullRequestReview. */
     url: URI
     /** A list of edits to this content. */
-    userContentEdits(args?: { after?: string, before?: string, first?: Int, last?: Int }): UserContentEditConnection | undefined
+    userContentEdits(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): UserContentEditConnection | undefined
     /** Check if the current viewer can delete this object. */
     viewerCanDelete: boolean
     /** Can user react to this subject */
@@ -7305,7 +8305,12 @@ export type PullRequestReview = GQLType & {
 }
 
 /** The possible states of a pull request review. */
-export type PullRequestReviewState = "PENDING" | "COMMENTED" | "APPROVED" | "CHANGES_REQUESTED" | "DISMISSED"
+export type PullRequestReviewState =
+    | 'PENDING'
+    | 'COMMENTED'
+    | 'APPROVED'
+    | 'CHANGES_REQUESTED'
+    | 'DISMISSED'
 
 /** The connection type for PullRequestReviewComment. */
 export type PullRequestReviewCommentConnection = GQLType & {
@@ -7330,7 +8335,12 @@ export type PullRequestReviewCommentEdge = GQLType & {
 /** A threaded list of comments for a given pull request. */
 export type PullRequestReviewThread = GQLType & {
     /** A list of pull request comments associated with the thread. */
-    comments(args?: { after?: string, before?: string, first?: Int, last?: Int }): PullRequestReviewCommentConnection
+    comments(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PullRequestReviewCommentConnection
     id: ID
     /** Whether this thread has been resolved */
     isResolved: boolean
@@ -7380,10 +8390,10 @@ export type PullRequestReviewThreadEdge = GQLType & {
 }
 
 /** The possible states of a pull request review comment. */
-export type PullRequestReviewCommentState = "PENDING" | "SUBMITTED"
+export type PullRequestReviewCommentState = 'PENDING' | 'SUBMITTED'
 
 /** The possible PubSub channels for a pull request. */
-export type PullRequestPubSubTopic = "UPDATED" | "MARKASREAD" | "HEAD_REF" | "TIMELINE" | "STATE"
+export type PullRequestPubSubTopic = 'UPDATED' | 'MARKASREAD' | 'HEAD_REF' | 'TIMELINE' | 'STATE'
 
 /** The connection type for IssueComment. */
 export type IssueCommentConnection = GQLType & {
@@ -7500,12 +8510,49 @@ export type PullRequestTimelineItemEdge = GQLType & {
 }
 
 /** An item in an pull request timeline */
-export type PullRequestTimelineItem = Commit | CommitCommentThread | PullRequestReview | PullRequestReviewThread | PullRequestReviewComment | IssueComment | ClosedEvent | ReopenedEvent | SubscribedEvent | UnsubscribedEvent | MergedEvent | ReferencedEvent | CrossReferencedEvent | AssignedEvent | UnassignedEvent | LabeledEvent | UnlabeledEvent | MilestonedEvent | DemilestonedEvent | RenamedTitleEvent | LockedEvent | UnlockedEvent | DeployedEvent | DeploymentEnvironmentChangedEvent | HeadRefDeletedEvent | HeadRefRestoredEvent | HeadRefForcePushedEvent | BaseRefForcePushedEvent | ReviewRequestedEvent | ReviewRequestRemovedEvent | ReviewDismissedEvent | UserBlockedEvent
+export type PullRequestTimelineItem =
+    | Commit
+    | CommitCommentThread
+    | PullRequestReview
+    | PullRequestReviewThread
+    | PullRequestReviewComment
+    | IssueComment
+    | ClosedEvent
+    | ReopenedEvent
+    | SubscribedEvent
+    | UnsubscribedEvent
+    | MergedEvent
+    | ReferencedEvent
+    | CrossReferencedEvent
+    | AssignedEvent
+    | UnassignedEvent
+    | LabeledEvent
+    | UnlabeledEvent
+    | MilestonedEvent
+    | DemilestonedEvent
+    | RenamedTitleEvent
+    | LockedEvent
+    | UnlockedEvent
+    | DeployedEvent
+    | DeploymentEnvironmentChangedEvent
+    | HeadRefDeletedEvent
+    | HeadRefRestoredEvent
+    | HeadRefForcePushedEvent
+    | BaseRefForcePushedEvent
+    | ReviewRequestedEvent
+    | ReviewRequestRemovedEvent
+    | ReviewDismissedEvent
+    | UserBlockedEvent
 
 /** A thread of comments on a commit. */
 export type CommitCommentThread = GQLType & {
     /** The comments that exist in this thread. */
-    comments(args?: { after?: string, before?: string, first?: Int, last?: Int }): CommitCommentConnection
+    comments(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): CommitCommentConnection
     /** The commit the comments were made on. */
     commit: Commit
     id: ID
@@ -7928,7 +8975,7 @@ export type UserBlockedEvent = GQLType & {
 }
 
 /** The possible durations that a user can be blocked for. */
-export type UserBlockDuration = "ONE_DAY" | "THREE_DAYS" | "ONE_WEEK" | "ONE_MONTH" | "PERMANENT"
+export type UserBlockDuration = 'ONE_DAY' | 'THREE_DAYS' | 'ONE_WEEK' | 'ONE_MONTH' | 'PERMANENT'
 
 /** The connection type for PullRequestTimelineItems. */
 export type PullRequestTimelineItemsConnection = GQLType & {
@@ -7957,12 +9004,61 @@ export type PullRequestTimelineItemsEdge = GQLType & {
 }
 
 /** An item in a pull request timeline */
-export type PullRequestTimelineItems = PullRequestCommit | PullRequestCommitCommentThread | PullRequestReview | PullRequestReviewThread | PullRequestRevisionMarker | BaseRefChangedEvent | BaseRefForcePushedEvent | DeployedEvent | DeploymentEnvironmentChangedEvent | HeadRefDeletedEvent | HeadRefForcePushedEvent | HeadRefRestoredEvent | MergedEvent | ReviewDismissedEvent | ReviewRequestedEvent | ReviewRequestRemovedEvent | ReadyForReviewEvent | IssueComment | CrossReferencedEvent | AddedToProjectEvent | AssignedEvent | ClosedEvent | CommentDeletedEvent | ConvertedNoteToIssueEvent | DemilestonedEvent | LabeledEvent | LockedEvent | MarkedAsDuplicateEvent | MentionedEvent | MilestonedEvent | MovedColumnsInProjectEvent | PinnedEvent | ReferencedEvent | RemovedFromProjectEvent | RenamedTitleEvent | ReopenedEvent | SubscribedEvent | TransferredEvent | UnassignedEvent | UnlabeledEvent | UnlockedEvent | UserBlockedEvent | UnpinnedEvent | UnsubscribedEvent
+export type PullRequestTimelineItems =
+    | PullRequestCommit
+    | PullRequestCommitCommentThread
+    | PullRequestReview
+    | PullRequestReviewThread
+    | PullRequestRevisionMarker
+    | BaseRefChangedEvent
+    | BaseRefForcePushedEvent
+    | DeployedEvent
+    | DeploymentEnvironmentChangedEvent
+    | HeadRefDeletedEvent
+    | HeadRefForcePushedEvent
+    | HeadRefRestoredEvent
+    | MergedEvent
+    | ReviewDismissedEvent
+    | ReviewRequestedEvent
+    | ReviewRequestRemovedEvent
+    | ReadyForReviewEvent
+    | IssueComment
+    | CrossReferencedEvent
+    | AddedToProjectEvent
+    | AssignedEvent
+    | ClosedEvent
+    | CommentDeletedEvent
+    | ConvertedNoteToIssueEvent
+    | DemilestonedEvent
+    | LabeledEvent
+    | LockedEvent
+    | MarkedAsDuplicateEvent
+    | MentionedEvent
+    | MilestonedEvent
+    | MovedColumnsInProjectEvent
+    | PinnedEvent
+    | ReferencedEvent
+    | RemovedFromProjectEvent
+    | RenamedTitleEvent
+    | ReopenedEvent
+    | SubscribedEvent
+    | TransferredEvent
+    | UnassignedEvent
+    | UnlabeledEvent
+    | UnlockedEvent
+    | UserBlockedEvent
+    | UnpinnedEvent
+    | UnsubscribedEvent
 
 /** Represents a commit comment thread part of a pull request. */
 export type PullRequestCommitCommentThread = GQLType & {
     /** The comments that exist in this thread. */
-    comments(args?: { after?: string, before?: string, first?: Int, last?: Int }): CommitCommentConnection
+    comments(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): CommitCommentConnection
     /** The commit the comments were made on. */
     commit: Commit
     id: ID
@@ -8123,7 +9219,51 @@ export type UnpinnedEvent = GQLType & {
 }
 
 /** The possible item types found in a timeline. */
-export type PullRequestTimelineItemsItemType = "PULL_REQUEST_COMMIT" | "PULL_REQUEST_COMMIT_COMMENT_THREAD" | "PULL_REQUEST_REVIEW" | "PULL_REQUEST_REVIEW_THREAD" | "PULL_REQUEST_REVISION_MARKER" | "BASE_REF_CHANGED_EVENT" | "BASE_REF_FORCE_PUSHED_EVENT" | "DEPLOYED_EVENT" | "DEPLOYMENT_ENVIRONMENT_CHANGED_EVENT" | "HEAD_REF_DELETED_EVENT" | "HEAD_REF_FORCE_PUSHED_EVENT" | "HEAD_REF_RESTORED_EVENT" | "MERGED_EVENT" | "REVIEW_DISMISSED_EVENT" | "REVIEW_REQUESTED_EVENT" | "REVIEW_REQUEST_REMOVED_EVENT" | "READY_FOR_REVIEW_EVENT" | "ISSUE_COMMENT" | "CROSS_REFERENCED_EVENT" | "ADDED_TO_PROJECT_EVENT" | "ASSIGNED_EVENT" | "CLOSED_EVENT" | "COMMENT_DELETED_EVENT" | "CONVERTED_NOTE_TO_ISSUE_EVENT" | "DEMILESTONED_EVENT" | "LABELED_EVENT" | "LOCKED_EVENT" | "MARKED_AS_DUPLICATE_EVENT" | "MENTIONED_EVENT" | "MILESTONED_EVENT" | "MOVED_COLUMNS_IN_PROJECT_EVENT" | "PINNED_EVENT" | "REFERENCED_EVENT" | "REMOVED_FROM_PROJECT_EVENT" | "RENAMED_TITLE_EVENT" | "REOPENED_EVENT" | "SUBSCRIBED_EVENT" | "TRANSFERRED_EVENT" | "UNASSIGNED_EVENT" | "UNLABELED_EVENT" | "UNLOCKED_EVENT" | "USER_BLOCKED_EVENT" | "UNPINNED_EVENT" | "UNSUBSCRIBED_EVENT"
+export type PullRequestTimelineItemsItemType =
+    | 'PULL_REQUEST_COMMIT'
+    | 'PULL_REQUEST_COMMIT_COMMENT_THREAD'
+    | 'PULL_REQUEST_REVIEW'
+    | 'PULL_REQUEST_REVIEW_THREAD'
+    | 'PULL_REQUEST_REVISION_MARKER'
+    | 'BASE_REF_CHANGED_EVENT'
+    | 'BASE_REF_FORCE_PUSHED_EVENT'
+    | 'DEPLOYED_EVENT'
+    | 'DEPLOYMENT_ENVIRONMENT_CHANGED_EVENT'
+    | 'HEAD_REF_DELETED_EVENT'
+    | 'HEAD_REF_FORCE_PUSHED_EVENT'
+    | 'HEAD_REF_RESTORED_EVENT'
+    | 'MERGED_EVENT'
+    | 'REVIEW_DISMISSED_EVENT'
+    | 'REVIEW_REQUESTED_EVENT'
+    | 'REVIEW_REQUEST_REMOVED_EVENT'
+    | 'READY_FOR_REVIEW_EVENT'
+    | 'ISSUE_COMMENT'
+    | 'CROSS_REFERENCED_EVENT'
+    | 'ADDED_TO_PROJECT_EVENT'
+    | 'ASSIGNED_EVENT'
+    | 'CLOSED_EVENT'
+    | 'COMMENT_DELETED_EVENT'
+    | 'CONVERTED_NOTE_TO_ISSUE_EVENT'
+    | 'DEMILESTONED_EVENT'
+    | 'LABELED_EVENT'
+    | 'LOCKED_EVENT'
+    | 'MARKED_AS_DUPLICATE_EVENT'
+    | 'MENTIONED_EVENT'
+    | 'MILESTONED_EVENT'
+    | 'MOVED_COLUMNS_IN_PROJECT_EVENT'
+    | 'PINNED_EVENT'
+    | 'REFERENCED_EVENT'
+    | 'REMOVED_FROM_PROJECT_EVENT'
+    | 'RENAMED_TITLE_EVENT'
+    | 'REOPENED_EVENT'
+    | 'SUBSCRIBED_EVENT'
+    | 'TRANSFERRED_EVENT'
+    | 'UNASSIGNED_EVENT'
+    | 'UNLABELED_EVENT'
+    | 'UNLOCKED_EVENT'
+    | 'USER_BLOCKED_EVENT'
+    | 'UNPINNED_EVENT'
+    | 'UNSUBSCRIBED_EVENT'
 
 /** A suggestion to review a pull request based on a user's commit history and review comments. */
 export type SuggestedReviewer = GQLType & {
@@ -8136,7 +9276,7 @@ export type SuggestedReviewer = GQLType & {
 }
 
 /** The possible archived states of a project card. */
-export type ProjectCardArchivedState = "ARCHIVED" | "NOT_ARCHIVED"
+export type ProjectCardArchivedState = 'ARCHIVED' | 'NOT_ARCHIVED'
 
 /** The connection type for IssueTimelineItem. */
 export type IssueTimelineConnection = GQLType & {
@@ -8159,7 +9299,26 @@ export type IssueTimelineItemEdge = GQLType & {
 }
 
 /** An item in an issue timeline */
-export type IssueTimelineItem = Commit | IssueComment | CrossReferencedEvent | ClosedEvent | ReopenedEvent | SubscribedEvent | UnsubscribedEvent | ReferencedEvent | AssignedEvent | UnassignedEvent | LabeledEvent | UnlabeledEvent | UserBlockedEvent | MilestonedEvent | DemilestonedEvent | RenamedTitleEvent | LockedEvent | UnlockedEvent | TransferredEvent
+export type IssueTimelineItem =
+    | Commit
+    | IssueComment
+    | CrossReferencedEvent
+    | ClosedEvent
+    | ReopenedEvent
+    | SubscribedEvent
+    | UnsubscribedEvent
+    | ReferencedEvent
+    | AssignedEvent
+    | UnassignedEvent
+    | LabeledEvent
+    | UnlabeledEvent
+    | UserBlockedEvent
+    | MilestonedEvent
+    | DemilestonedEvent
+    | RenamedTitleEvent
+    | LockedEvent
+    | UnlockedEvent
+    | TransferredEvent
 
 /** The connection type for IssueTimelineItems. */
 export type IssueTimelineItemsConnection = GQLType & {
@@ -8188,10 +9347,64 @@ export type IssueTimelineItemsEdge = GQLType & {
 }
 
 /** An item in an issue timeline */
-export type IssueTimelineItems = IssueComment | CrossReferencedEvent | AddedToProjectEvent | AssignedEvent | ClosedEvent | CommentDeletedEvent | ConvertedNoteToIssueEvent | DemilestonedEvent | LabeledEvent | LockedEvent | MarkedAsDuplicateEvent | MentionedEvent | MilestonedEvent | MovedColumnsInProjectEvent | PinnedEvent | ReferencedEvent | RemovedFromProjectEvent | RenamedTitleEvent | ReopenedEvent | SubscribedEvent | TransferredEvent | UnassignedEvent | UnlabeledEvent | UnlockedEvent | UserBlockedEvent | UnpinnedEvent | UnsubscribedEvent
+export type IssueTimelineItems =
+    | IssueComment
+    | CrossReferencedEvent
+    | AddedToProjectEvent
+    | AssignedEvent
+    | ClosedEvent
+    | CommentDeletedEvent
+    | ConvertedNoteToIssueEvent
+    | DemilestonedEvent
+    | LabeledEvent
+    | LockedEvent
+    | MarkedAsDuplicateEvent
+    | MentionedEvent
+    | MilestonedEvent
+    | MovedColumnsInProjectEvent
+    | PinnedEvent
+    | ReferencedEvent
+    | RemovedFromProjectEvent
+    | RenamedTitleEvent
+    | ReopenedEvent
+    | SubscribedEvent
+    | TransferredEvent
+    | UnassignedEvent
+    | UnlabeledEvent
+    | UnlockedEvent
+    | UserBlockedEvent
+    | UnpinnedEvent
+    | UnsubscribedEvent
 
 /** The possible item types found in a timeline. */
-export type IssueTimelineItemsItemType = "ISSUE_COMMENT" | "CROSS_REFERENCED_EVENT" | "ADDED_TO_PROJECT_EVENT" | "ASSIGNED_EVENT" | "CLOSED_EVENT" | "COMMENT_DELETED_EVENT" | "CONVERTED_NOTE_TO_ISSUE_EVENT" | "DEMILESTONED_EVENT" | "LABELED_EVENT" | "LOCKED_EVENT" | "MARKED_AS_DUPLICATE_EVENT" | "MENTIONED_EVENT" | "MILESTONED_EVENT" | "MOVED_COLUMNS_IN_PROJECT_EVENT" | "PINNED_EVENT" | "REFERENCED_EVENT" | "REMOVED_FROM_PROJECT_EVENT" | "RENAMED_TITLE_EVENT" | "REOPENED_EVENT" | "SUBSCRIBED_EVENT" | "TRANSFERRED_EVENT" | "UNASSIGNED_EVENT" | "UNLABELED_EVENT" | "UNLOCKED_EVENT" | "USER_BLOCKED_EVENT" | "UNPINNED_EVENT" | "UNSUBSCRIBED_EVENT"
+export type IssueTimelineItemsItemType =
+    | 'ISSUE_COMMENT'
+    | 'CROSS_REFERENCED_EVENT'
+    | 'ADDED_TO_PROJECT_EVENT'
+    | 'ASSIGNED_EVENT'
+    | 'CLOSED_EVENT'
+    | 'COMMENT_DELETED_EVENT'
+    | 'CONVERTED_NOTE_TO_ISSUE_EVENT'
+    | 'DEMILESTONED_EVENT'
+    | 'LABELED_EVENT'
+    | 'LOCKED_EVENT'
+    | 'MARKED_AS_DUPLICATE_EVENT'
+    | 'MENTIONED_EVENT'
+    | 'MILESTONED_EVENT'
+    | 'MOVED_COLUMNS_IN_PROJECT_EVENT'
+    | 'PINNED_EVENT'
+    | 'REFERENCED_EVENT'
+    | 'REMOVED_FROM_PROJECT_EVENT'
+    | 'RENAMED_TITLE_EVENT'
+    | 'REOPENED_EVENT'
+    | 'SUBSCRIBED_EVENT'
+    | 'TRANSFERRED_EVENT'
+    | 'UNASSIGNED_EVENT'
+    | 'UNLABELED_EVENT'
+    | 'UNLOCKED_EVENT'
+    | 'USER_BLOCKED_EVENT'
+    | 'UNPINNED_EVENT'
+    | 'UNSUBSCRIBED_EVENT'
 
 /** Represents a connection between a project (parent) and a team (child). */
 export type ProjectTeamEdge = GQLType & {
@@ -8214,7 +9427,7 @@ export type ProjectUserEdge = GQLType & {
 }
 
 /** Collaborators affiliation level with a subject. */
-export type CollaboratorAffiliation = "OUTSIDE" | "DIRECT" | "ALL"
+export type CollaboratorAffiliation = 'OUTSIDE' | 'DIRECT' | 'ALL'
 
 /** An installation on a repository */
 export type InstalledAppEdge = GQLType & {
@@ -8270,7 +9483,7 @@ export type DeployKey = GQLType & {
 }
 
 /** The affiliation type between collaborator and repository. */
-export type RepositoryCollaboratorAffiliation = "ALL" | "OUTSIDE"
+export type RepositoryCollaboratorAffiliation = 'ALL' | 'OUTSIDE'
 
 /** The connection type for BranchProtectionRule. */
 export type BranchProtectionRuleConnection = GQLType & {
@@ -8295,7 +9508,12 @@ export type BranchProtectionRuleEdge = GQLType & {
 /** A branch protection rule. */
 export type BranchProtectionRule = GQLType & {
     /** A list of conflicts matching branches protection rule and other branch protection rules */
-    branchProtectionRuleConflicts(args?: { after?: string, before?: string, first?: Int, last?: Int }): BranchProtectionRuleConflictConnection
+    branchProtectionRuleConflicts(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): BranchProtectionRuleConflictConnection
     /** The actor who created this branch protection rule. */
     creator?: Actor
     /** Identifies the primary key from the database. */
@@ -8306,11 +9524,16 @@ export type BranchProtectionRule = GQLType & {
     /** Can admins overwrite branch protection. */
     isAdminEnforced: boolean
     /** Repository refs that are protected by this rule */
-    matchingRefs(args?: { after?: string, before?: string, first?: Int, last?: Int }): RefConnection
+    matchingRefs(args?: { after?: string; before?: string; first?: Int; last?: Int }): RefConnection
     /** Identifies the protection rule pattern. */
     pattern: string
     /** A list push allowances for this branch protection rule. */
-    pushAllowances(args?: { after?: string, before?: string, first?: Int, last?: Int }): PushAllowanceConnection
+    pushAllowances(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): PushAllowanceConnection
     /** The repository associated with this branch protection rule. */
     repository?: Repository
     /** Number of approving reviews required to update matching branches. */
@@ -8332,7 +9555,12 @@ export type BranchProtectionRule = GQLType & {
     /** Is dismissal of pull request reviews restricted. */
     restrictsReviewDismissals: boolean
     /** A list review dismissal allowances for this branch protection rule. */
-    reviewDismissalAllowances(args?: { after?: string, before?: string, first?: Int, last?: Int }): ReviewDismissalAllowanceConnection
+    reviewDismissalAllowances(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): ReviewDismissalAllowanceConnection
 }
 
 /** The connection type for ReviewDismissalAllowance. */
@@ -8478,7 +9706,7 @@ export type MilestoneOrder = {
 }
 
 /** Properties by which milestone connections can be ordered. */
-export type MilestoneOrderField = "DUE_DATE" | "CREATED_AT" | "UPDATED_AT" | "NUMBER"
+export type MilestoneOrderField = 'DUE_DATE' | 'CREATED_AT' | 'UPDATED_AT' | 'NUMBER'
 
 /** The Code of Conduct for a repository */
 export type CodeOfConduct = GQLType & {
@@ -8540,7 +9768,7 @@ export type LanguageOrder = {
 }
 
 /** Properties by which language connections can be ordered. */
-export type LanguageOrderField = "SIZE"
+export type LanguageOrderField = 'SIZE'
 
 /** Ways in which lists of git refs can be ordered upon return. */
 export type RefOrder = {
@@ -8551,7 +9779,7 @@ export type RefOrder = {
 }
 
 /** Properties by which ref connections can be ordered. */
-export type RefOrderField = "TAG_COMMIT_DATE" | "ALPHABETICAL"
+export type RefOrderField = 'TAG_COMMIT_DATE' | 'ALPHABETICAL'
 
 /** A GitHub Security Advisory */
 export type SecurityAdvisory = GQLType & {
@@ -8577,13 +9805,22 @@ export type SecurityAdvisory = GQLType & {
     /** When the advisory was last updated */
     updatedAt: DateTime
     /** Vulnerabilities associated with this Advisory */
-    vulnerabilities(args?: { orderBy?: SecurityVulnerabilityOrder, ecosystem?: SecurityAdvisoryEcosystem, package?: string, severities?: SecurityAdvisorySeverity[], after?: string, before?: string, first?: Int, last?: Int }): SecurityVulnerabilityConnection
+    vulnerabilities(args?: {
+        orderBy?: SecurityVulnerabilityOrder
+        ecosystem?: SecurityAdvisoryEcosystem
+        package?: string
+        severities?: SecurityAdvisorySeverity[]
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+    }): SecurityVulnerabilityConnection
     /** When the advisory was withdrawn, if it has been withdrawn */
     withdrawnAt?: DateTime
 }
 
 /** Severity of the vulnerability. */
-export type SecurityAdvisorySeverity = "LOW" | "MODERATE" | "HIGH" | "CRITICAL"
+export type SecurityAdvisorySeverity = 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL'
 
 /** A GitHub Security Advisory Identifier */
 export type SecurityAdvisoryIdentifier = GQLType & {
@@ -8651,7 +9888,7 @@ export type SecurityAdvisoryPackage = GQLType & {
 }
 
 /** The possible ecosystems of a security vulnerability's package. */
-export type SecurityAdvisoryEcosystem = "RUBYGEMS" | "NPM" | "PIP" | "MAVEN" | "NUGET"
+export type SecurityAdvisoryEcosystem = 'RUBYGEMS' | 'NPM' | 'PIP' | 'MAVEN' | 'NUGET'
 
 /** An individual package version */
 export type SecurityAdvisoryPackageVersion = GQLType & {
@@ -8668,7 +9905,7 @@ export type SecurityVulnerabilityOrder = {
 }
 
 /** Properties by which security vulnerability connections can be ordered. */
-export type SecurityVulnerabilityOrderField = "UPDATED_AT"
+export type SecurityVulnerabilityOrderField = 'UPDATED_AT'
 
 /** Git SSH string */
 export type GitSSHRemote = any
@@ -8778,7 +10015,7 @@ export type Sponsorship = GQLType & {
 }
 
 /** The privacy of a sponsorship */
-export type SponsorshipPrivacy = "PUBLIC" | "PRIVATE"
+export type SponsorshipPrivacy = 'PUBLIC' | 'PRIVATE'
 
 /** The connection type for Sponsorship. */
 export type SponsorshipConnection = GQLType & {
@@ -8809,13 +10046,15 @@ export type SponsorshipOrder = {
 /** A contributions collection aggregates contributions such as opened issues and commits created by a user. */
 export type ContributionsCollection = GQLType & {
     /** Commit contributions made by the user, grouped by repository. */
-    commitContributionsByRepository(args?: { maxRepositories?: Int }): CommitContributionsByRepository[]
+    commitContributionsByRepository(args?: {
+        maxRepositories?: Int
+    }): CommitContributionsByRepository[]
     /** A calendar of this user's contributions on GitHub. */
     contributionCalendar: ContributionCalendar
     /** The years the user has been making contributions with the most recent year first. */
     contributionYears: Int[]
     /** Determine if this collection's time span ends in the current month.
- */
+     */
     doesEndInCurrentMonth: boolean
     /** The date of the first restricted contribution the user made in this time period. Can only be non-null when the user has enabled private contribution counts. */
     earliestRestrictedContributionDate?: Date
@@ -8836,9 +10075,21 @@ export type ContributionsCollection = GQLType & {
     /** Whether or not the collector's time span is all within the same day. */
     isSingleDay: boolean
     /** A list of issues the user opened. */
-    issueContributions(args?: { after?: string, before?: string, first?: Int, last?: Int, excludeFirst?: boolean, excludePopular?: boolean, orderBy?: ContributionOrder }): CreatedIssueContributionConnection
+    issueContributions(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        excludeFirst?: boolean
+        excludePopular?: boolean
+        orderBy?: ContributionOrder
+    }): CreatedIssueContributionConnection
     /** Issue contributions made by the user, grouped by repository. */
-    issueContributionsByRepository(args?: { maxRepositories?: Int, excludeFirst?: boolean, excludePopular?: boolean }): IssueContributionsByRepository[]
+    issueContributionsByRepository(args?: {
+        maxRepositories?: Int
+        excludeFirst?: boolean
+        excludePopular?: boolean
+    }): IssueContributionsByRepository[]
     /** When the user signed up for GitHub. This will be null if that sign up date falls outside the collection's time range and ignoreTimeRange is false. */
     joinedGitHubContribution?: JoinedGitHubContribution
     /** The date of the most recent restricted contribution the user made in this time period. Can only be non-null when the user has enabled private contribution counts. */
@@ -8860,15 +10111,42 @@ specified time frame.
  */
     popularPullRequestContribution?: CreatedPullRequestContribution
     /** Pull request contributions made by the user. */
-    pullRequestContributions(args?: { after?: string, before?: string, first?: Int, last?: Int, excludeFirst?: boolean, excludePopular?: boolean, orderBy?: ContributionOrder }): CreatedPullRequestContributionConnection
+    pullRequestContributions(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        excludeFirst?: boolean
+        excludePopular?: boolean
+        orderBy?: ContributionOrder
+    }): CreatedPullRequestContributionConnection
     /** Pull request contributions made by the user, grouped by repository. */
-    pullRequestContributionsByRepository(args?: { maxRepositories?: Int, excludeFirst?: boolean, excludePopular?: boolean }): PullRequestContributionsByRepository[]
+    pullRequestContributionsByRepository(args?: {
+        maxRepositories?: Int
+        excludeFirst?: boolean
+        excludePopular?: boolean
+    }): PullRequestContributionsByRepository[]
     /** Pull request review contributions made by the user. */
-    pullRequestReviewContributions(args?: { after?: string, before?: string, first?: Int, last?: Int, orderBy?: ContributionOrder }): CreatedPullRequestReviewContributionConnection
+    pullRequestReviewContributions(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        orderBy?: ContributionOrder
+    }): CreatedPullRequestReviewContributionConnection
     /** Pull request review contributions made by the user, grouped by repository. */
-    pullRequestReviewContributionsByRepository(args?: { maxRepositories?: Int }): PullRequestReviewContributionsByRepository[]
+    pullRequestReviewContributionsByRepository(args?: {
+        maxRepositories?: Int
+    }): PullRequestReviewContributionsByRepository[]
     /** A list of repositories owned by the user that the user created in this time range. */
-    repositoryContributions(args?: { after?: string, before?: string, first?: Int, last?: Int, excludeFirst?: boolean, orderBy?: ContributionOrder }): CreatedRepositoryContributionConnection
+    repositoryContributions(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        excludeFirst?: boolean
+        orderBy?: ContributionOrder
+    }): CreatedRepositoryContributionConnection
     /** A count of contributions made by the user that the viewer cannot access. Only non-zero when the user has chosen to share their private contribution counts. */
     restrictedContributionsCount: Int
     /** The beginning date and time of this collection. */
@@ -8876,19 +10154,25 @@ specified time frame.
     /** How many commits were made by the user in this time span. */
     totalCommitContributions: Int
     /** How many issues the user opened. */
-    totalIssueContributions(args?: { excludeFirst?: boolean, excludePopular?: boolean }): Int
+    totalIssueContributions(args?: { excludeFirst?: boolean; excludePopular?: boolean }): Int
     /** How many pull requests the user opened. */
-    totalPullRequestContributions(args?: { excludeFirst?: boolean, excludePopular?: boolean }): Int
+    totalPullRequestContributions(args?: { excludeFirst?: boolean; excludePopular?: boolean }): Int
     /** How many pull request reviews the user left. */
     totalPullRequestReviewContributions: Int
     /** How many different repositories the user committed to. */
     totalRepositoriesWithContributedCommits: Int
     /** How many different repositories the user opened issues in. */
-    totalRepositoriesWithContributedIssues(args?: { excludeFirst?: boolean, excludePopular?: boolean }): Int
+    totalRepositoriesWithContributedIssues(args?: {
+        excludeFirst?: boolean
+        excludePopular?: boolean
+    }): Int
     /** How many different repositories the user left pull request reviews in. */
     totalRepositoriesWithContributedPullRequestReviews: Int
     /** How many different repositories the user opened pull requests in. */
-    totalRepositoriesWithContributedPullRequests(args?: { excludeFirst?: boolean, excludePopular?: boolean }): Int
+    totalRepositoriesWithContributedPullRequests(args?: {
+        excludeFirst?: boolean
+        excludePopular?: boolean
+    }): Int
     /** How many repositories the user created. */
     totalRepositoryContributions(args?: { excludeFirst?: boolean }): Int
     /** The user who made the contributions in this collection. */
@@ -8909,7 +10193,7 @@ longer access.
     /** The HTTP URL for this contribution. */
     url: URI
     /** The user who made this contribution.
- */
+     */
     user: User
     /** Use `asCreatedIssueContribution` to access fields on the underlying concrete type. */
     asCreatedIssueContribution: CreatedIssueContribution
@@ -8963,7 +10247,7 @@ longer access.
     /** The HTTP URL for this contribution. */
     url: URI
     /** The user who made this contribution.
- */
+     */
     user: User
 }
 
@@ -8981,7 +10265,7 @@ export type ContributionOrder = {
 }
 
 /** Properties by which contribution connections can be ordered. */
-export type ContributionOrderField = "OCCURRED_AT"
+export type ContributionOrderField = 'OCCURRED_AT'
 
 /** The connection type for CreatedRepositoryContribution. */
 export type CreatedRepositoryContributionConnection = GQLType & {
@@ -9019,7 +10303,7 @@ longer access.
     /** The HTTP URL for this contribution. */
     url: URI
     /** The user who made this contribution.
- */
+     */
     user: User
 }
 
@@ -9037,12 +10321,14 @@ longer access.
     /** The HTTP URL for this contribution. */
     url: URI
     /** The user who made this contribution.
- */
+     */
     user: User
 }
 
 /** Represents either a repository the viewer can access or a restricted contribution. */
-export type CreatedRepositoryOrRestrictedContribution = CreatedRepositoryContribution | RestrictedContribution
+export type CreatedRepositoryOrRestrictedContribution =
+    | CreatedRepositoryContribution
+    | RestrictedContribution
 
 /** Represents a private contribution a user made on GitHub. */
 export type RestrictedContribution = GQLType & {
@@ -9058,7 +10344,7 @@ longer access.
     /** The HTTP URL for this contribution. */
     url: URI
     /** The user who made this contribution.
- */
+     */
     user: User
 }
 
@@ -9066,7 +10352,9 @@ longer access.
 export type CreatedIssueOrRestrictedContribution = CreatedIssueContribution | RestrictedContribution
 
 /** Represents either a pull request the viewer can access or a restricted contribution. */
-export type CreatedPullRequestOrRestrictedContribution = CreatedPullRequestContribution | RestrictedContribution
+export type CreatedPullRequestOrRestrictedContribution =
+    | CreatedPullRequestContribution
+    | RestrictedContribution
 
 /** Represents the contribution a user made on GitHub by opening a pull request. */
 export type CreatedPullRequestContribution = GQLType & {
@@ -9084,7 +10372,7 @@ longer access.
     /** The HTTP URL for this contribution. */
     url: URI
     /** The user who made this contribution.
- */
+     */
     user: User
 }
 
@@ -9174,14 +10462,20 @@ longer access.
     /** The HTTP URL for this contribution. */
     url: URI
     /** The user who made this contribution.
- */
+     */
     user: User
 }
 
 /** This aggregates pull request reviews made by a user within one repository. */
 export type PullRequestReviewContributionsByRepository = GQLType & {
     /** The pull request review contributions. */
-    contributions(args?: { after?: string, before?: string, first?: Int, last?: Int, orderBy?: ContributionOrder }): CreatedPullRequestReviewContributionConnection
+    contributions(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        orderBy?: ContributionOrder
+    }): CreatedPullRequestReviewContributionConnection
     /** The repository in which the pull request reviews were made. */
     repository: Repository
 }
@@ -9189,7 +10483,13 @@ export type PullRequestReviewContributionsByRepository = GQLType & {
 /** This aggregates commits made by a user within one repository. */
 export type CommitContributionsByRepository = GQLType & {
     /** The commit contributions, each representing a day. */
-    contributions(args?: { after?: string, before?: string, first?: Int, last?: Int, orderBy?: CommitContributionOrder }): CreatedCommitContributionConnection
+    contributions(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        orderBy?: CommitContributionOrder
+    }): CreatedCommitContributionConnection
     /** The repository in which the commits were made. */
     repository: Repository
     /** The HTTP path for the user's commits to the repository in this time range. */
@@ -9207,7 +10507,7 @@ export type CreatedCommitContributionConnection = GQLType & {
     /** Information to aid in pagination. */
     pageInfo: PageInfo
     /** Identifies the total count of commits across days and repositories in the connection.
- */
+     */
     totalCount: Int
 }
 
@@ -9237,7 +10537,7 @@ longer access.
     /** The HTTP URL for this contribution. */
     url: URI
     /** The user who made this contribution.
- */
+     */
     user: User
 }
 
@@ -9250,7 +10550,7 @@ export type CommitContributionOrder = {
 }
 
 /** Properties by which commit contribution connections can be ordered. */
-export type CommitContributionOrderField = "OCCURRED_AT" | "COMMIT_COUNT"
+export type CommitContributionOrderField = 'OCCURRED_AT' | 'COMMIT_COUNT'
 
 /** The connection type for CreatedPullRequestContribution. */
 export type CreatedPullRequestContributionConnection = GQLType & {
@@ -9275,7 +10575,13 @@ export type CreatedPullRequestContributionEdge = GQLType & {
 /** This aggregates pull requests opened by a user within one repository. */
 export type PullRequestContributionsByRepository = GQLType & {
     /** The pull request contributions. */
-    contributions(args?: { after?: string, before?: string, first?: Int, last?: Int, orderBy?: ContributionOrder }): CreatedPullRequestContributionConnection
+    contributions(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        orderBy?: ContributionOrder
+    }): CreatedPullRequestContributionConnection
     /** The repository in which the pull requests were opened. */
     repository: Repository
 }
@@ -9283,7 +10589,13 @@ export type PullRequestContributionsByRepository = GQLType & {
 /** This aggregates issues opened by a user within one repository. */
 export type IssueContributionsByRepository = GQLType & {
     /** The issue contributions. */
-    contributions(args?: { after?: string, before?: string, first?: Int, last?: Int, orderBy?: ContributionOrder }): CreatedIssueContributionConnection
+    contributions(args?: {
+        after?: string
+        before?: string
+        first?: Int
+        last?: Int
+        orderBy?: ContributionOrder
+    }): CreatedIssueContributionConnection
     /** The repository in which the issues were opened. */
     repository: Repository
 }
@@ -9332,10 +10644,15 @@ export type SavedReplyOrder = {
 }
 
 /** Properties by which saved reply connections can be ordered. */
-export type SavedReplyOrderField = "UPDATED_AT"
+export type SavedReplyOrderField = 'UPDATED_AT'
 
 /** The reason a repository is listed as 'contributed'. */
-export type RepositoryContributionType = "COMMIT" | "ISSUE" | "PULL_REQUEST" | "REPOSITORY" | "PULL_REQUEST_REVIEW"
+export type RepositoryContributionType =
+    | 'COMMIT'
+    | 'ISSUE'
+    | 'PULL_REQUEST'
+    | 'REPOSITORY'
+    | 'PULL_REQUEST_REVIEW'
 
 /** An edge in a connection. */
 export type IssueOrPullRequestEdge = GQLType & {
@@ -9472,7 +10789,14 @@ export type SearchResultItemEdge = GQLType & {
 }
 
 /** The results of a search. */
-export type SearchResultItem = Issue | PullRequest | Repository | User | Organization | MarketplaceListing | App
+export type SearchResultItem =
+    | Issue
+    | PullRequest
+    | Repository
+    | User
+    | Organization
+    | MarketplaceListing
+    | App
 
 /** A text match within a search result. */
 export type TextMatch = GQLType & {
@@ -9495,7 +10819,7 @@ export type TextMatchHighlight = GQLType & {
 }
 
 /** Represents the individual results of a search. */
-export type SearchType = "ISSUE" | "REPOSITORY" | "USER"
+export type SearchType = 'ISSUE' | 'REPOSITORY' | 'USER'
 
 /** A GitHub Sponsors listing. */
 export type SponsorsListing = GQLType & {
@@ -9556,7 +10880,7 @@ export type SecurityAdvisoryOrder = {
 }
 
 /** Properties by which security advisory connections can be ordered. */
-export type SecurityAdvisoryOrderField = "PUBLISHED_AT" | "UPDATED_AT"
+export type SecurityAdvisoryOrderField = 'PUBLISHED_AT' | 'UPDATED_AT'
 
 /** An advisory identifier to filter results on. */
 export type SecurityAdvisoryIdentifierFilter = {
@@ -9567,26 +10891,36 @@ export type SecurityAdvisoryIdentifierFilter = {
 }
 
 /** Identifier formats available for advisories. */
-export type SecurityAdvisoryIdentifierType = "CVE" | "GHSA"
+export type SecurityAdvisoryIdentifierType = 'CVE' | 'GHSA'
 
 /** The root query for implementing GraphQL mutations. */
 export type Mutation = GQLType & {
     /** Applies a suggested topic to the repository. */
-    acceptTopicSuggestion(args: { input: AcceptTopicSuggestionInput }): AcceptTopicSuggestionPayload | undefined
+    acceptTopicSuggestion(args: {
+        input: AcceptTopicSuggestionInput
+    }): AcceptTopicSuggestionPayload | undefined
     /** Adds assignees to an assignable object. */
-    addAssigneesToAssignable(args: { input: AddAssigneesToAssignableInput }): AddAssigneesToAssignablePayload | undefined
+    addAssigneesToAssignable(args: {
+        input: AddAssigneesToAssignableInput
+    }): AddAssigneesToAssignablePayload | undefined
     /** Adds a comment to an Issue or Pull Request. */
     addComment(args: { input: AddCommentInput }): AddCommentPayload | undefined
     /** Adds labels to a labelable object. */
-    addLabelsToLabelable(args: { input: AddLabelsToLabelableInput }): AddLabelsToLabelablePayload | undefined
+    addLabelsToLabelable(args: {
+        input: AddLabelsToLabelableInput
+    }): AddLabelsToLabelablePayload | undefined
     /** Adds a card to a ProjectColumn. Either `contentId` or `note` must be provided but **not** both. */
     addProjectCard(args: { input: AddProjectCardInput }): AddProjectCardPayload | undefined
     /** Adds a column to a Project. */
     addProjectColumn(args: { input: AddProjectColumnInput }): AddProjectColumnPayload | undefined
     /** Adds a review to a Pull Request. */
-    addPullRequestReview(args: { input: AddPullRequestReviewInput }): AddPullRequestReviewPayload | undefined
+    addPullRequestReview(args: {
+        input: AddPullRequestReviewInput
+    }): AddPullRequestReviewPayload | undefined
     /** Adds a comment to a review. */
-    addPullRequestReviewComment(args: { input: AddPullRequestReviewCommentInput }): AddPullRequestReviewCommentPayload | undefined
+    addPullRequestReviewComment(args: {
+        input: AddPullRequestReviewCommentInput
+    }): AddPullRequestReviewCommentPayload | undefined
     /** Adds a reaction to a subject. */
     addReaction(args: { input: AddReactionInput }): AddReactionPayload | undefined
     /** Adds a star to a Starrable. */
@@ -9594,19 +10928,27 @@ export type Mutation = GQLType & {
     /** Update your status on GitHub. */
     changeUserStatus(args: { input: ChangeUserStatusInput }): ChangeUserStatusPayload | undefined
     /** Clears all labels from a labelable object. */
-    clearLabelsFromLabelable(args: { input: ClearLabelsFromLabelableInput }): ClearLabelsFromLabelablePayload | undefined
+    clearLabelsFromLabelable(args: {
+        input: ClearLabelsFromLabelableInput
+    }): ClearLabelsFromLabelablePayload | undefined
     /** Creates a new project by cloning configuration from an existing project. */
     cloneProject(args: { input: CloneProjectInput }): CloneProjectPayload | undefined
     /** Create a new repository with the same files and directory structure as a template repository. */
-    cloneTemplateRepository(args: { input: CloneTemplateRepositoryInput }): CloneTemplateRepositoryPayload | undefined
+    cloneTemplateRepository(args: {
+        input: CloneTemplateRepositoryInput
+    }): CloneTemplateRepositoryPayload | undefined
     /** Close an issue. */
     closeIssue(args: { input: CloseIssueInput }): CloseIssuePayload | undefined
     /** Close a pull request. */
     closePullRequest(args: { input: ClosePullRequestInput }): ClosePullRequestPayload | undefined
     /** Convert a project note card to one associated with a newly created issue. */
-    convertProjectCardNoteToIssue(args: { input: ConvertProjectCardNoteToIssueInput }): ConvertProjectCardNoteToIssuePayload | undefined
+    convertProjectCardNoteToIssue(args: {
+        input: ConvertProjectCardNoteToIssueInput
+    }): ConvertProjectCardNoteToIssuePayload | undefined
     /** Create a new branch protection rule */
-    createBranchProtectionRule(args: { input: CreateBranchProtectionRuleInput }): CreateBranchProtectionRulePayload | undefined
+    createBranchProtectionRule(args: {
+        input: CreateBranchProtectionRuleInput
+    }): CreateBranchProtectionRulePayload | undefined
     /** Creates a new issue. */
     createIssue(args: { input: CreateIssueInput }): CreateIssuePayload | undefined
     /** Creates a new project. */
@@ -9618,29 +10960,45 @@ export type Mutation = GQLType & {
     /** Create a new repository. */
     createRepository(args: { input: CreateRepositoryInput }): CreateRepositoryPayload | undefined
     /** Rejects a suggested topic for the repository. */
-    declineTopicSuggestion(args: { input: DeclineTopicSuggestionInput }): DeclineTopicSuggestionPayload | undefined
+    declineTopicSuggestion(args: {
+        input: DeclineTopicSuggestionInput
+    }): DeclineTopicSuggestionPayload | undefined
     /** Delete a branch protection rule */
-    deleteBranchProtectionRule(args: { input: DeleteBranchProtectionRuleInput }): DeleteBranchProtectionRulePayload | undefined
+    deleteBranchProtectionRule(args: {
+        input: DeleteBranchProtectionRuleInput
+    }): DeleteBranchProtectionRulePayload | undefined
     /** Deletes an Issue object. */
     deleteIssue(args: { input: DeleteIssueInput }): DeleteIssuePayload | undefined
     /** Deletes an IssueComment object. */
-    deleteIssueComment(args: { input: DeleteIssueCommentInput }): DeleteIssueCommentPayload | undefined
+    deleteIssueComment(args: {
+        input: DeleteIssueCommentInput
+    }): DeleteIssueCommentPayload | undefined
     /** Deletes a project. */
     deleteProject(args: { input: DeleteProjectInput }): DeleteProjectPayload | undefined
     /** Deletes a project card. */
     deleteProjectCard(args: { input: DeleteProjectCardInput }): DeleteProjectCardPayload | undefined
     /** Deletes a project column. */
-    deleteProjectColumn(args: { input: DeleteProjectColumnInput }): DeleteProjectColumnPayload | undefined
+    deleteProjectColumn(args: {
+        input: DeleteProjectColumnInput
+    }): DeleteProjectColumnPayload | undefined
     /** Deletes a pull request review. */
-    deletePullRequestReview(args: { input: DeletePullRequestReviewInput }): DeletePullRequestReviewPayload | undefined
+    deletePullRequestReview(args: {
+        input: DeletePullRequestReviewInput
+    }): DeletePullRequestReviewPayload | undefined
     /** Deletes a pull request review comment. */
-    deletePullRequestReviewComment(args: { input: DeletePullRequestReviewCommentInput }): DeletePullRequestReviewCommentPayload | undefined
+    deletePullRequestReviewComment(args: {
+        input: DeletePullRequestReviewCommentInput
+    }): DeletePullRequestReviewCommentPayload | undefined
     /** Delete a Git Ref. */
     deleteRef(args: { input: DeleteRefInput }): DeleteRefPayload | undefined
     /** Dismisses an approved or rejected pull request review. */
-    dismissPullRequestReview(args: { input: DismissPullRequestReviewInput }): DismissPullRequestReviewPayload | undefined
+    dismissPullRequestReview(args: {
+        input: DismissPullRequestReviewInput
+    }): DismissPullRequestReviewPayload | undefined
     /** Creates a repository link for a project. */
-    linkRepositoryToProject(args: { input: LinkRepositoryToProjectInput }): LinkRepositoryToProjectPayload | undefined
+    linkRepositoryToProject(args: {
+        input: LinkRepositoryToProjectInput
+    }): LinkRepositoryToProjectPayload | undefined
     /** Lock a lockable object */
     lockLockable(args: { input: LockLockableInput }): LockLockablePayload | undefined
     /** Merge a head into a branch. */
@@ -9652,11 +11010,17 @@ export type Mutation = GQLType & {
     /** Moves a project column to another place. */
     moveProjectColumn(args: { input: MoveProjectColumnInput }): MoveProjectColumnPayload | undefined
     /** Removes assignees from an assignable object. */
-    removeAssigneesFromAssignable(args: { input: RemoveAssigneesFromAssignableInput }): RemoveAssigneesFromAssignablePayload | undefined
+    removeAssigneesFromAssignable(args: {
+        input: RemoveAssigneesFromAssignableInput
+    }): RemoveAssigneesFromAssignablePayload | undefined
     /** Removes labels from a Labelable object. */
-    removeLabelsFromLabelable(args: { input: RemoveLabelsFromLabelableInput }): RemoveLabelsFromLabelablePayload | undefined
+    removeLabelsFromLabelable(args: {
+        input: RemoveLabelsFromLabelableInput
+    }): RemoveLabelsFromLabelablePayload | undefined
     /** Removes outside collaborator from all repositories in an organization. */
-    removeOutsideCollaborator(args: { input: RemoveOutsideCollaboratorInput }): RemoveOutsideCollaboratorPayload | undefined
+    removeOutsideCollaborator(args: {
+        input: RemoveOutsideCollaboratorInput
+    }): RemoveOutsideCollaboratorPayload | undefined
     /** Removes a reaction from a subject. */
     removeReaction(args: { input: RemoveReactionInput }): RemoveReactionPayload | undefined
     /** Removes a star from a Starrable. */
@@ -9668,43 +11032,65 @@ export type Mutation = GQLType & {
     /** Set review requests on a pull request. */
     requestReviews(args: { input: RequestReviewsInput }): RequestReviewsPayload | undefined
     /** Marks a review thread as resolved. */
-    resolveReviewThread(args: { input: ResolveReviewThreadInput }): ResolveReviewThreadPayload | undefined
+    resolveReviewThread(args: {
+        input: ResolveReviewThreadInput
+    }): ResolveReviewThreadPayload | undefined
     /** Submits a pending pull request review. */
-    submitPullRequestReview(args: { input: SubmitPullRequestReviewInput }): SubmitPullRequestReviewPayload | undefined
+    submitPullRequestReview(args: {
+        input: SubmitPullRequestReviewInput
+    }): SubmitPullRequestReviewPayload | undefined
     /** Transfer an issue to a different repository */
     transferIssue(args: { input: TransferIssueInput }): TransferIssuePayload | undefined
     /** Deletes a repository link from a project. */
-    unlinkRepositoryFromProject(args: { input: UnlinkRepositoryFromProjectInput }): UnlinkRepositoryFromProjectPayload | undefined
+    unlinkRepositoryFromProject(args: {
+        input: UnlinkRepositoryFromProjectInput
+    }): UnlinkRepositoryFromProjectPayload | undefined
     /** Unlock a lockable object */
     unlockLockable(args: { input: UnlockLockableInput }): UnlockLockablePayload | undefined
     /** Unmark an issue as a duplicate of another issue. */
-    unmarkIssueAsDuplicate(args: { input: UnmarkIssueAsDuplicateInput }): UnmarkIssueAsDuplicatePayload | undefined
+    unmarkIssueAsDuplicate(args: {
+        input: UnmarkIssueAsDuplicateInput
+    }): UnmarkIssueAsDuplicatePayload | undefined
     /** Marks a review thread as unresolved. */
-    unresolveReviewThread(args: { input: UnresolveReviewThreadInput }): UnresolveReviewThreadPayload | undefined
+    unresolveReviewThread(args: {
+        input: UnresolveReviewThreadInput
+    }): UnresolveReviewThreadPayload | undefined
     /** Create a new branch protection rule */
-    updateBranchProtectionRule(args: { input: UpdateBranchProtectionRuleInput }): UpdateBranchProtectionRulePayload | undefined
+    updateBranchProtectionRule(args: {
+        input: UpdateBranchProtectionRuleInput
+    }): UpdateBranchProtectionRulePayload | undefined
     /** Updates an Issue. */
     updateIssue(args: { input: UpdateIssueInput }): UpdateIssuePayload | undefined
     /** Updates an IssueComment object. */
-    updateIssueComment(args: { input: UpdateIssueCommentInput }): UpdateIssueCommentPayload | undefined
+    updateIssueComment(args: {
+        input: UpdateIssueCommentInput
+    }): UpdateIssueCommentPayload | undefined
     /** Updates an existing project. */
     updateProject(args: { input: UpdateProjectInput }): UpdateProjectPayload | undefined
     /** Updates an existing project card. */
     updateProjectCard(args: { input: UpdateProjectCardInput }): UpdateProjectCardPayload | undefined
     /** Updates an existing project column. */
-    updateProjectColumn(args: { input: UpdateProjectColumnInput }): UpdateProjectColumnPayload | undefined
+    updateProjectColumn(args: {
+        input: UpdateProjectColumnInput
+    }): UpdateProjectColumnPayload | undefined
     /** Update a pull request */
     updatePullRequest(args: { input: UpdatePullRequestInput }): UpdatePullRequestPayload | undefined
     /** Updates the body of a pull request review. */
-    updatePullRequestReview(args: { input: UpdatePullRequestReviewInput }): UpdatePullRequestReviewPayload | undefined
+    updatePullRequestReview(args: {
+        input: UpdatePullRequestReviewInput
+    }): UpdatePullRequestReviewPayload | undefined
     /** Updates a pull request review comment. */
-    updatePullRequestReviewComment(args: { input: UpdatePullRequestReviewCommentInput }): UpdatePullRequestReviewCommentPayload | undefined
+    updatePullRequestReviewComment(args: {
+        input: UpdatePullRequestReviewCommentInput
+    }): UpdatePullRequestReviewCommentPayload | undefined
     /** Update a Git Ref. */
     updateRef(args: { input: UpdateRefInput }): UpdateRefPayload | undefined
     /** Update information about a repository. */
     updateRepository(args: { input: UpdateRepositoryInput }): UpdateRepositoryPayload | undefined
     /** Updates the state for subscribable subjects. */
-    updateSubscription(args: { input: UpdateSubscriptionInput }): UpdateSubscriptionPayload | undefined
+    updateSubscription(args: {
+        input: UpdateSubscriptionInput
+    }): UpdateSubscriptionPayload | undefined
     /** Replaces the repository's topics with the given topics. */
     updateTopics(args: { input: UpdateTopicsInput }): UpdateTopicsPayload | undefined
 }
@@ -9800,7 +11186,7 @@ export type MinimizeCommentInput = {
 }
 
 /** The reasons a piece of content can be reported or minimized. */
-export type ReportedContentClassifiers = "SPAM" | "ABUSE" | "OFF_TOPIC" | "OUTDATED" | "RESOLVED"
+export type ReportedContentClassifiers = 'SPAM' | 'ABUSE' | 'OFF_TOPIC' | 'OUTDATED' | 'RESOLVED'
 
 /** Autogenerated input type of UnminimizeComment */
 export type UnminimizeCommentInput = {
@@ -9853,7 +11239,11 @@ export type CreateProjectInput = {
 }
 
 /** GitHub-provided templates for Projects */
-export type ProjectTemplate = "BASIC_KANBAN" | "AUTOMATED_KANBAN_V2" | "AUTOMATED_REVIEWS_KANBAN" | "BUG_TRIAGE"
+export type ProjectTemplate =
+    | 'BASIC_KANBAN'
+    | 'AUTOMATED_KANBAN_V2'
+    | 'AUTOMATED_REVIEWS_KANBAN'
+    | 'BUG_TRIAGE'
 
 /** Autogenerated return type of UpdateProject */
 export type UpdateProjectPayload = GQLType & {
@@ -10621,7 +12011,7 @@ export type AddPullRequestReviewInput = {
 }
 
 /** The possible events to perform on a pull request review. */
-export type PullRequestReviewEvent = "COMMENT" | "APPROVE" | "REQUEST_CHANGES" | "DISMISS"
+export type PullRequestReviewEvent = 'COMMENT' | 'APPROVE' | 'REQUEST_CHANGES' | 'DISMISS'
 
 /** Specifies a review comment to be left with a Pull Request Review. */
 export type DraftPullRequestReviewComment = {
@@ -11044,7 +12434,7 @@ export type RequestReviewsInput = {
 }
 
 /** The possible states of a registry package file. */
-export type RegistryPackageFileState = "NEW" | "UPLOADED"
+export type RegistryPackageFileState = 'NEW' | 'UPLOADED'
 
 /** Autogenerated return type of CloneTemplateRepository */
 export type CloneTemplateRepositoryPayload = GQLType & {
@@ -11279,7 +12669,11 @@ export type DeclineTopicSuggestionInput = {
 }
 
 /** Reason that the suggested topic is declined. */
-export type TopicSuggestionDeclineReason = "NOT_RELEVANT" | "TOO_SPECIFIC" | "PERSONAL_PREFERENCE" | "TOO_GENERAL"
+export type TopicSuggestionDeclineReason =
+    | 'NOT_RELEVANT'
+    | 'TOO_SPECIFIC'
+    | 'PERSONAL_PREFERENCE'
+    | 'TOO_GENERAL'
 
 /** Autogenerated return type of UpdateTopics */
 export type UpdateTopicsPayload = GQLType & {
@@ -11539,4 +12933,3 @@ export type UnknownSignature = GQLType & {
     /** True if the signature was made with GitHub's signing key. */
     wasSignedByGitHub: boolean
 }
-

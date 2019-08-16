@@ -3,13 +3,21 @@ import * as parser from 'graphql/language/parser'
 import _dryRender, { elementFromFiber } from './dryrender/dryrender'
 import makeFixedArray from './util/fixarray'
 import { hashArguments, shallowCompare, nextFrame } from './util/util'
-import accessLogToGraphQL, { AccessLog, SUCCINCT_INTROSPECTION_QUERY, GQLSchema, GQLTypeRef, GQLType, AutographSentinels, GQLQuery } from './graphql'
+import accessLogToGraphQL, {
+    AccessLog,
+    SUCCINCT_INTROSPECTION_QUERY,
+    GQLSchema,
+    GQLTypeRef,
+    GQLType,
+    AutographSentinels,
+    GQLQuery,
+} from './graphql'
 import convertGQLSchemaToTypescript from './typescript'
 import * as eager from './util/eager'
-import { createAccessor } from './accessor';
+import { createAccessor } from './accessor'
 
 const AutographContext = React.createContext(null)
-let lastHandleValue: any;
+let lastHandleValue: any
 let lastHandlePointer: AccessLog | null
 
 type BasicClientConfig = {
@@ -33,9 +41,8 @@ export class AutographBasicClient {
     fetchSchema(): Promise<GQLSchema> {
         return this.fetchQuery({
             query: SUCCINCT_INTROSPECTION_QUERY,
-            variables: {}
-        })
-            .then((data) => data.__schema)
+            variables: {},
+        }).then((data) => data.__schema)
     }
 
     fetchQuery(query: GQLQuery): Promise<any> {
@@ -63,9 +70,8 @@ class AutographApolloClient {
     fetchSchema(): Promise<GQLSchema> {
         return this.fetchQuery({
             query: SUCCINCT_INTROSPECTION_QUERY,
-            variables: {}
-        })
-            .then((data) => data.__schema)
+            variables: {},
+        }).then((data) => data.__schema)
     }
 
     fetchQuery(query: GQLQuery): Promise<any> {
@@ -80,7 +86,6 @@ class AutographApolloClient {
             })
     }
 }
-
 
 type AutographConfig = {
     client: string | any
@@ -280,7 +285,7 @@ class AutographQuery {
                 isDry: true,
                 handleOptions,
                 version: this.version,
-                typeRef: queryRoot
+                typeRef: queryRoot,
             })
         } else {
             if (!this.client.schemaData && !this.client.schemaPromise && !this.client.schemaError) {
@@ -323,7 +328,7 @@ class AutographQuery {
                 isDry: false,
                 handleOptions,
                 version: this.version,
-                typeRef: queryRoot, 
+                typeRef: queryRoot,
             })
         }
     }
@@ -332,118 +337,127 @@ class AutographQuery {
         // this allows directives to work
         // let obj: any = this.__createAccessor(data, type, state, path)
 
-        let obj: any = createAccessor({
-            accessLog: info.isDry ? this.deps : {},
-            data: this.data,
-            typeRef: info.typeRef,
-            path: [],
-        }, {
-            schema: this.client.schemaData,
-            isDry: info.isDry,
-            returnValueHook: (value, state, config) => {
-                if (config.isDry) {
-                    lastHandleValue = value
-                    lastHandlePointer = state.accessLog
-                }
+        let obj: any = createAccessor(
+            {
+                accessLog: info.isDry ? this.deps : {},
+                data: this.data,
+                typeRef: info.typeRef,
+                path: [],
             },
-            accessHook: (state, config) => {
-                if(config.isDry){
-                    ensureDuringRender()
-                }
-                
-                let isQueryRoot = state.typeRef.kind === '__NOSCHEMA' || config.schema.queryType.name === state.typeRef.name;
+            {
+                schema: this.client.schemaData,
+                isDry: info.isDry,
+                returnValueHook: (value, state, config) => {
+                    if (config.isDry) {
+                        lastHandleValue = value
+                        lastHandlePointer = state.accessLog
+                    }
+                },
+                accessHook: (state, config) => {
+                    if (config.isDry) {
+                        ensureDuringRender()
+                    }
 
-                // if(state.typeRef)
-                // if (handleOptions.cacheOnly) return null
+                    let isQueryRoot =
+                        state.typeRef.kind === '__NOSCHEMA' ||
+                        config.schema.queryType.name === state.typeRef.name
 
-                if(state.data === undefined && !isQueryRoot && !config.isDry){
-                    if (!this.dataPromise) {
-                        this.root.dryRender()
+                    // if(state.typeRef)
+                    // if (handleOptions.cacheOnly) return null
+
+                    if (state.data === undefined && !isQueryRoot && !config.isDry) {
                         if (!this.dataPromise) {
-                            throw new Error('Some sort of rendering or query generation problem!')
+                            this.root.dryRender()
+                            if (!this.dataPromise) {
+                                throw new Error(
+                                    'Some sort of rendering or query generation problem!'
+                                )
+                            }
+                        }
+
+                        // if we go from not-loading to loading then we abort the current render
+                        // and then try again immediately (with the appropriate query loading state
+                        // configured). otherwise we suspend for the duration of the data fetching
+                        // process because that means we're trying to use suspense. this allows us
+                        // to use both the classic `query._loading` style guards as well as the
+                        // loading guards and falling back to suspense
+
+                        this.root.lastFetchError = new Error(
+                            `No loading boundary found while fetching query.${state.path.join(
+                                '.'
+                            )}. This may cause the entire application to unmount while the data is loading. To fix this consider adding one of the following: \n\n` +
+                                `\n` +
+                                `Add a loading guard to a component before you access data: 
+                    if(query._loading) return <div>Loading...</div>\n\n` +
+                                `Add an inline Loading placeholder around a certain subtree: 
+                    <Loading fallback={<div>Loading...</div>}>{() => }</Loading>\n\n` +
+                                `Wrap your component in a suspense boundary: 
+                    <React.Suspense fallback={<div>Loading...</div>}></React.Suspense>\n`
+                        )
+
+                        if (this.version !== info.version) {
+                            throw nextFrame()
+                        } else {
+                            throw this.dataPromise
                         }
                     }
+                },
 
-                    // if we go from not-loading to loading then we abort the current render
-                    // and then try again immediately (with the appropriate query loading state
-                    // configured). otherwise we suspend for the duration of the data fetching
-                    // process because that means we're trying to use suspense. this allows us
-                    // to use both the classic `query._loading` style guards as well as the
-                    // loading guards and falling back to suspense
+                accessHandleHook: (handle, state, config) => {
+                    let { isDry } = config
+                    let isQueryRoot = config.schema.queryType.name === state.typeRef.name
 
-                    this.root.lastFetchError = new Error(
-                        `No loading boundary found while fetching query.${state.path.join(
-                            '.'
-                        )}. This may cause the entire application to unmount while the data is loading. To fix this consider adding one of the following: \n\n` +
-                            `\n` +
-                            `Add a loading guard to a component before you access data: 
-                    if(query._loading) return <div>Loading...</div>\n\n` +
-                            `Add an inline Loading placeholder around a certain subtree: 
-                    <Loading fallback={<div>Loading...</div>}>{() => }</Loading>\n\n` +
-                            `Wrap your component in a suspense boundary: 
-                    <React.Suspense fallback={<div>Loading...</div>}></React.Suspense>\n`
-                    )
-
-                    if (this.version !== info.version) {
-                        throw nextFrame()
-                    } else {
-                        throw this.dataPromise
-                    }
-                }
-            },
-            
-            accessHandleHook: (handle, state, config) => {
-                let { isDry } = config;
-                let isQueryRoot = config.schema.queryType.name === state.typeRef.name;
-
-                if(isQueryRoot){
-                    // allow functions to distinguish between the dry run and the real execution
-                    // for instance to specifically gate side effects
-                    Object.defineProperty(handle, '_dry', {
-                        enumerable: false,
-                        value: isDry,
-                    })
-
-                    Object.defineProperty(handle, '_loading', {
-                        enumerable: false,
-                        value: isDry
-                            ? // if we are in a dry run and we haven't loaded our schema,
-                            // we set loading to true so we don't hit some sort of
-                            // error because we don't know which fields to create
-                            !!this.client.schemaPromise
-                            : // we are either loading the schema or the data for this query
-                            !!(this.client.schemaPromise || this.dataPromise),
-                    })
-
-                    // we may have to deal with either schema or data errors
-
-                    if (isDry) {
-                        Object.defineProperty(handle, '_error', {
+                    if (isQueryRoot) {
+                        // allow functions to distinguish between the dry run and the real execution
+                        // for instance to specifically gate side effects
+                        Object.defineProperty(handle, '_dry', {
                             enumerable: false,
-                            get() {
-                                state.accessLog[JSON.stringify({ type: 'FEAT', name: '_error' })] = true
-                                return null
-                            },
+                            value: isDry,
                         })
-                    } else {
-                        Object.defineProperty(handle, '_error', {
+
+                        Object.defineProperty(handle, '_loading', {
                             enumerable: false,
-                            value: this.client.schemaError || this.dataError,
+                            value: isDry
+                                ? // if we are in a dry run and we haven't loaded our schema,
+                                  // we set loading to true so we don't hit some sort of
+                                  // error because we don't know which fields to create
+                                  !!this.client.schemaPromise
+                                : // we are either loading the schema or the data for this query
+                                  !!(this.client.schemaPromise || this.dataPromise),
+                        })
+
+                        // we may have to deal with either schema or data errors
+
+                        if (isDry) {
+                            Object.defineProperty(handle, '_error', {
+                                enumerable: false,
+                                get() {
+                                    state.accessLog[
+                                        JSON.stringify({ type: 'FEAT', name: '_error' })
+                                    ] = true
+                                    return null
+                                },
+                            })
+                        } else {
+                            Object.defineProperty(handle, '_error', {
+                                enumerable: false,
+                                value: this.client.schemaError || this.dataError,
+                            })
+                        }
+
+                        Object.defineProperty(handle, '_data', {
+                            enumerable: false,
+                            value: this.data,
                         })
                     }
 
-                    Object.defineProperty(handle, '_data', {
-                        enumerable: false,
-                        value: this.data,
-                    })
-                }
-
-                if(state.data === null && !isQueryRoot){
-                    return null
-                }
-                return Object.freeze(handle)
+                    if (state.data === null && !isQueryRoot) {
+                        return null
+                    }
+                    return Object.freeze(handle)
+                },
             }
-        })
+        )
         return obj
     }
 }
@@ -567,8 +581,6 @@ export function createRoot(config: AutographConfig): any {
     return AutographRootComponent
 }
 
-
-
 // Hook
 export function useQuery(config = 'default', handleOptions: any = {}) {
     let root: AutographModel = React.useContext(AutographContext) as any
@@ -588,11 +600,9 @@ export function useQuery(config = 'default', handleOptions: any = {}) {
             update()
         }
         return () => query.unsubscribe(update)
-    }, [ originalVersion, query ])
+    }, [originalVersion, query])
     return query.createHandle(handleOptions)
 }
-
-
 
 // Render Prop
 export class Query extends React.Component<
@@ -611,7 +621,7 @@ export class Query extends React.Component<
         config: 'default',
     }
     static contextType = AutographContext
-    
+
     constructor(props: any) {
         super(props)
         this.state = { version: 0 }

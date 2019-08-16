@@ -913,4 +913,3 @@ test('Exception for unhandled type', () => {
         })
     ).toThrowErrorMatchingInlineSnapshot(`"Unable to handle type \\"Wumbo\\" named \\"Derp\\""`)
 })
-

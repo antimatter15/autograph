@@ -21,12 +21,14 @@ const AutographRoot = createRoot({
     }),
 })
 
-
 function App() {
-    if(!localStorage.REACT_APP_GITHUB_PERSONAL_ACCESS_TOKEN){
-        return <div>
-            Please configure <pre>localStorage.REACT_APP_GITHUB_PERSONAL_ACCESS_TOKEN</pre> and then refresh the page.
-        </div>
+    if (!localStorage.REACT_APP_GITHUB_PERSONAL_ACCESS_TOKEN) {
+        return (
+            <div>
+                Please configure <pre>localStorage.REACT_APP_GITHUB_PERSONAL_ACCESS_TOKEN</pre> and
+                then refresh the page.
+            </div>
+        )
     }
     let query: GQL.Query = useQuery()
     if (query._loading) return <div>Loading...</div>
@@ -34,26 +36,37 @@ function App() {
     let repositories = query.viewer.repositories({ first: 5, after: null })
     return (
         <div>
-            {repositories.nodes.map((repo, i) => <RepoCard repo={repo} key={repo.id} defaultShow={i < 2} />)}
+            {repositories.nodes.map((repo, i) => (
+                <RepoCard repo={repo} key={repo.id} defaultShow={i < 2} />
+            ))}
         </div>
     )
 }
 
-
-function RepoCard({ repo, defaultShow }: { defaultShow: boolean, repo: GQL.Repository }){
-    let [ expanded, setExpanded ] = React.useState(defaultShow)
+function RepoCard({ repo, defaultShow }: { defaultShow: boolean; repo: GQL.Repository }) {
+    let [expanded, setExpanded] = React.useState(defaultShow)
     let query: GQL.Query = useQuery()
-    
-    return <div>
-        {repo.name}
-        <button onClick={e => setExpanded(k => !k)}>Toggle</button>
-        {expanded &&  <LoadingBoundary>{() => <div>
-            {query.repository({
-                owner: query.viewer.login,
-                name: repo.name
-            }).description}
-        </div>}</LoadingBoundary>}
-    </div>
+
+    return (
+        <div>
+            {repo.name}
+            <button onClick={(e) => setExpanded((k) => !k)}>Toggle</button>
+            {expanded && (
+                <LoadingBoundary>
+                    {() => (
+                        <div>
+                            {
+                                query.repository({
+                                    owner: query.viewer.login,
+                                    name: repo.name,
+                                }).description
+                            }
+                        </div>
+                    )}
+                </LoadingBoundary>
+            )}
+        </div>
+    )
 }
 
 let Blah = React.createContext(null)

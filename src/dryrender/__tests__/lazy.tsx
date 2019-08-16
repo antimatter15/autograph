@@ -38,11 +38,10 @@ test('React.lazy (test renderer)', async () => {
         callRender()
         return <div>loaded!</div>
     }
-    const LazyDummy = React.lazy(
-        () =>
-            Promise.resolve({
-                default: Dummy
-            })
+    const LazyDummy = React.lazy(() =>
+        Promise.resolve({
+            default: Dummy,
+        })
     )
     const node = (
         <React.Suspense fallback={<div>loading...</div>}>
@@ -50,11 +49,11 @@ test('React.lazy (test renderer)', async () => {
         </React.Suspense>
     )
 
-    let component: any;
+    let component: any
     await act(async () => {
-        component = renderer.create(node)    
+        component = renderer.create(node)
     })
-    
+
     let root = findFiberRoot((component!.root as any)._fiber)
     expect(callRender.mock.calls.length).toBe(0)
     dryRender(elementFromFiber(root.child), root.child)
@@ -91,9 +90,9 @@ test('React.lazy (test renderer / stateful)', async () => {
         </React.Suspense>
     )
 
-    let component: any;
+    let component: any
     await act(async () => {
-        component = renderer.create(node)    
+        component = renderer.create(node)
     })
     let root = findFiberRoot((component!.root as any)._fiber)
 

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import renderer, { act } from 'react-test-renderer'
 import dryRender, { findFiberRoot, elementFromFiber } from '../dryrender'
 import PropTypes from 'prop-types'
-import { promised } from 'q';
+import { promised } from 'q'
 
 test('Stateful Class Component (normal setState)', async () => {
     let callRender = jest.fn()
@@ -409,7 +409,7 @@ test('suspense rehydrate', () => {
 //             lastMessage = 'derp'
 //             throw Promise.resolve(true)
 //         }
-        
+
 //         return <button>broke</button>
 //     }
 // ​
@@ -425,7 +425,7 @@ test('suspense rehydrate', () => {
 //  ​   act(() => {
 //         component = renderer.create(node)
 //     })
-    
+
 //     let root = findFiberRoot((component.root as any)._fiber)
 // ​
 //     // expect(lastMessage).toBe('wumbo')
@@ -497,8 +497,6 @@ test('misc rehydrate', () => {
     expect(lastMessage).toBe('derp')
 })
 
-
-
 test('fragment rehydrate complex', () => {
     let lastMessage
 
@@ -508,13 +506,13 @@ test('fragment rehydrate complex', () => {
         return <button onClick={(e) => setState('derp')}>{state}</button>
     }
 
-    function OtherDemo(){
-        return <React.Fragment>
-        {[
-            <div key="0">my div thing</div>
-        ]}
-        <StatefulDemo key="xyz" />
-        </React.Fragment>
+    function OtherDemo() {
+        return (
+            <React.Fragment>
+                {[<div key="0">my div thing</div>]}
+                <StatefulDemo key="xyz" />
+            </React.Fragment>
+        )
     }
 
     const node = <OtherDemo />

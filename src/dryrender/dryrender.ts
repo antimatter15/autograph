@@ -88,7 +88,6 @@ export default function dryRender(node: React.ReactNode, fiber: ReactFiber | nul
             return
         }
     }
-    
 
     if (fiber && !(fiber.type === (node as JSX.Element).type)) {
         console.log('Fiber-node type mismatch', fiber.tag, fiber.type, (node as JSX.Element).type)
@@ -173,12 +172,15 @@ export default function dryRender(node: React.ReactNode, fiber: ReactFiber | nul
         let context = (node as JSX.Element).type._context
         dryRender(node.props.children(context._currentValue), fiber && fiber.child)
     } else if (ReactIs.isSuspense(node)) {
-        let fiberChild = fiber && fiber.child;
+        let fiberChild = fiber && fiber.child
         // It appears that sometimes Suspense fallbacks and children are embedded inside a fragment
         // of the suspense element. This is a total hack and we don't have a good unit test which demonstrates
         // this issue.
-        dryRender(node.props.children, (fiberChild && fiberChild.tag === 7 && fiberChild.child) ? fiberChild.child : fiberChild)
-        // dryRender(node.props.children, fiberChild)        
+        dryRender(
+            node.props.children,
+            fiberChild && fiberChild.tag === 7 && fiberChild.child ? fiberChild.child : fiberChild
+        )
+        // dryRender(node.props.children, fiberChild)
     } else if (ReactIs.isStrictMode(node) || ReactIs.isProfiler(node)) {
         dryRender(node.props.children, fiber && fiber.child)
     } else if (ReactIs.isForwardRef(node)) {
@@ -312,7 +314,7 @@ function mapSiblingFibers(fiber: ReactFiber | null) {
     let childFibers = new Map()
     let ptr = fiber
     if (fiber && fiber.tag === 7 /* FRAGMENT */) {
-        let fptr = fiber.child;
+        let fptr = fiber.child
         while (fptr) {
             childFibers.set(fptr.key !== null ? fptr.key : fptr.index, fptr)
             fptr = fptr.sibling
