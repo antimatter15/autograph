@@ -22,8 +22,12 @@ const AutographRoot = createRoot({
 })
 
 function App() {
+    if(!localStorage.REACT_APP_GITHUB_PERSONAL_ACCESS_TOKEN){
+        return <div>
+            Please configure <pre>localStorage.REACT_APP_GITHUB_PERSONAL_ACCESS_TOKEN</pre> and then refresh the page.
+        </div>
+    }
     let query: GQL.Query = useQuery()
-
     if (query._loading) return <div>Loading...</div>
 
     let repositories = query.viewer.repositories({ first: 5, after: null })
