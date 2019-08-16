@@ -60,6 +60,7 @@ export class AutographBasicClient {
     }
 }
 
+
 class AutographApolloClient {
     client: any
 
@@ -250,7 +251,8 @@ class AutographQuery {
             .fetchQuery(gql)
             .then((data: any) => {
                 console.groupCollapsed('GraphQL Query')
-                console.log(gql)
+                console.log(gql.query)
+                console.log(gql.variables)
                 console.log(data)
                 console.groupEnd()
                 this.data = data
@@ -259,7 +261,8 @@ class AutographQuery {
             })
             .catch((err: any) => {
                 console.groupCollapsed('GraphQL Query [ERROR]')
-                console.log(gql)
+                console.log(gql.query)
+                console.log(gql.variables)
                 console.log(err)
                 console.groupEnd()
                 this.dataError = err
@@ -515,8 +518,8 @@ export function Get(fn: () => any, defaultValue: any = undefined): any {
 // <Loading>{() => }</Loading>
 // Functionally it's a micro-suspense boundary
 export function LoadingBoundary(props: {
-    children: () => JSX.Element
-    fallback?: JSX.Element
+    children: () => React.ReactNode
+    fallback?: React.ReactNode
 }): JSX.Element {
     return Get(props.children, props.fallback || <div>Loading...</div>)
 }
@@ -608,7 +611,7 @@ export function useQuery(config = 'default', handleOptions: any = {}) {
 export class Query extends React.Component<
     {
         config?: any
-        children: (e: any) => JSX.Element
+        children: (e: any) => React.ReactNode
         handleOptions?: any
     },
     {
