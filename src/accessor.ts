@@ -149,20 +149,20 @@ function createAccessorCore(state: AccessorState, config: AccessorConfig): any {
             }
         }
 
-        let validInlineFragments: Array<GQLTypeRef> = [];
-        if(typeRef.kind === 'INTERFACE'){
-            // if type.kind === 'INTERFACE' then we need to add potential
-            // inline fragments for each of the types which implement this
-            // interface
+        let validInlineFragments: Array<GQLTypeRef> = type.possibleTypes || [];
+        // if(typeRef.kind === 'INTERFACE'){
+        //     // if type.kind === 'INTERFACE' then we need to add potential
+        //     // inline fragments for each of the types which implement this
+        //     // interface
             
-            validInlineFragments = schema.types.filter(k => 
-                k.kind === 'OBJECT' &&
-                k.interfaces!.some(k => k.name === typeRef.name))
-        }else if(typeRef.kind === 'UNION'){
-            // if type.kind === 'UNION' we need to add potential
-            // inline fragments for each of the possibleTypes
-            validInlineFragments = type.possibleTypes!;
-        }
+        //     validInlineFragments = schema.types.filter(k => 
+        //         k.kind === 'OBJECT' &&
+        //         k.interfaces!.some(k => k.name === typeRef.name))
+        // }else if(typeRef.kind === 'UNION'){
+        //     // if type.kind === 'UNION' we need to add potential
+        //     // inline fragments for each of the possibleTypes
+        //     validInlineFragments = type.possibleTypes!;
+        // }
 
         for(let subref of validInlineFragments){
             Object.defineProperty(handle, 'as' + subref.name, {

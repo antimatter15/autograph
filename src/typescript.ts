@@ -90,12 +90,14 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
                 ts += INDENT + '_dry?: boolean,\n'
             }
             ts += '}\n\n'
-        } else if (type.kind === 'INTERFACE') {
+        } else if (type.kind === 'INTERFACE' || type.kind === 'UNION') {
             if (type.description) ts += '/** ' + type.description + ' */\n'
 
-            ts += 'export interface ' + type.name + ' extends GQLType {\n'
+            ts += 'export type ' + type.name + ' = GQLType & {\n'
 
-            for (let field of type.fields!) {
+            // this code is only relevant for type.kind === INTERFACE
+            // for unions, this section of the interface definition is always blank
+            for (let field of type.fields || []) {
                 if (field.description) ts += INDENT + '/** ' + field.description + ' */\n'
                 if (field.deprecationReason)
                     ts += INDENT + '/** @deprecated ' + field.deprecationReason + ' */\n'
@@ -110,9 +112,7 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
             // This way, for instance if we have Droid, Human implementing Character
             // and a query hero() which returns type Character, we can then call
             // hero.asDroid.primaryFunction and compile that into an inline fragment
-            for (let obj of schema.types) {
-                if (obj.kind !== 'OBJECT') continue
-                if (!obj.interfaces!.some((interf) => interf.name === type.name)) continue
+            for (let obj of type.possibleTypes || []) {
                 ts +=
                     INDENT +
                     '/** Use `as' +
@@ -120,6 +120,7 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
                     '` to access fields on the underlying concrete type. */\n'
                 ts += INDENT + 'as' + obj.name + ': ' + obj.name + '\n'
             }
+
             ts += '}\n\n'
         } else if (type.kind === 'SCALAR') {
             if (type.name === 'String' || type.name === 'Boolean') continue
@@ -129,14 +130,6 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
             } else {
                 ts += 'export type ' + type.name + ' = any\n\n'
             }
-        } else if (type.kind === 'UNION') {
-            if (type.description) ts += '/** ' + type.description + ' */\n'
-            ts +=
-                'export type ' +
-                type.name +
-                ' = ' +
-                type.possibleTypes!.map((type) => GQLType2TS(type)).join(' | ') +
-                '\n\n'
         } else if (type.kind === 'ENUM') {
             if (type.description) ts += '/** ' + type.description + ' */\n'
             // TODO: determine whether this is the right way to think about enums

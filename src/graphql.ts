@@ -190,9 +190,6 @@ export const SUCCINCT_INTROSPECTION_QUERY = gql`
         inputFields {
             ...InputValue
         }
-        interfaces {
-            ...TypeRef
-        }
         enumValues(includeDeprecated: true) {
             name
             description
