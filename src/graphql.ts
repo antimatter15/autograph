@@ -7,17 +7,24 @@ export const AutographSentinels = {
 
 // TODO: instead of encoding the value inline, store it to be sent as a variable.
 const encodeValue = (obj: any): string => {
-    if(typeof obj === 'object'){
+    if(typeof obj === 'object' && obj){
         return Array.isArray(obj)
             ? '[' + obj.map(encodeValue).join(', ') + ']'
             : '{' + encodeKV(obj) + '}'
     }
-    if(Object.values(AutographSentinels).includes(obj)){
-        throw new Error('Found Autograph sentinel value.')
-    }
     return JSON.stringify(obj)
 }
-    
+
+const containsSentinel = (obj: any): boolean => {
+    if(typeof obj === 'object' && obj){
+        return Array.isArray(obj)
+            ? obj.some(k => containsSentinel(k))
+            : Object.entries(obj).some(([key, val]) => 
+                containsSentinel(key) ||
+                containsSentinel(val))
+    }
+    return Object.values(AutographSentinels).includes(obj)
+}
 
 const encodeKV = (obj: {[key: string]: any}): string =>
     Object.keys(obj)
@@ -48,7 +55,7 @@ const convertRecursive = (log: AccessLog, prefix = '') => {
         if (key === '__directive') continue
         let info = JSON.parse(key)
         if (info.type === 'METHOD') {
-            try {
+            if(!containsSentinel(info.args)){
                 gql +=
                     indent(
                         prefix +
@@ -59,8 +66,6 @@ const convertRecursive = (log: AccessLog, prefix = '') => {
                             ' ' +
                             convertRecursive(log[key] as AccessLog)
                     ) + '\n'
-            } catch (err) {
-                // autograph sentinel value found, skip subtree
             }
         } else if (info.type === 'PROP') {
             gql +=
@@ -92,7 +97,9 @@ const convertRecursive = (log: AccessLog, prefix = '') => {
 }
 
 export default function accessLogToGraphQL(log: AccessLog): string {
-    return convertRecursive(log, '')
+    let gql =  convertRecursive(log, '')
+    console.log(gql)
+    return gql
 }
 
 // this line is for syntax highlighting and prettier formatting
