@@ -496,3 +496,38 @@ test('misc rehydrate', () => {
     dryRender(elementFromFiber(root.child), root.child)
     expect(lastMessage).toBe('derp')
 })
+
+
+
+test('fragment rehydrate complex', () => {
+    let lastMessage
+
+    function StatefulDemo() {
+        let [state, setState] = React.useState('wumbo')
+        lastMessage = state
+        return <button onClick={(e) => setState('derp')}>{state}</button>
+    }
+
+    function OtherDemo(){
+        return <React.Fragment>
+        {[
+            <div key="0">my div thing</div>
+        ]}
+        <StatefulDemo key="xyz" />
+        </React.Fragment>
+    }
+
+    const node = <OtherDemo />
+
+    const component = renderer.create(node)
+    let root = findFiberRoot((component.root as any)._fiber)
+
+    expect(lastMessage).toBe('wumbo')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('wumbo')
+    act(() => component.root.findByType('button').props.onClick())
+
+    expect(lastMessage).toBe('derp')
+    dryRender(elementFromFiber(root.child), root.child)
+    expect(lastMessage).toBe('derp')
+})
