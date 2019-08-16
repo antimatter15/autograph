@@ -1,4 +1,4 @@
-import { AccessLog, GQLSchema, GQLTypeRef, AutographSentinels } from "./graphql";
+import { AccessLog, GQLSchema, GQLTypeRef, AutographSentinels, AccessorComponent } from "./graphql";
 import makeFixedArray from "./util/fixarray";
 import { hashArguments } from "./util/util";
 
@@ -40,6 +40,22 @@ function createAccessorCore(state: AccessorState, config: AccessorConfig): any {
     
     if(config.accessHook){
         config.accessHook(state, config)
+    }
+
+    const subpath = (args: {
+        component: AccessorComponent,
+        typeRef: AccessorState['typeRef'],
+        data: AccessorState['data'],
+        path: AccessorState['path'],
+    }) => {
+        let k = JSON.stringify(args.component)
+        let subLog = (accessLog[k] = (accessLog[k] as AccessLog || {}))
+        return createAccessor({
+            accessLog: subLog,
+            typeRef: args.typeRef,
+            data: args.data,
+            path: args.path
+        }, config)
     }
 
     if(typeRef.kind === 'NON_NULL'){
@@ -98,18 +114,16 @@ function createAccessorCore(state: AccessorState, config: AccessorConfig): any {
             for(let field of type.fields!){
                 if(field.args.length === 0){
                     const getProp = () => {
-                        let k = JSON.stringify({
-                            type: 'PROP',
-                            name: field.name,
-                        })
-                        let subLog = (accessLog[k] = (accessLog[k] as AccessLog || {}))
                         let key = field.name;
-                        return createAccessor({
-                            accessLog: subLog,
+                        return subpath({
+                            component: {    
+                                type: 'PROP',
+                                name: field.name,
+                            },
                             typeRef: field.type,
                             data: (typeof data === 'object' && data && key in data) ? data[key] : undefined,
                             path: [...path, field.name]
-                        }, config)
+                        })
                     }
 
                     // if this is a field which has no arguments
@@ -128,20 +142,18 @@ function createAccessorCore(state: AccessorState, config: AccessorConfig): any {
 
                     const getMethod = (args: { [key: string]: any } = {}) => {
                         let key = field.name + '___' + hashArguments(args);
-
-                        let k = JSON.stringify({
-                            type: 'METHOD',
-                            name: field.name,
-                            args: args || {},
-                            key: key
-                        })
-                        let subLog = (accessLog[k] = (accessLog[k] as AccessLog || {}))
-                        return createAccessor({
-                            accessLog: subLog,
+                        return subpath({
+                            component: {
+                                type: 'METHOD',
+                                object: typeRef.name!,
+                                name: field.name,
+                                args: args || {},
+                                key: key
+                            },
                             typeRef: field.type,
                             data: (typeof data === 'object' && data && key in data) ? data[key] : undefined,
                             path: [...path, field.name + '(' + JSON.stringify(args) + ')']
-                        }, config)
+                        })
                     }
 
                     handle[field.name] = withPrettyArgs(getMethod, field.args.map((k) => k.name))
@@ -177,18 +189,15 @@ function createAccessorCore(state: AccessorState, config: AccessorConfig): any {
                             }
                         }
                     }
-                    
-                    let k = JSON.stringify({
-                        type: 'AS',
-                        name: subref.name,
-                    })
-                    let subLog = (accessLog[k] = (accessLog[k] as AccessLog || {}))
-                    return createAccessor({
-                        accessLog: subLog,
+                    return subpath({
+                        component: {
+                            type: 'AS',
+                            name: subref.name!,
+                        },
                         typeRef: subref,
                         data: subData,
                         path: [...path, subref.name!]
-                    }, config)
+                    })
                 }
             })
         }
@@ -201,7 +210,7 @@ function createAccessorCore(state: AccessorState, config: AccessorConfig): any {
                 accessLog[JSON.stringify({
                     type: 'PROP',
                     name: '__typename',
-                })] = {
+                } as AccessorComponent)] = {
                     __get: true
                 }
                 if(data && data.__typename){

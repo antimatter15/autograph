@@ -3,7 +3,7 @@ import * as parser from 'graphql/language/parser'
 import _dryRender, { elementFromFiber } from './dryrender/dryrender'
 import makeFixedArray from './util/fixarray'
 import { hashArguments, shallowCompare, nextFrame } from './util/util'
-import accessLogToGraphQL, { AccessLog, SUCCINCT_INTROSPECTION_QUERY, GQLSchema, GQLTypeRef, GQLType, AutographSentinels } from './graphql'
+import accessLogToGraphQL, { AccessLog, SUCCINCT_INTROSPECTION_QUERY, GQLSchema, GQLTypeRef, GQLType, AutographSentinels, GQLQuery } from './graphql'
 import convertGQLSchemaToTypescript from './typescript'
 import * as eager from './util/eager'
 import { createAccessor } from './accessor';
@@ -31,11 +31,14 @@ export class AutographBasicClient {
     }
 
     fetchSchema(): Promise<GQLSchema> {
-        return this.fetchQuery(SUCCINCT_INTROSPECTION_QUERY)
+        return this.fetchQuery({
+            query: SUCCINCT_INTROSPECTION_QUERY,
+            variables: {}
+        })
             .then((data) => data.__schema)
     }
 
-    fetchQuery(query: string): Promise<any> {
+    fetchQuery(query: GQLQuery): Promise<any> {
         return fetch(this.config.url, {
             method: 'POST',
             headers: {
@@ -43,7 +46,7 @@ export class AutographBasicClient {
                 Accept: 'application/json',
                 ...this.config.headers,
             },
-            body: JSON.stringify({ query: query }),
+            body: JSON.stringify(query),
         })
             .then((resp) => resp.json())
             .then((d) => d.data)
@@ -58,12 +61,15 @@ class AutographApolloClient {
     }
 
     fetchSchema(): Promise<GQLSchema> {
-        return this.fetchQuery(SUCCINCT_INTROSPECTION_QUERY)
+        return this.fetchQuery({
+            query: SUCCINCT_INTROSPECTION_QUERY,
+            variables: {}
+        })
             .then((data) => data.__schema)
     }
 
-    fetchQuery(query: string): Promise<any> {
-        let doc = parser.parse(query, {})
+    fetchQuery(query: GQLQuery): Promise<any> {
+        let doc = parser.parse(query.query, {})
 
         return this.client
             .query({
@@ -170,18 +176,6 @@ type HandleOptions = {
     cacheOnly?: boolean
 }
 
-// type PathComponent = {
-//     type: 'AS',
-//     name: string
-// } | {
-//     type: 'PROP'
-//     name: string
-// } | {
-//     type: 'METHOD'
-//     name: string
-//     args: any
-// }
-
 class AutographQuery {
     root: AutographModel
     config: AutographQueryConfig
@@ -245,7 +239,7 @@ class AutographQuery {
     }
 
     refetch() {
-        let gql = accessLogToGraphQL(this.deps)
+        let gql = accessLogToGraphQL(this.deps, this.client.schemaData)
         this.version++
         this.dataPromise = this.client
             .fetchQuery(gql)
@@ -427,7 +421,7 @@ class AutographQuery {
                         Object.defineProperty(handle, '_error', {
                             enumerable: false,
                             get() {
-                                data[JSON.stringify({ type: 'FEAT', name: '_error' })] = true
+                                state.accessLog[JSON.stringify({ type: 'FEAT', name: '_error' })] = true
                                 return null
                             },
                         })
