@@ -126,13 +126,13 @@ function createAccessorCore(state: AccessorState, config: AccessorConfig): any {
                     // if this is a field which takes arguments
                     // compile it into a method
 
-                    const getMethod = (args: { [key: string]: any }) => {
+                    const getMethod = (args: { [key: string]: any } = {}) => {
                         let key = field.name + '___' + hashArguments(args);
 
                         let k = JSON.stringify({
                             type: 'METHOD',
                             name: field.name,
-                            args: args,
+                            args: args || {},
                             key: key
                         })
                         let subLog = (accessLog[k] = (accessLog[k] as AccessLog || {}))
