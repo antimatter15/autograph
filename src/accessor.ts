@@ -1,4 +1,4 @@
-import { AccessLog, GQLSchema, GQLTypeRef } from "./graphql";
+import { AccessLog, GQLSchema, GQLTypeRef, AutographSentinels } from "./graphql";
 import makeFixedArray from "./util/fixarray";
 import { hashArguments } from "./util/util";
 
@@ -82,7 +82,11 @@ function createAccessorCore(state: AccessorState, config: AccessorConfig): any {
         if(data !== undefined){
             return data
         }else if(typeRef.name === 'Boolean'){
-        
+            return true
+        }else if(typeRef.name! in AutographSentinels){
+            return AutographSentinels[typeRef.name!]
+        }else{
+            return { _gqlCustomScalar: typeRef.name }
         }
     }else if(typeRef.kind === 'UNION' || typeRef.kind === 'INTERFACE' || typeRef.kind === 'OBJECT'){
         let handle = {}
