@@ -40,7 +40,7 @@ export function findFiberRoot(fiber: ReactFiber) {
 
 export default function dryRender(node: React.ReactNode, fiber: ReactFiber | null): void {
     if (Array.isArray(node)) {
-        let childFibers = mapChildFibers(fiber)
+        let childFibers = mapSiblingFibers(fiber)
         for (let i = 0; i < node.length; i++) {
             let child: any = node[i]
             // try {
@@ -306,7 +306,7 @@ const DryRenderHooksDispatcher = {
     useDebugValue: <T>(value: T, format?: (value: T) => any) => {},
 }
 
-function mapChildFibers(fiber: ReactFiber | null) {
+function mapSiblingFibers(fiber: ReactFiber | null) {
     // https://github.com/facebook/react/blob/master/packages/react-reconciler/src/ReactChildFiber.js#L281
     // Based on mapRemainingChildren in ReactChildFiber
     let childFibers = new Map()
