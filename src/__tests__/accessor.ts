@@ -36,12 +36,12 @@ test('Basic Accessor (dry)', async () => {
     query.echo({ message: 'wumbo' })
 
     expect(log).toMatchInlineSnapshot(`
-                                Object {
-                                  "{\\"type\\":\\"METHOD\\",\\"object\\":\\"Query\\",\\"name\\":\\"echo\\",\\"args\\":{\\"message\\":\\"wumbo\\"},\\"key\\":\\"echo___n9s5aq\\"}": Object {
-                                    "__get": true,
-                                  },
-                                }
-                `)
+        Object {
+          "{\\"type\\":\\"METHOD\\",\\"object\\":\\"Query\\",\\"name\\":\\"echo\\",\\"args\\":{\\"message\\":\\"wumbo\\"},\\"key\\":\\"echo___n9s5aq\\"}": Object {
+            "__get": true,
+          },
+        }
+    `)
 
     expect(accessLogToGraphQL(log, schema)).toMatchInlineSnapshot(`
         Object {
@@ -90,19 +90,19 @@ test('Interfaces (dry)', async () => {
     human.name
 
     expect(log).toMatchInlineSnapshot(`
-                                                                                Object {
-                                                                                  "{\\"type\\":\\"PROP\\",\\"name\\":\\"favoriteHero\\"}": Object {
-                                                                                    "{\\"type\\":\\"AS\\",\\"name\\":\\"Human\\"}": Object {
-                                                                                      "{\\"type\\":\\"PROP\\",\\"name\\":\\"age\\"}": Object {
-                                                                                        "__get": true,
-                                                                                      },
-                                                                                      "{\\"type\\":\\"PROP\\",\\"name\\":\\"name\\"}": Object {
-                                                                                        "__get": true,
-                                                                                      },
-                                                                                    },
-                                                                                  },
-                                                                                }
-                                        `)
+        Object {
+          "{\\"type\\":\\"PROP\\",\\"name\\":\\"favoriteHero\\"}": Object {
+            "{\\"type\\":\\"AS\\",\\"name\\":\\"Human\\"}": Object {
+              "{\\"type\\":\\"PROP\\",\\"name\\":\\"age\\"}": Object {
+                "__get": true,
+              },
+              "{\\"type\\":\\"PROP\\",\\"name\\":\\"name\\"}": Object {
+                "__get": true,
+              },
+            },
+          },
+        }
+    `)
 
     expect(accessLogToGraphQL(log, schema)).toMatchInlineSnapshot(`
         Object {
@@ -154,19 +154,19 @@ test('Unions (dry)', async () => {
     human.name
 
     expect(log).toMatchInlineSnapshot(`
-                                                                                Object {
-                                                                                  "{\\"type\\":\\"PROP\\",\\"name\\":\\"favoriteHero\\"}": Object {
-                                                                                    "{\\"type\\":\\"AS\\",\\"name\\":\\"Human\\"}": Object {
-                                                                                      "{\\"type\\":\\"PROP\\",\\"name\\":\\"age\\"}": Object {
-                                                                                        "__get": true,
-                                                                                      },
-                                                                                      "{\\"type\\":\\"PROP\\",\\"name\\":\\"name\\"}": Object {
-                                                                                        "__get": true,
-                                                                                      },
-                                                                                    },
-                                                                                  },
-                                                                                }
-                                        `)
+        Object {
+          "{\\"type\\":\\"PROP\\",\\"name\\":\\"favoriteHero\\"}": Object {
+            "{\\"type\\":\\"AS\\",\\"name\\":\\"Human\\"}": Object {
+              "{\\"type\\":\\"PROP\\",\\"name\\":\\"age\\"}": Object {
+                "__get": true,
+              },
+              "{\\"type\\":\\"PROP\\",\\"name\\":\\"name\\"}": Object {
+                "__get": true,
+              },
+            },
+          },
+        }
+    `)
 
     expect(accessLogToGraphQL(log, schema)).toMatchInlineSnapshot(`
         Object {
@@ -260,19 +260,19 @@ test('__typename (dry)', async () => {
     expect(query.favoriteHuman.__typename).toEqual('Human')
 
     expect(log).toMatchInlineSnapshot(`
-                                                        Object {
-                                                          "{\\"type\\":\\"PROP\\",\\"name\\":\\"favoriteHero\\"}": Object {
-                                                            "{\\"type\\":\\"PROP\\",\\"name\\":\\"__typename\\"}": Object {
-                                                              "__get": true,
-                                                            },
-                                                          },
-                                                          "{\\"type\\":\\"PROP\\",\\"name\\":\\"favoriteHuman\\"}": Object {
-                                                            "{\\"type\\":\\"PROP\\",\\"name\\":\\"__typename\\"}": Object {
-                                                              "__get": true,
-                                                            },
-                                                          },
-                                                        }
-                            `)
+        Object {
+          "{\\"type\\":\\"PROP\\",\\"name\\":\\"favoriteHero\\"}": Object {
+            "{\\"type\\":\\"PROP\\",\\"name\\":\\"__typename\\"}": Object {
+              "__get": true,
+            },
+          },
+          "{\\"type\\":\\"PROP\\",\\"name\\":\\"favoriteHuman\\"}": Object {
+            "{\\"type\\":\\"PROP\\",\\"name\\":\\"__typename\\"}": Object {
+              "__get": true,
+            },
+          },
+        }
+    `)
 
     expect(accessLogToGraphQL(log, schema)).toMatchInlineSnapshot(`
         Object {
@@ -354,14 +354,14 @@ test('Lists (dry)', async () => {
     query.favoriteColors.map((k: any) => k.name)
 
     expect(log).toMatchInlineSnapshot(`
-                                                                                Object {
-                                                                                  "{\\"type\\":\\"PROP\\",\\"name\\":\\"favoriteColors\\"}": Object {
-                                                                                    "{\\"type\\":\\"PROP\\",\\"name\\":\\"name\\"}": Object {
-                                                                                      "__get": true,
-                                                                                    },
-                                                                                  },
-                                                                                }
-                                        `)
+        Object {
+          "{\\"type\\":\\"PROP\\",\\"name\\":\\"favoriteColors\\"}": Object {
+            "{\\"type\\":\\"PROP\\",\\"name\\":\\"name\\"}": Object {
+              "__get": true,
+            },
+          },
+        }
+    `)
 
     expect(accessLogToGraphQL(log, schema)).toMatchInlineSnapshot(`
         Object {
@@ -405,12 +405,12 @@ test('Enums (dry)', async () => {
     expect(query.favoriteColors[0]).toEqual('BLUE')
 
     expect(log).toMatchInlineSnapshot(`
-                                                                                Object {
-                                                                                  "{\\"type\\":\\"PROP\\",\\"name\\":\\"favoriteColors\\"}": Object {
-                                                                                    "__get": true,
-                                                                                  },
-                                                                                }
-                                        `)
+        Object {
+          "{\\"type\\":\\"PROP\\",\\"name\\":\\"favoriteColors\\"}": Object {
+            "__get": true,
+          },
+        }
+    `)
 
     expect(accessLogToGraphQL(log, schema)).toMatchInlineSnapshot(`
         Object {
@@ -466,15 +466,15 @@ test('Enums Arguments', async () => {
     })
 
     expect(log).toMatchInlineSnapshot(`
-                                        Object {
-                                          "{\\"type\\":\\"METHOD\\",\\"object\\":\\"Query\\",\\"name\\":\\"peopleMatchingThisQuery\\",\\"args\\":{\\"filter\\":{\\"color\\":\\"RED\\"}},\\"key\\":\\"peopleMatchingThisQuery___d7j9bf\\"}": Object {
-                                            "__get": true,
-                                          },
-                                          "{\\"type\\":\\"METHOD\\",\\"object\\":\\"Query\\",\\"name\\":\\"peopleWhoLikeThisColor\\",\\"args\\":{\\"color\\":\\"BLUE\\"},\\"key\\":\\"peopleWhoLikeThisColor___iezvh6\\"}": Object {
-                                            "__get": true,
-                                          },
-                                        }
-                    `)
+        Object {
+          "{\\"type\\":\\"METHOD\\",\\"object\\":\\"Query\\",\\"name\\":\\"peopleMatchingThisQuery\\",\\"args\\":{\\"filter\\":{\\"color\\":\\"RED\\"}},\\"key\\":\\"peopleMatchingThisQuery___d7j9bf\\"}": Object {
+            "__get": true,
+          },
+          "{\\"type\\":\\"METHOD\\",\\"object\\":\\"Query\\",\\"name\\":\\"peopleWhoLikeThisColor\\",\\"args\\":{\\"color\\":\\"BLUE\\"},\\"key\\":\\"peopleWhoLikeThisColor___iezvh6\\"}": Object {
+            "__get": true,
+          },
+        }
+    `)
 
     expect(accessLogToGraphQL(log, schema)).toMatchInlineSnapshot(`
         Object {

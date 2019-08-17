@@ -22,24 +22,24 @@ test('GQL String', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-                "type GQLType = {
-                    /** The name of the object type */
-                    __typename: string,
-                }
+        "type GQLType = {
+            /** The name of the object type */
+            __typename: string,
+        }
 
-                export type Query = GQLType & {
-                    echo(args?: { message?: string }): string | null,
+        export type Query = GQLType & {
+            echo(args?: { message?: string }): string | null,
 
-                    /** Check this to determine whether the query is loading */
-                    _loading?: boolean,
-                    /** Check this to display error messages */
-                    _error?: any,
-                    /** This field is defined when Autograph is executing a dry run */
-                    _dry?: boolean,
-                }
+            /** Check this to determine whether the query is loading */
+            _loading?: boolean,
+            /** Check this to display error messages */
+            _error?: any,
+            /** This field is defined when Autograph is executing a dry run */
+            _dry?: boolean,
+        }
 
-                "
-        `)
+        "
+    `)
 })
 
 test('GQL String (Non-nullable)', async () => {
@@ -52,24 +52,24 @@ test('GQL String (Non-nullable)', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-                "type GQLType = {
-                    /** The name of the object type */
-                    __typename: string,
-                }
+        "type GQLType = {
+            /** The name of the object type */
+            __typename: string,
+        }
 
-                export type Query = GQLType & {
-                    echo(args: { message: string }): string,
+        export type Query = GQLType & {
+            echo(args: { message: string }): string,
 
-                    /** Check this to determine whether the query is loading */
-                    _loading?: boolean,
-                    /** Check this to display error messages */
-                    _error?: any,
-                    /** This field is defined when Autograph is executing a dry run */
-                    _dry?: boolean,
-                }
+            /** Check this to determine whether the query is loading */
+            _loading?: boolean,
+            /** Check this to display error messages */
+            _error?: any,
+            /** This field is defined when Autograph is executing a dry run */
+            _dry?: boolean,
+        }
 
-                "
-        `)
+        "
+    `)
 })
 
 test('Custom Scalar', async () => {
@@ -84,26 +84,26 @@ test('Custom Scalar', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-                "type GQLType = {
-                    /** The name of the object type */
-                    __typename: string,
-                }
+        "type GQLType = {
+            /** The name of the object type */
+            __typename: string,
+        }
 
-                export type Query = GQLType & {
-                    myNewICO?: Zombocoin,
+        export type Query = GQLType & {
+            myNewICO?: Zombocoin,
 
-                    /** Check this to determine whether the query is loading */
-                    _loading?: boolean,
-                    /** Check this to display error messages */
-                    _error?: any,
-                    /** This field is defined when Autograph is executing a dry run */
-                    _dry?: boolean,
-                }
+            /** Check this to determine whether the query is loading */
+            _loading?: boolean,
+            /** Check this to display error messages */
+            _error?: any,
+            /** This field is defined when Autograph is executing a dry run */
+            _dry?: boolean,
+        }
 
-                export type Zombocoin = any
+        export type Zombocoin = any
 
-                "
-        `)
+        "
+    `)
 })
 
 test('GQL Int', async () => {
@@ -116,27 +116,27 @@ test('GQL Int', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-                "type GQLType = {
-                    /** The name of the object type */
-                    __typename: string,
-                }
+        "type GQLType = {
+            /** The name of the object type */
+            __typename: string,
+        }
 
-                export type Query = GQLType & {
-                    numberOfFriends?: Int,
+        export type Query = GQLType & {
+            numberOfFriends?: Int,
 
-                    /** Check this to determine whether the query is loading */
-                    _loading?: boolean,
-                    /** Check this to display error messages */
-                    _error?: any,
-                    /** This field is defined when Autograph is executing a dry run */
-                    _dry?: boolean,
-                }
+            /** Check this to determine whether the query is loading */
+            _loading?: boolean,
+            /** Check this to display error messages */
+            _error?: any,
+            /** This field is defined when Autograph is executing a dry run */
+            _dry?: boolean,
+        }
 
-                /** The \`Int\` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1. */
-                export type Int = number
+        /** The \`Int\` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1. */
+        export type Int = number
 
-                "
-        `)
+        "
+    `)
 })
 
 test('GQL Types', async () => {
@@ -156,30 +156,30 @@ test('GQL Types', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-                "type GQLType = {
-                    /** The name of the object type */
-                    __typename: string,
-                }
+        "type GQLType = {
+            /** The name of the object type */
+            __typename: string,
+        }
 
-                export type Query = GQLType & {
-                    GetReview: Review,
+        export type Query = GQLType & {
+            GetReview: Review,
 
-                    /** Check this to determine whether the query is loading */
-                    _loading?: boolean,
-                    /** Check this to display error messages */
-                    _error?: any,
-                    /** This field is defined when Autograph is executing a dry run */
-                    _dry?: boolean,
-                }
+            /** Check this to determine whether the query is loading */
+            _loading?: boolean,
+            /** Check this to display error messages */
+            _error?: any,
+            /** This field is defined when Autograph is executing a dry run */
+            _dry?: boolean,
+        }
 
-                export type Review = GQLType & {
-                    author?: string,
-                    wasPositive?: boolean,
-                    body?: string,
-                }
+        export type Review = GQLType & {
+            author?: string,
+            wasPositive?: boolean,
+            body?: string,
+        }
 
-                "
-        `)
+        "
+    `)
 })
 
 test('GQL Float', async () => {
@@ -192,27 +192,27 @@ test('GQL Float', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-                "type GQLType = {
-                    /** The name of the object type */
-                    __typename: string,
-                }
+        "type GQLType = {
+            /** The name of the object type */
+            __typename: string,
+        }
 
-                export type Query = GQLType & {
-                    radiansInADegree?: Float,
+        export type Query = GQLType & {
+            radiansInADegree?: Float,
 
-                    /** Check this to determine whether the query is loading */
-                    _loading?: boolean,
-                    /** Check this to display error messages */
-                    _error?: any,
-                    /** This field is defined when Autograph is executing a dry run */
-                    _dry?: boolean,
-                }
+            /** Check this to determine whether the query is loading */
+            _loading?: boolean,
+            /** Check this to display error messages */
+            _error?: any,
+            /** This field is defined when Autograph is executing a dry run */
+            _dry?: boolean,
+        }
 
-                /** The \`Float\` scalar type represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point). */
-                export type Float = number
+        /** The \`Float\` scalar type represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point). */
+        export type Float = number
 
-                "
-        `)
+        "
+    `)
 })
 test('GQL ID', async () => {
     expect(
@@ -224,27 +224,27 @@ test('GQL ID', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-                "type GQLType = {
-                    /** The name of the object type */
-                    __typename: string,
-                }
+        "type GQLType = {
+            /** The name of the object type */
+            __typename: string,
+        }
 
-                export type Query = GQLType & {
-                    myUniqueIdentifier?: ID,
+        export type Query = GQLType & {
+            myUniqueIdentifier?: ID,
 
-                    /** Check this to determine whether the query is loading */
-                    _loading?: boolean,
-                    /** Check this to display error messages */
-                    _error?: any,
-                    /** This field is defined when Autograph is executing a dry run */
-                    _dry?: boolean,
-                }
+            /** Check this to determine whether the query is loading */
+            _loading?: boolean,
+            /** Check this to display error messages */
+            _error?: any,
+            /** This field is defined when Autograph is executing a dry run */
+            _dry?: boolean,
+        }
 
-                /** The \`ID\` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as \`\\"4\\"\`) or integer (such as \`4\`) input value will be accepted as an ID. */
-                export type ID = string
+        /** The \`ID\` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as \`\\"4\\"\`) or integer (such as \`4\`) input value will be accepted as an ID. */
+        export type ID = string
 
-                "
-        `)
+        "
+    `)
 })
 
 test('GQL Array', async () => {
@@ -257,24 +257,24 @@ test('GQL Array', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-                "type GQLType = {
-                    /** The name of the object type */
-                    __typename: string,
-                }
+        "type GQLType = {
+            /** The name of the object type */
+            __typename: string,
+        }
 
-                export type Query = GQLType & {
-                    allMyFriends?: string[],
+        export type Query = GQLType & {
+            allMyFriends?: string[],
 
-                    /** Check this to determine whether the query is loading */
-                    _loading?: boolean,
-                    /** Check this to display error messages */
-                    _error?: any,
-                    /** This field is defined when Autograph is executing a dry run */
-                    _dry?: boolean,
-                }
+            /** Check this to determine whether the query is loading */
+            _loading?: boolean,
+            /** Check this to display error messages */
+            _error?: any,
+            /** This field is defined when Autograph is executing a dry run */
+            _dry?: boolean,
+        }
 
-                "
-        `)
+        "
+    `)
 })
 
 test('GQL Union', async () => {
@@ -362,24 +362,24 @@ test('GQL Boolean', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-                "type GQLType = {
-                    /** The name of the object type */
-                    __typename: string,
-                }
+        "type GQLType = {
+            /** The name of the object type */
+            __typename: string,
+        }
 
-                export type Query = GQLType & {
-                    wasSuspendedFromSchool?: boolean,
+        export type Query = GQLType & {
+            wasSuspendedFromSchool?: boolean,
 
-                    /** Check this to determine whether the query is loading */
-                    _loading?: boolean,
-                    /** Check this to display error messages */
-                    _error?: any,
-                    /** This field is defined when Autograph is executing a dry run */
-                    _dry?: boolean,
-                }
+            /** Check this to determine whether the query is loading */
+            _loading?: boolean,
+            /** Check this to display error messages */
+            _error?: any,
+            /** This field is defined when Autograph is executing a dry run */
+            _dry?: boolean,
+        }
 
-                "
-        `)
+        "
+    `)
 })
 
 test('GQL Enums', async () => {
@@ -399,26 +399,26 @@ test('GQL Enums', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-                "type GQLType = {
-                    /** The name of the object type */
-                    __typename: string,
-                }
+        "type GQLType = {
+            /** The name of the object type */
+            __typename: string,
+        }
 
-                export type Query = GQLType & {
-                    favoriteMovie: Episode,
+        export type Query = GQLType & {
+            favoriteMovie: Episode,
 
-                    /** Check this to determine whether the query is loading */
-                    _loading?: boolean,
-                    /** Check this to display error messages */
-                    _error?: any,
-                    /** This field is defined when Autograph is executing a dry run */
-                    _dry?: boolean,
-                }
+            /** Check this to determine whether the query is loading */
+            _loading?: boolean,
+            /** Check this to display error messages */
+            _error?: any,
+            /** This field is defined when Autograph is executing a dry run */
+            _dry?: boolean,
+        }
 
-                export type Episode = \\"NEWHOPE\\" | \\"EMPIRE\\" | \\"JEDI\\"
+        export type Episode = \\"NEWHOPE\\" | \\"EMPIRE\\" | \\"JEDI\\"
 
-                "
-        `)
+        "
+    `)
 })
 
 test('GQL Interfaces', async () => {
@@ -572,39 +572,39 @@ test('GQL Input Type', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-                "type GQLType = {
-                    /** The name of the object type */
-                    __typename: string,
-                }
+        "type GQLType = {
+            /** The name of the object type */
+            __typename: string,
+        }
 
-                export type Query = GQLType & {
-                    hello(args: { input: ReviewInput }): string | null,
-                    rumor(args?: { input?: OtherInput }): string | null,
+        export type Query = GQLType & {
+            hello(args: { input: ReviewInput }): string | null,
+            rumor(args?: { input?: OtherInput }): string | null,
 
-                    /** Check this to determine whether the query is loading */
-                    _loading?: boolean,
-                    /** Check this to display error messages */
-                    _error?: any,
-                    /** This field is defined when Autograph is executing a dry run */
-                    _dry?: boolean,
-                }
+            /** Check this to determine whether the query is loading */
+            _loading?: boolean,
+            /** Check this to display error messages */
+            _error?: any,
+            /** This field is defined when Autograph is executing a dry run */
+            _dry?: boolean,
+        }
 
-                /** This is a review of the inputs and stuff */
-                export type ReviewInput = {
-                    id: ID,
-                    /** commentary can sometimes be very important */
-                    commentary?: string,
-                }
+        /** This is a review of the inputs and stuff */
+        export type ReviewInput = {
+            id: ID,
+            /** commentary can sometimes be very important */
+            commentary?: string,
+        }
 
-                /** The \`ID\` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as \`\\"4\\"\`) or integer (such as \`4\`) input value will be accepted as an ID. */
-                export type ID = string
+        /** The \`ID\` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as \`\\"4\\"\`) or integer (such as \`4\`) input value will be accepted as an ID. */
+        export type ID = string
 
-                export type OtherInput = {
-                    murmurs?: string,
-                }
+        export type OtherInput = {
+            murmurs?: string,
+        }
 
-                "
-        `)
+        "
+    `)
 })
 
 test('Basic query', async () => {
@@ -617,24 +617,24 @@ test('Basic query', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-                "type GQLType = {
-                    /** The name of the object type */
-                    __typename: string,
-                }
+        "type GQLType = {
+            /** The name of the object type */
+            __typename: string,
+        }
 
-                export type Query = GQLType & {
-                    hello_world_message?: string,
+        export type Query = GQLType & {
+            hello_world_message?: string,
 
-                    /** Check this to determine whether the query is loading */
-                    _loading?: boolean,
-                    /** Check this to display error messages */
-                    _error?: any,
-                    /** This field is defined when Autograph is executing a dry run */
-                    _dry?: boolean,
-                }
+            /** Check this to determine whether the query is loading */
+            _loading?: boolean,
+            /** Check this to display error messages */
+            _error?: any,
+            /** This field is defined when Autograph is executing a dry run */
+            _dry?: boolean,
+        }
 
-                "
-        `)
+        "
+    `)
 })
 
 test('Query with arguments', async () => {
@@ -649,28 +649,28 @@ test('Query with arguments', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-                "type GQLType = {
-                    /** The name of the object type */
-                    __typename: string,
-                }
+        "type GQLType = {
+            /** The name of the object type */
+            __typename: string,
+        }
 
-                export type Query = GQLType & {
-                    allFilms(args?: { after?: string, first?: Int, before?: string, last?: Int }): string | null,
-                    allCharacters(args?: { after?: string, first?: Int, before?: string, last?: Int }): string,
+        export type Query = GQLType & {
+            allFilms(args?: { after?: string, first?: Int, before?: string, last?: Int }): string | null,
+            allCharacters(args?: { after?: string, first?: Int, before?: string, last?: Int }): string,
 
-                    /** Check this to determine whether the query is loading */
-                    _loading?: boolean,
-                    /** Check this to display error messages */
-                    _error?: any,
-                    /** This field is defined when Autograph is executing a dry run */
-                    _dry?: boolean,
-                }
+            /** Check this to determine whether the query is loading */
+            _loading?: boolean,
+            /** Check this to display error messages */
+            _error?: any,
+            /** This field is defined when Autograph is executing a dry run */
+            _dry?: boolean,
+        }
 
-                /** The \`Int\` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1. */
-                export type Int = number
+        /** The \`Int\` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1. */
+        export type Int = number
 
-                "
-        `)
+        "
+    `)
 })
 
 test('Basic mutation', async () => {
@@ -687,28 +687,28 @@ test('Basic mutation', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-                "type GQLType = {
-                    /** The name of the object type */
-                    __typename: string,
-                }
+        "type GQLType = {
+            /** The name of the object type */
+            __typename: string,
+        }
 
-                export type Query = GQLType & {
-                    hello_world_message?: string,
+        export type Query = GQLType & {
+            hello_world_message?: string,
 
-                    /** Check this to determine whether the query is loading */
-                    _loading?: boolean,
-                    /** Check this to display error messages */
-                    _error?: any,
-                    /** This field is defined when Autograph is executing a dry run */
-                    _dry?: boolean,
-                }
+            /** Check this to determine whether the query is loading */
+            _loading?: boolean,
+            /** Check this to display error messages */
+            _error?: any,
+            /** This field is defined when Autograph is executing a dry run */
+            _dry?: boolean,
+        }
 
-                export type Mutation = GQLType & {
-                    changeName(args?: { name?: string }): string | null,
-                }
+        export type Mutation = GQLType & {
+            changeName(args?: { name?: string }): string | null,
+        }
 
-                "
-        `)
+        "
+    `)
 })
 
 test('GQL Descriptions', async () => {
@@ -750,29 +750,29 @@ test('GQL Descriptions', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-                "type GQLType = {
-                    /** The name of the object type */
-                    __typename: string,
-                }
+        "type GQLType = {
+            /** The name of the object type */
+            __typename: string,
+        }
 
-                /** A simple GraphQL schema which is well described. */
-                export type Query = GQLType & {
-                    /** Translates a string from a given language into a different language. */
-                    translate(args?: { fromLanguage?: Language, toLanguage?: Language, text?: string }): string | null,
+        /** A simple GraphQL schema which is well described. */
+        export type Query = GQLType & {
+            /** Translates a string from a given language into a different language. */
+            translate(args?: { fromLanguage?: Language, toLanguage?: Language, text?: string }): string | null,
 
-                    /** Check this to determine whether the query is loading */
-                    _loading?: boolean,
-                    /** Check this to display error messages */
-                    _error?: any,
-                    /** This field is defined when Autograph is executing a dry run */
-                    _dry?: boolean,
-                }
+            /** Check this to determine whether the query is loading */
+            _loading?: boolean,
+            /** Check this to display error messages */
+            _error?: any,
+            /** This field is defined when Autograph is executing a dry run */
+            _dry?: boolean,
+        }
 
-                /** The set of languages supported by \`translate\`. */
-                export type Language = \\"EN\\" | \\"FR\\" | \\"CH\\"
+        /** The set of languages supported by \`translate\`. */
+        export type Language = \\"EN\\" | \\"FR\\" | \\"CH\\"
 
-                "
-        `)
+        "
+    `)
 })
 
 test('Deprecated fields', async () => {
@@ -835,26 +835,26 @@ test('Custom query type', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-                "export type Query = CustomQueryAPI
+        "export type Query = CustomQueryAPI
 
-                type GQLType = {
-                    /** The name of the object type */
-                    __typename: string,
-                }
+        type GQLType = {
+            /** The name of the object type */
+            __typename: string,
+        }
 
-                export type CustomQueryAPI = GQLType & {
-                    hello_world_message?: string,
+        export type CustomQueryAPI = GQLType & {
+            hello_world_message?: string,
 
-                    /** Check this to determine whether the query is loading */
-                    _loading?: boolean,
-                    /** Check this to display error messages */
-                    _error?: any,
-                    /** This field is defined when Autograph is executing a dry run */
-                    _dry?: boolean,
-                }
+            /** Check this to determine whether the query is loading */
+            _loading?: boolean,
+            /** Check this to display error messages */
+            _error?: any,
+            /** This field is defined when Autograph is executing a dry run */
+            _dry?: boolean,
+        }
 
-                "
-        `)
+        "
+    `)
 })
 
 test('Custom mutation type', async () => {
@@ -874,30 +874,30 @@ test('Custom mutation type', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-                "export type Mutation = CustomMutationAPI
+        "export type Mutation = CustomMutationAPI
 
-                type GQLType = {
-                    /** The name of the object type */
-                    __typename: string,
-                }
+        type GQLType = {
+            /** The name of the object type */
+            __typename: string,
+        }
 
-                export type Query = GQLType & {
-                    hello_world_message?: string,
+        export type Query = GQLType & {
+            hello_world_message?: string,
 
-                    /** Check this to determine whether the query is loading */
-                    _loading?: boolean,
-                    /** Check this to display error messages */
-                    _error?: any,
-                    /** This field is defined when Autograph is executing a dry run */
-                    _dry?: boolean,
-                }
+            /** Check this to determine whether the query is loading */
+            _loading?: boolean,
+            /** Check this to display error messages */
+            _error?: any,
+            /** This field is defined when Autograph is executing a dry run */
+            _dry?: boolean,
+        }
 
-                export type CustomMutationAPI = GQLType & {
-                    changeName(args?: { name?: string }): string,
-                }
+        export type CustomMutationAPI = GQLType & {
+            changeName(args?: { name?: string }): string,
+        }
 
-                "
-        `)
+        "
+    `)
 })
 
 test('Exception for unhandled type', () => {

@@ -117,13 +117,7 @@ test('Property Field (with Directive 2)', () => {
 //             },
 //             null
 //         )
-//     ).toMatchInlineSnapshot(`
-//                 "{
-//                   users {
-//                     name___7xk9a7: name(capitalize: true)
-//                   }
-//                 }"
-//         `)
+//     ).toMatchInlineSnapshot()
 // })
 
 // test('Property Method (No args)', () => {
@@ -139,16 +133,7 @@ test('Property Field (with Directive 2)', () => {
 //             },
 //             null
 //         )
-//     ).toMatchInlineSnapshot(`
-//         Object {
-//           "query": "{
-//           users {
-//             name___3horh: name
-//           }
-//         }",
-//           "variables": Object {},
-//         }
-//     `)
+//     ).toMatchInlineSnapshot()
 // })
 
 // test('Property Method (Array)', () => {
@@ -163,13 +148,7 @@ test('Property Field (with Directive 2)', () => {
 //             },
 //             null
 //         )
-//     ).toMatchInlineSnapshot(`
-//                 "{
-//                   users {
-//                     name___7708j7: name(whitelist: [\\"Steve\\", \\"Charles\\"])
-//                   }
-//                 }"
-//         `)
+//     ).toMatchInlineSnapshot()
 // })
 
 // test('Property Method (Object)', () => {
@@ -184,13 +163,7 @@ test('Property Field (with Directive 2)', () => {
 //             },
 //             null
 //         )
-//     ).toMatchInlineSnapshot(`
-//                 "{
-//                   users {
-//                     name___nk8ia2: name(rename: {Steve: \\"Charles\\"})
-//                   }
-//                 }"
-//         `)
+//     ).toMatchInlineSnapshot()
 // })
 
 // test('Inline Fragment', () => {
@@ -211,19 +184,7 @@ test('Property Field (with Directive 2)', () => {
 //             },
 //             null
 //         )
-//     ).toMatchInlineSnapshot(`
-//                 "{
-//                   users {
-//                     ... on Human {
-//                       __AS_Human___name___nk8ia2: name(rename: {Steve: \\"Charles\\"})
-//                       __AS_Human___name: name
-//                       __AS_Human___flumbo: flumbo {
-//                         __typename
-//                       }
-//                     }
-//                   }
-//                 }"
-//         `)
+//     ).toMatchInlineSnapshot()
 // })
 
 test('Inline Fragment (empty)', () => {
