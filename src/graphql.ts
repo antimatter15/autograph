@@ -73,55 +73,8 @@ const convertRecursive = (
     if (log.__directive) gql += log.__directive
     if (log.__get) return gql
 
-    const encodeValueInline = (type: GQLTypeRef, value: any): string | null => {
-        if (type.kind === 'NON_NULL') {
-            return encodeValueInline(type.ofType!, value)
-        } else if (value === null || value === undefined) {
-            return 'null'
-        } else if (
-            type.kind === 'SCALAR' &&
-            ['String', 'Int', 'Float', 'Boolean', 'ID'].includes(type.name!)
-        ) {
-            return JSON.stringify(value)
-        } else if (type.kind === 'ENUM' && typeof value === 'string') {
-            if (
-                !/^[_A-Za-z][_0-9A-Za-z]*$/.test(value) ||
-                ['true', 'false', 'null'].includes(value)
-            ) {
-                throw new Error(
-                    'GQL Enum values must be alphanumeric starting with a letter and must not be "true", "false", or "null"'
-                )
-            }
-            return value
-        } else if (type.kind === 'LIST' && Array.isArray(value)) {
-            let inlineValues = value.map((k) => encodeValueInline(type.ofType!, k))
-            // if we fail at encoding any constituent members inline, we fail here
-            if (inlineValues.some((k) => k === null)) return null
-            return '[' + inlineValues.join(', ') + ']'
-        } else if (type.kind === 'INPUT_OBJECT' && typeof value === 'object' && value) {
-            let inputType =
-                schema &&
-                schema.types.find((k) => k.name === type.name && k.kind === 'INPUT_OBJECT')
-            let inlineValues = Object.keys(value)
-                // only send over the values which match the GraphQL spec for names
-                // https://graphql.github.io/graphql-spec/June2018/#sec-Names
-                .filter((key) => /^[_A-Za-z][_0-9A-Za-z]*$/.test(key))
-                // map through the keys and encode all the constitutent values
-                .map((key) => {
-                    let fieldType = inputType!.inputFields!.find((k) => k.name === key)
-                    if (!fieldType) return null
-                    return key + ': ' + encodeValueInline(fieldType.type, value[key])
-                })
-            // if we fail at encoding any constituent members inline, we fail here
-            if (inlineValues.some((k) => k === null)) return null
-            return '{' + inlineValues.join(', ') + '}'
-        } else {
-            return null // unable to encode inline
-        }
-    }
-
     const encodeValue = (type: GQLTypeRef, value: any): string => {
-        let inline = encodeValueInline(type, value)
+        let inline = encodeValueInline(schema, type, value)
         if (inline !== null && inline.length < MAX_INLINE_GQL_ARG_LENGTH) {
             return inline
         } else {
@@ -205,6 +158,53 @@ const convertRecursive = (
 
     gql += '}'
     return gql
+}
+
+const encodeValueInline = (
+    schema: GQLSchema | null,
+    type: GQLTypeRef,
+    value: any
+): string | null => {
+    if (type.kind === 'NON_NULL') {
+        return encodeValueInline(schema, type.ofType!, value)
+    } else if (value === null || value === undefined) {
+        return 'null'
+    } else if (
+        type.kind === 'SCALAR' &&
+        ['String', 'Int', 'Float', 'Boolean', 'ID'].includes(type.name!)
+    ) {
+        return JSON.stringify(value)
+    } else if (type.kind === 'ENUM' && typeof value === 'string') {
+        if (!/^[_A-Za-z][_0-9A-Za-z]*$/.test(value) || ['true', 'false', 'null'].includes(value)) {
+            throw new Error(
+                'GQL Enum values must be alphanumeric starting with a letter and must not be "true", "false", or "null"'
+            )
+        }
+        return value
+    } else if (type.kind === 'LIST' && Array.isArray(value)) {
+        let inlineValues = value.map((k) => encodeValueInline(schema, type.ofType!, k))
+        // if we fail at encoding any constituent members inline, we fail here
+        if (inlineValues.some((k) => k === null)) return null
+        return '[' + inlineValues.join(', ') + ']'
+    } else if (type.kind === 'INPUT_OBJECT' && typeof value === 'object' && value) {
+        let inputType =
+            schema && schema.types.find((k) => k.name === type.name && k.kind === 'INPUT_OBJECT')
+        let inlineValues = Object.keys(value)
+            // only send over the values which match the GraphQL spec for names
+            // https://graphql.github.io/graphql-spec/June2018/#sec-Names
+            .filter((key) => /^[_A-Za-z][_0-9A-Za-z]*$/.test(key))
+            // map through the keys and encode all the constitutent values
+            .map((key) => {
+                let fieldType = inputType!.inputFields!.find((k) => k.name === key)
+                if (!fieldType) return null
+                return key + ': ' + encodeValueInline(schema, fieldType.type, value[key])
+            })
+        // if we fail at encoding any constituent members inline, we fail here
+        if (inlineValues.some((k) => k === null)) return null
+        return '{' + inlineValues.join(', ') + '}'
+    } else {
+        return null // unable to encode inline
+    }
 }
 
 function GQLTypeToString(type: GQLTypeRef): string {
