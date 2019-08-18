@@ -215,7 +215,7 @@ function GQLTypeToString(type: GQLTypeRef): string {
     } else if (type.kind === 'SCALAR' || type.kind === 'INPUT_OBJECT' || type.kind === 'ENUM') {
         return type.name!
     } else {
-        throw new Error('Unsupported type ' + type.name)
+        throw new Error('Unsupported type ' + type.name + ' (kind: ' + type.kind + ')')
     }
 }
 
@@ -406,3 +406,95 @@ export const SUCCINCT_INTROSPECTION_QUERY = gql`
 //     ofType { kind, name, ofType { kind, name, ofType { kind, name } } }
 //   }
 // `
+
+
+type CompactGQLSchema = {
+    // [name: string]: string // ENUM | SCALAR
+    
+    // // OBJECT
+    // [name: string]: {
+    //     // field with args
+    //     [name: string]: {
+    //         [arg: string]: string // arg type
+    //         _: string // return type
+    //     }
+    //     // field with no args
+    //     [name: string]: string
+    //     [~Name]: string // inline fragments
+    // }
+
+    
+}
+
+function compressGQLTypeRef(type: GQLTypeRef, indices: {[key: string]: string}): string{
+    if (type.kind === 'NON_NULL') {
+        return '!' + compressGQLTypeRef(type.ofType!, indices)
+    } else if (type.kind === 'LIST') {
+        return '*' + compressGQLTypeRef(type.ofType!, indices)
+    } else if (
+        type.kind === 'SCALAR' || 
+        type.kind === 'INPUT_OBJECT' || 
+        type.kind === 'ENUM' || 
+        type.kind === 'OBJECT'  || 
+        type.kind === 'INTERFACE' ||
+        type.kind === 'UNION') {
+        return indices[type.name!]
+    } else {
+        throw new Error('Unsupported type ' + type.name + ' (kind: ' + type.kind + ')')
+    }
+}
+
+function compressGQLType(type: GQLType, indices: {[key: string]: string}){
+    if(type.kind === 'INPUT_OBJECT'){
+        let compact = {}
+        for(let field of type.inputFields || []){
+            compact[field.name] = compressGQLTypeRef(field.type, indices)
+        }
+        return compact
+    }else if(type.kind === 'INTERFACE' || type.kind === 'UNION' || type.kind === 'OBJECT'){
+        let compact = {}
+
+        for(let field of type.fields || []){
+            if(field.args.length > 0){
+                let args = {}
+                for(let arg of field.args){
+                    args[arg.name] = compressGQLTypeRef(arg.type, indices)
+                }
+                (args as any)._ = compressGQLTypeRef(field.type, indices)
+                compact[field.name] = args
+            }else{
+                compact[field.name] = compressGQLTypeRef(field.type, indices)
+            }
+        }
+        if(type.possibleTypes){
+            for(let inline of type.possibleTypes){
+                compact['~' + inline.name] = indices[inline.name!]
+            }
+            // (compact as any)._ = type.possibleTypes!.map(k => indices[k.name!]).join(',')    
+        }
+        return compact
+    }else if(type.kind === 'ENUM'){
+        return type.enumValues!.map(k => k.name)
+    }else if(type.kind === 'SCALAR'){
+        return '&' + type.name
+    }else{
+        throw new Error('Unsupported type ' + type.name + ' (kind: ' + type.kind + ')')
+    }
+}
+
+function compressGQLSchema(schema: GQLSchema): CompactGQLSchema {
+    let compact = {}
+    let indices = {}
+    for(let i = 0; i < schema.types.length; i++){
+        let type = schema.types[i];
+        indices[type.name!] = i.toString(36)
+    }
+    for(let type of schema.types){
+        // if(type.kind === 'ENUM') continue;
+        // if(type.kind === 'SCALAR') continue;
+        compact[indices[type.name!]] = compressGQLType(type, indices)
+    }
+    return compact;
+}
+
+;(global as any).compressGQLSchema = compressGQLSchema

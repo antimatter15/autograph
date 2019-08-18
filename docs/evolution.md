@@ -557,16 +557,25 @@ Loading Guards are essentially lightweight anonymous Suspense blocks.
 
 Suspense is suspenseful!
 
+## Remove Subtrees with Sentinel Values (August 15, 2019)
+
+Let's say we have some component which fetches a list of repositories that a user has starred on GitHub. We render a list of components. 
+
+Let's say in a child component we get a reference to the repository by looking it up by its name (instead of passing the correct repository handle). 
+
+During the dry render, it'll pass a sentinel value such as "Autograph String" instead of the real value. This might get included as part of the arguments of a field. This could be problematic for instances where a string argument like that causes an error rather than a null lookup. 
+
+The solution here is to check the arguments of all fields to see if they contain sentinel values. If they do contain sentinel values, that entire GraphQL subtree is cancelled. 
+
+When the query resolves, the correct data is loaded, and the code will likely observe a cache miss. A new query then gets generated which should be correct this time. 
+
+## Enum values within queries (August 16, 2019)
+
+We pass in enum arguments as string literals, but GraphQL expects them to be unquoted. To support this we have to traverse the GraphQL schema and identify the enum values so that they can be unquoted. 
+
+
 ## TODO
 
 - mutations api
-- support enums within queries
-- cancel subtrees which include sentinel values
-
-
-## Future?
-
-
-- Mutations
 - An API for triggering reloads of specific queries
 - Some way of specifying query options (e.g. cache-only etc.)?

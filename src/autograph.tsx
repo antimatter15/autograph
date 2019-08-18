@@ -296,6 +296,8 @@ class AutographQuery {
                     this.client
                         .fetchSchema()
                         .then((data: GQLSchema) => {
+                            (global as any).SCHEMA = data;
+
                             console.groupCollapsed('TypeScript Schema')
                             console.log(convertGQLSchemaToTypescript(data))
                             console.groupEnd()
