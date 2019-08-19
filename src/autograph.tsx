@@ -11,6 +11,10 @@ import accessLogToGraphQL, {
     GQLType,
     AutographSentinels,
     GQLQuery,
+    GQLTypeKind,
+    compressGQLSchema,
+    CompactGQLSchema,
+    CompactGQLTypeRef,
 } from './graphql'
 import convertGQLSchemaToTypescript from './typescript'
 import * as eager from './util/eager'
@@ -38,12 +42,6 @@ export class AutographBasicClient {
         }
     }
 
-    fetchSchema(): Promise<GQLSchema> {
-        return this.fetchQuery({
-            query: SUCCINCT_INTROSPECTION_QUERY,
-            variables: {},
-        }).then((data) => data.__schema)
-    }
 
     fetchQuery(query: GQLQuery): Promise<any> {
         return fetch(this.config.url, {
@@ -65,13 +63,6 @@ class AutographApolloClient {
 
     constructor(client: any) {
         this.client = client
-    }
-
-    fetchSchema(): Promise<GQLSchema> {
-        return this.fetchQuery({
-            query: SUCCINCT_INTROSPECTION_QUERY,
-            variables: {},
-        }).then((data) => data.__schema)
     }
 
     fetchQuery(query: GQLQuery): Promise<any> {
@@ -170,7 +161,7 @@ type AccessorInfo = {
     isDry: boolean
     handleOptions: HandleOptions
     version: number
-    typeRef: GQLTypeRef
+    typeRef: CompactGQLTypeRef
 }
 
 type HandleOptions = {
@@ -179,6 +170,15 @@ type HandleOptions = {
     boundary?: boolean
 
     cacheOnly?: boolean
+}
+
+
+interface AutographClient {
+    schemaData: GQLSchema
+    compactSchema: CompactGQLSchema
+    fetchQuery(query: GQLQuery): Promise<any>
+    schemaPromise: Promise<any> | null
+    schemaError: Error | null
 }
 
 class AutographQuery {
@@ -235,7 +235,7 @@ class AutographQuery {
         for (let cb of this.callbacks) cb()
     }
 
-    get client() {
+    get client(): AutographClient {
         let config = { ...this.root.config, ...this.config }
         if (!config.client) {
             throw new Error('No client defined either on query config or root config')
@@ -244,7 +244,7 @@ class AutographQuery {
     }
 
     refetch() {
-        let gql = accessLogToGraphQL(this.deps, this.client.schemaData)
+        let gql = accessLogToGraphQL(this.deps, this.client.compactSchema)
         this.version++
         this.dataPromise = this.client
             .fetchQuery(gql)
@@ -276,11 +276,9 @@ class AutographQuery {
         }
 
         // get the graphql query root
-        let queryRoot = { kind: '__NOSCHEMA' }
-        if (this.client.schemaData) {
-            let schema = this.client.schemaData
-            queryRoot = schema.types.find((k: GQLType) => k.name === schema.queryType.name)
-        }
+        let queryRoot: CompactGQLTypeRef = this.client.schemaData ? 
+            (this.client.compactSchema['&query'] as CompactGQLTypeRef) :
+            '__NOSCHEMA'
 
         if (this.root.currentlyDryRendering) {
             return this._createAccessor(this.deps, {
@@ -293,8 +291,13 @@ class AutographQuery {
             if (!this.client.schemaData && !this.client.schemaPromise && !this.client.schemaError) {
                 this.version++
                 this.client.schemaPromise = new Promise((resolve) => {
+
                     this.client
-                        .fetchSchema()
+                        .fetchQuery({
+                            query: SUCCINCT_INTROSPECTION_QUERY,
+                            variables: {},
+                        })
+                        .then((data: any) => data.__schema)
                         .then((data: GQLSchema) => {
                             (global as any).SCHEMA = data;
 
@@ -303,6 +306,7 @@ class AutographQuery {
                             console.groupEnd()
 
                             this.client.schemaData = data
+                            this.client.compactSchema = compressGQLSchema(data)
                             this.client.schemaPromise = null
                             this.notify()
                             resolve()
@@ -349,7 +353,7 @@ class AutographQuery {
                 path: [],
             },
             {
-                schema: this.client.schemaData,
+                schema: this.client.compactSchema,
                 isDry: info.isDry,
                 returnValueHook: (value, state, config) => {
                     if (config.isDry) {
@@ -362,10 +366,9 @@ class AutographQuery {
                         ensureDuringRender()
                     }
 
-                    let isQueryRoot =
-                        state.typeRef.kind === '__NOSCHEMA' ||
-                        config.schema.queryType.name === state.typeRef.name
-
+                    let isQueryRoot = 
+                        state.typeRef === '__NOSCHEMA' ||
+                        config.schema['&query'] === state.typeRef;
                     // if(state.typeRef)
                     // if (handleOptions.cacheOnly) return null
 
@@ -409,7 +412,9 @@ class AutographQuery {
 
                 accessHandleHook: (handle, state, config) => {
                     let { isDry } = config
-                    let isQueryRoot = config.schema.queryType.name === state.typeRef.name
+                    let isQueryRoot = 
+                        state.typeRef === '__NOSCHEMA' ||
+                        config.schema['&query'] === state.typeRef;
 
                     if (isQueryRoot) {
                         // allow functions to distinguish between the dry run and the real execution

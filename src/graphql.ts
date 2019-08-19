@@ -9,6 +9,7 @@ export type AccessorComponent =
     | {
           type: 'AS'
           name: string
+          prefix: string
       }
     | {
           type: 'PROP'
@@ -48,24 +49,25 @@ const indent = (x: string): string =>
         .map((k) => '  ' + k)
         .join('\n')
 
-const getFieldArgsType = (
-    schema: GQLSchema | null,
-    object: string,
-    field: string
-): GQLInputValue[] | undefined => {
-    let objType = schema && schema.types.find((k) => k.name === object && k.kind === 'OBJECT')
-    let fieldObj = objType && objType.fields && objType.fields.find((k) => k.name === field)
-    return fieldObj ? fieldObj.args : undefined
-}
+// const getFieldArgsType = (
+//     schema: GQLSchema | null,
+//     object: string,
+//     field: string
+// ): GQLInputValue[] | undefined => {
+//     let objType = schema && schema.types.find((k) => k.name === object && k.kind === 'OBJECT')
+//     let fieldObj = objType && objType.fields && objType.fields.find((k) => k.name === field)
+//     return fieldObj ? fieldObj.args : undefined
+// }
+
 
 type VariableInfo = {
     value: any
-    type: GQLTypeRef
+    type: CompactGQLTypeRef
 }
 
 const convertRecursive = (
     log: AccessLog,
-    schema: GQLSchema | null,
+    schema: CompactGQLSchema,
     variables: { [key: string]: VariableInfo },
     prefix = ''
 ) => {
@@ -73,7 +75,7 @@ const convertRecursive = (
     if (log.__directive) gql += log.__directive
     if (log.__get) return gql
 
-    const encodeValue = (type: GQLTypeRef, value: any): string => {
+    const encodeValue = (type: CompactGQLTypeRef, value: any): string => {
         let inline = encodeValueInline(schema, type, value)
         if (inline !== null && inline.length < MAX_INLINE_GQL_ARG_LENGTH) {
             return inline
@@ -94,22 +96,25 @@ const convertRecursive = (
         let info: AccessorComponent = JSON.parse(key)
         if (info.type === 'METHOD') {
             if (!containsSentinel(info.args)) {
-                let argsType = getFieldArgsType(schema, info.object, info.name)
+                // schema[info.object][info.name]
+                // let argsType = getFieldArgsType(schema, info.object, info.name)
+                let argsType = schema[info.object][info.name]
                 let body = ''
                 if (Object.keys(info.args).length > 0) {
-                    let obj = info.args
+                    let args = info.args
                     body =
                         '(' +
-                        Object.keys(obj)
+                        Object.keys(args)
                             // only send over the values which match the GraphQL spec for names
                             // https://graphql.github.io/graphql-spec/June2018/#sec-Names
                             .filter((key) => /^[_A-Za-z][_0-9A-Za-z]*$/.test(key))
                             // map through the keys and encode all the constitutent values
                             .map((key) => {
-                                let input = argsType && argsType.find((k) => k.name === key)
-                                let inputType = input && input.type
+                                let inputType = argsType[key]
+                                // let input = argsType && argsType.find((k) => k.name === key)
+                                // let inputType = input && input.type
                                 if (!inputType) throw new Error('Input type not found!')
-                                return key + ': ' + encodeValue(inputType, obj[key])
+                                return key + ': ' + encodeValue(inputType, args[key])
                             })
                             // finally join them all together
                             .join(', ') +
@@ -144,7 +149,7 @@ const convertRecursive = (
                             log[key] as AccessLog,
                             schema,
                             variables,
-                            '__AS_' + info.name + '___'
+                            info.prefix
                         )
                 ) + '\n'
         } else if (info.type === 'FEAT') {
@@ -161,61 +166,73 @@ const convertRecursive = (
 }
 
 const encodeValueInline = (
-    schema: GQLSchema | null,
-    type: GQLTypeRef,
+    schema: CompactGQLSchema | null,
+    typeRef: CompactGQLTypeRef,
     value: any
 ): string | null => {
-    if (type.kind === 'NON_NULL') {
-        return encodeValueInline(schema, type.ofType!, value)
-    } else if (value === null || value === undefined) {
-        return 'null'
-    } else if (
-        type.kind === 'SCALAR' &&
-        ['String', 'Int', 'Float', 'Boolean', 'ID'].includes(type.name!)
-    ) {
-        return JSON.stringify(value)
-    } else if (type.kind === 'ENUM' && typeof value === 'string') {
-        if (!/^[_A-Za-z][_0-9A-Za-z]*$/.test(value) || ['true', 'false', 'null'].includes(value)) {
-            throw new Error(
-                'GQL Enum values must be alphanumeric starting with a letter and must not be "true", "false", or "null"'
-            )
-        }
-        return value
-    } else if (type.kind === 'LIST' && Array.isArray(value)) {
-        let inlineValues = value.map((k) => encodeValueInline(schema, type.ofType!, k))
+    if(!schema) return null;
+    if(typeRef[0] === '!'){
+        // NON_NULL
+        let ofType = typeRef.slice(1)
+        return encodeValueInline(schema, ofType, value)
+    }else if(typeRef[0] === '*'){
+        // LISTS
+        let ofType = typeRef.slice(1)
+        let inlineValues = value.map((k: any) => encodeValueInline(schema, ofType, k))
         // if we fail at encoding any constituent members inline, we fail here
-        if (inlineValues.some((k) => k === null)) return null
+        if (inlineValues.some((k: any) => k === null)) return null
         return '[' + inlineValues.join(', ') + ']'
-    } else if (type.kind === 'INPUT_OBJECT' && typeof value === 'object' && value) {
-        let inputType =
-            schema && schema.types.find((k) => k.name === type.name && k.kind === 'INPUT_OBJECT')
-        let inlineValues = Object.keys(value)
-            // only send over the values which match the GraphQL spec for names
-            // https://graphql.github.io/graphql-spec/June2018/#sec-Names
-            .filter((key) => /^[_A-Za-z][_0-9A-Za-z]*$/.test(key))
-            // map through the keys and encode all the constitutent values
-            .map((key) => {
-                let fieldType = inputType!.inputFields!.find((k) => k.name === key)
-                if (!fieldType) return null
-                return key + ': ' + encodeValueInline(schema, fieldType.type, value[key])
-            })
-        // if we fail at encoding any constituent members inline, we fail here
-        if (inlineValues.some((k) => k === null)) return null
-        return '{' + inlineValues.join(', ') + '}'
-    } else {
-        return null // unable to encode inline
+    }else{
+        // SCALAR | ENUM | INPUT_OBJECT
+        let type = schema[typeRef]
+        if(typeof type === 'string' && type[0] === '#'){
+            // SCALAR
+            let scalarName = type.slice(1)
+            if(['String', 'Int', 'Float', 'Boolean', 'ID'].includes(scalarName)){
+                return JSON.stringify(value)
+            }else{
+                // custom scalars can not be encoded inline
+                return null
+            }
+        }else if(Array.isArray(type)){
+            // ENUM
+            if (!/^[_A-Za-z][_0-9A-Za-z]*$/.test(value) || ['true', 'false', 'null'].includes(value)) {
+                throw new Error(
+                    'GQL Enum values must be alphanumeric starting with a letter and must not be "true", "false", or "null"'
+                )
+            }
+            return value
+        }else if(typeof type === 'object'){
+            // INPUT_OBJECT
+            let inlineValues = Object.keys(value)
+                // only send over the values which match the GraphQL spec for names
+                // https://graphql.github.io/graphql-spec/June2018/#sec-Names
+                .filter((key) => /^[_A-Za-z][_0-9A-Za-z]*$/.test(key))
+                // map through the keys and encode all the constitutent values
+                .map((key) => {
+                    // let fieldType = inputType!.inputFields!.find((k) => k.name === key)
+                    let fieldType = type[key]
+                    if (!fieldType) return null
+                    return key + ': ' + encodeValueInline(schema, fieldType, value[key])
+                })
+            // if we fail at encoding any constituent members inline, we fail here
+            if (inlineValues.some((k) => k === null)) return null
+            return '{' + inlineValues.join(', ') + '}'
+        }else{
+            return null
+        }
     }
 }
 
-function GQLTypeToString(type: GQLTypeRef): string {
-    if (type.kind === 'NON_NULL') {
-        return GQLTypeToString(type.ofType!) + '!'
-    } else if (type.kind === 'LIST') {
-        return '[' + GQLTypeToString(type.ofType!) + ']'
-    } else if (type.kind === 'SCALAR' || type.kind === 'INPUT_OBJECT' || type.kind === 'ENUM') {
-        return type.name!
-    } else {
-        throw new Error('Unsupported type ' + type.name + ' (kind: ' + type.kind + ')')
+function GQLTypeToString(typeRef: CompactGQLTypeRef): string {
+    if(typeRef[0] === '!'){
+        let ofType = typeRef.slice(1)
+        return GQLTypeToString(ofType) + '!'
+    }else if(typeRef[0] === '*'){
+        let ofType = typeRef.slice(1)
+        return '[' + GQLTypeToString(ofType) + ']'
+    }else{
+        return typeRef
     }
 }
 
@@ -224,7 +241,7 @@ export type GQLQuery = {
     variables: { [key: string]: any }
 }
 
-export default function accessLogToGraphQL(log: AccessLog, schema: GQLSchema | null): GQLQuery {
+export default function accessLogToGraphQL(log: AccessLog, schema: CompactGQLSchema): GQLQuery {
     let varinfo: { [key: string]: VariableInfo } = {}
     let gql = convertRecursive(log, schema, varinfo, '')
     if (Object.keys(varinfo).length > 0) {
@@ -260,9 +277,9 @@ export type GQLSchema = {
     types: Array<GQLType>
 }
 
-// type GQLTypeKind = 'SCALAR' | 'OBJECT' | 'INTERFACE' | 'UNION' | 'ENUM' | 'INPUT_OBJECT' | 'LIST' | 'NON_NULL'
+export type GQLTypeKind = 'SCALAR' | 'OBJECT' | 'INTERFACE' | 'UNION' | 'ENUM' | 'INPUT_OBJECT' | 'LIST' | 'NON_NULL'
 
-type GQLTypeKind = string
+// type GQLTypeKind = string
 
 export type GQLType = {
     kind: GQLTypeKind
@@ -368,49 +385,8 @@ export const SUCCINCT_INTROSPECTION_QUERY = gql`
     }
 `
 
-// let MINIMAL_INTROSPECTION_QUERY = `
-//   query IntrospectionQuery {
-//     __schema {
-//       queryType { name }
-//       mutationType { name }
-//       subscriptionType { name }
-//       types { ...FullType }
-//     }
-//   }
-
-//   fragment FullType on __Type {
-//     kind
-//     name
-//     fields(includeDeprecated: true) {
-//       name
-//       args { ...InputValue }
-//       type { ...TypeRef }
-//     }
-//     inputFields { ...InputValue }
-//     interfaces { ...TypeRef }
-//     enumValues(includeDeprecated: true) {
-//       name
-//       description
-//     }
-//     possibleTypes { ...TypeRef }
-//   }
-
-//   fragment InputValue on __InputValue {
-//     name
-//     type { ...TypeRef }
-//   }
-
-//   fragment TypeRef on __Type {
-//     kind
-//     name
-//     ofType { kind, name, ofType { kind, name, ofType { kind, name } } }
-//   }
-// `
-
-
-type CompactGQLSchema = {
+export type CompactGQLSchema = {
     // [name: string]: string // ENUM | SCALAR
-    
     // // OBJECT
     // [name: string]: {
     //     // field with args
@@ -423,10 +399,29 @@ type CompactGQLSchema = {
     //     [~Name]: string // inline fragments
     // }
 
-    
+    [id: string]: CompactGQLType
 }
 
-function compressGQLTypeRef(type: GQLTypeRef, indices: {[key: string]: string}): string{
+// Scalars: #ScalarName
+type CompactGQLScalarType = string
+// Enums: [EnumValue]
+type CompactGQLEnumType = Array<string>
+
+// Interface, Object, Input Object, Union
+type CompactGQLComplexType = {
+    [field: string]: {
+        [arg: string]: CompactGQLTypeRef
+    } | CompactGQLTypeRef
+}
+export type CompactGQLType = CompactGQLScalarType | CompactGQLEnumType | CompactGQLComplexType
+
+// ! - Non null
+// * - List
+// [Type ID] - Scalar, Input object, Enum, Object, Interface, Union
+export type CompactGQLTypeRef = string
+
+
+function compressGQLTypeRef(type: GQLTypeRef, indices: {[key: string]: string}): CompactGQLTypeRef {
     if (type.kind === 'NON_NULL') {
         return '!' + compressGQLTypeRef(type.ofType!, indices)
     } else if (type.kind === 'LIST') {
@@ -444,7 +439,7 @@ function compressGQLTypeRef(type: GQLTypeRef, indices: {[key: string]: string}):
     }
 }
 
-function compressGQLType(type: GQLType, indices: {[key: string]: string}){
+function compressGQLType(type: GQLType, indices: {[key: string]: string}): CompactGQLType {
     if(type.kind === 'INPUT_OBJECT'){
         let compact = {}
         for(let field of type.inputFields || []){
@@ -453,36 +448,42 @@ function compressGQLType(type: GQLType, indices: {[key: string]: string}){
         return compact
     }else if(type.kind === 'INTERFACE' || type.kind === 'UNION' || type.kind === 'OBJECT'){
         let compact = {}
-
         for(let field of type.fields || []){
+            // INTERFACE and OBJECT
             if(field.args.length > 0){
                 let args = {}
                 for(let arg of field.args){
                     args[arg.name] = compressGQLTypeRef(arg.type, indices)
                 }
-                (args as any)._ = compressGQLTypeRef(field.type, indices)
+                args[':'] = compressGQLTypeRef(field.type, indices)
                 compact[field.name] = args
             }else{
                 compact[field.name] = compressGQLTypeRef(field.type, indices)
             }
         }
         if(type.possibleTypes){
+            // UNION and INTERFACE
             for(let inline of type.possibleTypes){
                 compact['~' + inline.name] = indices[inline.name!]
             }
-            // (compact as any)._ = type.possibleTypes!.map(k => indices[k.name!]).join(',')    
+        }
+        // We need to be able to support __typename
+        if(type.kind === 'OBJECT'){
+            compact['@'] = type.name
         }
         return compact
     }else if(type.kind === 'ENUM'){
-        return type.enumValues!.map(k => k.name)
+        // we only need one of the enum values in order to properly 
+        // generate fake data, so we don't need the rest of the values
+        return type.enumValues!.map(k => k.name).slice(0, 1)
     }else if(type.kind === 'SCALAR'){
-        return '&' + type.name
+        return '#' + type.name
     }else{
         throw new Error('Unsupported type ' + type.name + ' (kind: ' + type.kind + ')')
     }
 }
 
-function compressGQLSchema(schema: GQLSchema): CompactGQLSchema {
+export function compressGQLSchema(schema: GQLSchema): CompactGQLSchema {
     let compact = {}
     let indices = {}
     for(let i = 0; i < schema.types.length; i++){
@@ -490,10 +491,14 @@ function compressGQLSchema(schema: GQLSchema): CompactGQLSchema {
         indices[type.name!] = i.toString(36)
     }
     for(let type of schema.types){
-        // if(type.kind === 'ENUM') continue;
-        // if(type.kind === 'SCALAR') continue;
         compact[indices[type.name!]] = compressGQLType(type, indices)
     }
+
+    compact['&query'] = indices[schema.queryType.name];
+    if(schema.mutationType) 
+        compact['&mutation'] = indices[schema.mutationType.name];
+    if(schema.subscriptionType)
+        compact['&subscription'] = indices[schema.subscriptionType.name];
     return compact;
 }
 

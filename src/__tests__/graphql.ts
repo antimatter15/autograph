@@ -202,7 +202,7 @@ test('Inline Fragment (empty)', () => {
           "query": "{
           users {
             ... on Human {
-              __AS_Human_____typename: __typename
+              __typename
             }
           }
         }",

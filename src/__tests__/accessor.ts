@@ -1,15 +1,22 @@
 import { buildASTSchema, graphql } from 'graphql'
-import accessLogToGraphQL, { SUCCINCT_INTROSPECTION_QUERY, GQLSchema, GQLType } from '../graphql'
+import accessLogToGraphQL, {
+    SUCCINCT_INTROSPECTION_QUERY,
+    GQLSchema,
+    GQLType,
+    compressGQLSchema,
+    CompactGQLSchema,
+    CompactGQLTypeRef,
+} from '../graphql'
 import gql from 'graphql-tag'
 import { createAccessor } from '../accessor'
 
-export async function parseGraphQL(ast: any): Promise<GQLSchema> {
+export async function parseGraphQL(ast: any): Promise<CompactGQLSchema> {
     let doc = buildASTSchema(ast, {
         commentDescriptions: true,
     })
     let data = (await graphql(doc, SUCCINCT_INTROSPECTION_QUERY)) as any
     if (data.errors) throw data.errors[0]
-    return data.data.__schema
+    return compressGQLSchema(data.data.__schema)
 }
 
 test('Basic Accessor (dry)', async () => {
@@ -19,12 +26,11 @@ test('Basic Accessor (dry)', async () => {
             echo(message: String): String
         }
     `)
-    let queryType = schema.types.find((k: GQLType) => k.name === schema.queryType.name)
     let query = createAccessor(
         {
             accessLog: log,
             data: {},
-            typeRef: queryType!,
+            typeRef: schema['&query'] as CompactGQLTypeRef,
             path: [],
         },
         {
@@ -37,7 +43,7 @@ test('Basic Accessor (dry)', async () => {
 
     expect(log).toMatchInlineSnapshot(`
         Object {
-          "{\\"type\\":\\"METHOD\\",\\"object\\":\\"Query\\",\\"name\\":\\"echo\\",\\"args\\":{\\"message\\":\\"wumbo\\"},\\"key\\":\\"echo___n9s5aq\\"}": Object {
+          "{\\"type\\":\\"METHOD\\",\\"object\\":\\"0\\",\\"name\\":\\"echo\\",\\"args\\":{\\"message\\":\\"wumbo\\"},\\"key\\":\\"echo___n9s5aq\\"}": Object {
             "__get": true,
           },
         }
@@ -55,6 +61,7 @@ test('Basic Accessor (dry)', async () => {
 
 test('Interfaces (dry)', async () => {
     let log = {}
+
     let schema = await parseGraphQL(gql`
         type Query {
             favoriteHero: Character
@@ -71,12 +78,12 @@ test('Interfaces (dry)', async () => {
             moopleDoops: Float
         }
     `)
-    let queryType = schema.types.find((k: GQLType) => k.name === schema.queryType.name)
+    //
     let query = createAccessor(
         {
             accessLog: log,
             data: {},
-            typeRef: queryType!,
+            typeRef: schema['&query'] as CompactGQLTypeRef,
             path: [],
         },
         {
@@ -92,7 +99,7 @@ test('Interfaces (dry)', async () => {
     expect(log).toMatchInlineSnapshot(`
         Object {
           "{\\"type\\":\\"PROP\\",\\"name\\":\\"favoriteHero\\"}": Object {
-            "{\\"type\\":\\"AS\\",\\"name\\":\\"Human\\"}": Object {
+            "{\\"type\\":\\"AS\\",\\"name\\":\\"Human\\",\\"prefix\\":\\"__AS_Human___\\"}": Object {
               "{\\"type\\":\\"PROP\\",\\"name\\":\\"age\\"}": Object {
                 "__get": true,
               },
@@ -135,12 +142,12 @@ test('Unions (dry)', async () => {
             moopleDoops: Float
         }
     `)
-    let queryType = schema.types.find((k: GQLType) => k.name === schema.queryType.name)
+
     let query = createAccessor(
         {
             accessLog: log,
             data: {},
-            typeRef: queryType!,
+            typeRef: schema['&query'] as CompactGQLTypeRef,
             path: [],
         },
         {
@@ -156,7 +163,7 @@ test('Unions (dry)', async () => {
     expect(log).toMatchInlineSnapshot(`
         Object {
           "{\\"type\\":\\"PROP\\",\\"name\\":\\"favoriteHero\\"}": Object {
-            "{\\"type\\":\\"AS\\",\\"name\\":\\"Human\\"}": Object {
+            "{\\"type\\":\\"AS\\",\\"name\\":\\"Human\\",\\"prefix\\":\\"__AS_Human___\\"}": Object {
               "{\\"type\\":\\"PROP\\",\\"name\\":\\"age\\"}": Object {
                 "__get": true,
               },
@@ -199,7 +206,7 @@ test('Unions (wet)', async () => {
             moopleDoops: Float
         }
     `)
-    let queryType = schema.types.find((k: GQLType) => k.name === schema.queryType.name)
+
     let query = createAccessor(
         {
             accessLog: log,
@@ -209,7 +216,7 @@ test('Unions (wet)', async () => {
                     __AS_Human___name: 'blarg',
                 },
             },
-            typeRef: queryType!,
+            typeRef: schema['&query'] as CompactGQLTypeRef,
             path: [],
         },
         {
@@ -240,12 +247,12 @@ test('__typename (dry)', async () => {
             moopleDoops: Float
         }
     `)
-    let queryType = schema.types.find((k: GQLType) => k.name === schema.queryType.name)
+
     let query = createAccessor(
         {
             accessLog: log,
             data: {},
-            typeRef: queryType!,
+            typeRef: schema['&query'] as CompactGQLTypeRef,
             path: [],
         },
         {
@@ -305,7 +312,7 @@ test('__typename (wet)', async () => {
             moopleDoops: Float
         }
     `)
-    let queryType = schema.types.find((k: GQLType) => k.name === schema.queryType.name)
+
     let query = createAccessor(
         {
             accessLog: log,
@@ -314,7 +321,7 @@ test('__typename (wet)', async () => {
                     __typename: 'Human',
                 },
             },
-            typeRef: queryType!,
+            typeRef: schema['&query'] as CompactGQLTypeRef,
             path: [],
         },
         {
@@ -337,12 +344,12 @@ test('Lists (dry)', async () => {
             name: String
         }
     `)
-    let queryType = schema.types.find((k: GQLType) => k.name === schema.queryType.name)
+
     let query = createAccessor(
         {
             accessLog: log,
             data: {},
-            typeRef: queryType!,
+            typeRef: schema['&query'] as CompactGQLTypeRef,
             path: [],
         },
         {
@@ -388,12 +395,12 @@ test('Enums (dry)', async () => {
             RED
         }
     `)
-    let queryType = schema.types.find((k: GQLType) => k.name === schema.queryType.name)
+
     let query = createAccessor(
         {
             accessLog: log,
             data: {},
-            typeRef: queryType!,
+            typeRef: schema['&query'] as CompactGQLTypeRef,
             path: [],
         },
         {
@@ -440,12 +447,12 @@ test('Enums Arguments', async () => {
             RED
         }
     `)
-    let queryType = schema.types.find((k: GQLType) => k.name === schema.queryType.name)
+
     let query = createAccessor(
         {
             accessLog: log,
             data: {},
-            typeRef: queryType!,
+            typeRef: schema['&query'] as CompactGQLTypeRef,
             path: [],
         },
         {
@@ -467,10 +474,10 @@ test('Enums Arguments', async () => {
 
     expect(log).toMatchInlineSnapshot(`
         Object {
-          "{\\"type\\":\\"METHOD\\",\\"object\\":\\"Query\\",\\"name\\":\\"peopleMatchingThisQuery\\",\\"args\\":{\\"filter\\":{\\"color\\":\\"RED\\"}},\\"key\\":\\"peopleMatchingThisQuery___d7j9bf\\"}": Object {
+          "{\\"type\\":\\"METHOD\\",\\"object\\":\\"0\\",\\"name\\":\\"peopleMatchingThisQuery\\",\\"args\\":{\\"filter\\":{\\"color\\":\\"RED\\"}},\\"key\\":\\"peopleMatchingThisQuery___d7j9bf\\"}": Object {
             "__get": true,
           },
-          "{\\"type\\":\\"METHOD\\",\\"object\\":\\"Query\\",\\"name\\":\\"peopleWhoLikeThisColor\\",\\"args\\":{\\"color\\":\\"BLUE\\"},\\"key\\":\\"peopleWhoLikeThisColor___iezvh6\\"}": Object {
+          "{\\"type\\":\\"METHOD\\",\\"object\\":\\"0\\",\\"name\\":\\"peopleWhoLikeThisColor\\",\\"args\\":{\\"color\\":\\"BLUE\\"},\\"key\\":\\"peopleWhoLikeThisColor___iezvh6\\"}": Object {
             "__get": true,
           },
         }
@@ -500,14 +507,14 @@ test('Enums (wet)', async () => {
             RED
         }
     `)
-    let queryType = schema.types.find((k: GQLType) => k.name === schema.queryType.name)
+
     let query = createAccessor(
         {
             accessLog: log,
             data: {
                 favoriteColors: ['BLUE', 'GREEN', 'RED'],
             },
-            typeRef: queryType!,
+            typeRef: schema['&query'] as CompactGQLTypeRef,
             path: [],
         },
         {
@@ -529,7 +536,7 @@ test('Lists (wet)', async () => {
             name: String
         }
     `)
-    let queryType = schema.types.find((k: GQLType) => k.name === schema.queryType.name)
+
     let query = createAccessor(
         {
             accessLog: log,
@@ -543,7 +550,7 @@ test('Lists (wet)', async () => {
                     },
                 ],
             },
-            typeRef: queryType!,
+            typeRef: schema['&query'] as CompactGQLTypeRef,
             path: [],
         },
         {
