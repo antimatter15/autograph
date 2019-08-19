@@ -966,7 +966,7 @@ test('Exception for unhandled type', () => {
             queryType: { name: 'Query' },
             types: [
                 {
-                    kind: 'Wumbo',
+                    kind: 'Wumbo' as any,
                     name: 'Derp',
                 },
             ],
