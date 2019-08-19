@@ -5,6 +5,7 @@ import * as GQL from './pokemon.schema'
 
 const AutographRoot = createRoot({
     client: 'https://graphql-pokemon.now.sh/graphql',
+    schema: GQL.schema
 })
 
 function AppLoadingGuard() {
@@ -43,6 +44,7 @@ function AppEarlyReturn() {
 
 function PokemonSearcherEarlyReturn({ text }) {
     let query: GQL.Query = useQuery('Blah')
+    console.log(query._loading)
     if (query._error) return <div>{query._error.toString()}</div>
     if (query._loading) return <div>searching the pokedex....</div>
     let pokemon = query.pokemon({ name: text })

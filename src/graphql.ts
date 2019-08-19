@@ -5,6 +5,16 @@ export const AutographSentinels = {
     Int: 123719283783,
 }
 
+export const BUILTIN_TYPES = [
+    '__Directive',
+    '__DirectiveLocation',
+    '__EnumValue',
+    '__Field',
+    '__InputValue',
+    '__Schema',
+    '__Type',
+    '__TypeKind',
+]
 export type AccessorComponent =
     | {
           type: 'AS'
@@ -243,6 +253,8 @@ export type GQLQuery = {
 
 export default function accessLogToGraphQL(log: AccessLog, schema: CompactGQLSchema): GQLQuery {
     let varinfo: { [key: string]: VariableInfo } = {}
+    if(!schema) throw new Error('Compact GraphQL schema must be provided');
+    
     let gql = convertRecursive(log, schema, varinfo, '')
     if (Object.keys(varinfo).length > 0) {
         gql =
@@ -491,6 +503,11 @@ export function compressGQLSchema(schema: GQLSchema): CompactGQLSchema {
         indices[type.name!] = i.toString(36)
     }
     for(let type of schema.types){
+        if(BUILTIN_TYPES.includes(type.name!)) continue;
+        // We don't allow using the GraphQL introspection API 
+        // through Autograph so we don't include them in the 
+        // compressed schema representation. We might want to 
+        // change this in the future. 
         compact[indices[type.name!]] = compressGQLType(type, indices)
     }
 
@@ -503,3 +520,4 @@ export function compressGQLSchema(schema: GQLSchema): CompactGQLSchema {
 }
 
 ;(global as any).compressGQLSchema = compressGQLSchema
+

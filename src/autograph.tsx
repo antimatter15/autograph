@@ -80,6 +80,7 @@ class AutographApolloClient {
 
 type AutographConfig = {
     client: string | any
+    schema?: CompactGQLSchema
 }
 
 type AutographQueryConfig = {
@@ -126,6 +127,7 @@ class AutographModel {
         return this.queries[config.id]
     }
     dryRender() {
+        
         // prepare dry render
         for (let query of Object.values(this.queries)) {
             query.lastDeps = query.deps
@@ -244,7 +246,8 @@ class AutographQuery {
     }
 
     refetch() {
-        let gql = accessLogToGraphQL(this.deps, this.client.compactSchema)
+        let gql = accessLogToGraphQL(this.deps, this.schema)
+        console.log('fetching...', gql, this.version)
         this.version++
         this.dataPromise = this.client
             .fetchQuery(gql)
@@ -270,14 +273,18 @@ class AutographQuery {
             })
     }
 
+    get schema(): CompactGQLSchema {
+        let schema = this.client.compactSchema || this.root.config.schema
+        return schema
+    }
     createHandle(handleOptions: HandleOptions = {}) {
         if (handleOptions === true) {
             handleOptions = { boundary: true }
         }
 
         // get the graphql query root
-        let queryRoot: CompactGQLTypeRef = this.client.schemaData ? 
-            (this.client.compactSchema['&query'] as CompactGQLTypeRef) :
+        let queryRoot: CompactGQLTypeRef = this.schema ? 
+            (this.schema['&query'] as CompactGQLTypeRef) :
             '__NOSCHEMA'
 
         if (this.root.currentlyDryRendering) {
@@ -288,7 +295,7 @@ class AutographQuery {
                 typeRef: queryRoot,
             })
         } else {
-            if (!this.client.schemaData && !this.client.schemaPromise && !this.client.schemaError) {
+            if (!this.schema && !this.client.schemaPromise && !this.client.schemaError) {
                 this.version++
                 this.client.schemaPromise = new Promise((resolve) => {
 
@@ -353,7 +360,7 @@ class AutographQuery {
                 path: [],
             },
             {
-                schema: this.client.compactSchema,
+                schema: this.schema,
                 isDry: info.isDry,
                 returnValueHook: (value, state, config) => {
                     if (config.isDry) {

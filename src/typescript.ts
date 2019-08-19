@@ -1,4 +1,4 @@
-import { GQLSchema, GQLTypeRef } from './graphql'
+import { GQLSchema, GQLTypeRef, BUILTIN_TYPES, compressGQLSchema } from './graphql'
 
 // We try to generate code here which is both valid Flow and Typescript
 
@@ -23,16 +23,7 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
     ts += INDENT + '__typename: string,\n'
     ts += '}\n\n'
 
-    const BUILTIN_TYPES = [
-        '__Directive',
-        '__DirectiveLocation',
-        '__EnumValue',
-        '__Field',
-        '__InputValue',
-        '__Schema',
-        '__Type',
-        '__TypeKind',
-    ]
+    
 
     const SCALAR_MAP = {
         Int: 'number',
@@ -157,6 +148,9 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
             throw new Error(`Unable to handle type "${type.kind}" named "${type.name}"`)
         }
     }
+
+    ts += '/** Compact representation of GraphQL schema used by Autograph */\n'
+    ts += 'export const schema = ' + JSON.stringify(compressGQLSchema(schema)) + '\n\n'
     return ts
 }
 
