@@ -582,6 +582,17 @@ However the GraphQL schema contains a lot of additional information that isn't r
 
 In the future we could potentially use an even more succinct representation where we don't store the arguments to fields. We only need to keep track of ENUM and INPUT_OBJECT types of arguments— and we don't even need to store the actual INPUT_OBJECT since we can rely on variables and coercion. 
 
+However experiments show that this is unlikely to net a huge efficiency gain. On the Github API it seems that this only goes from 124,000 bytes to 119,000 bytes, only a 4% improvement. 
+
+### Experiment: Schemaless Autograph with Proxies (August 19, 2019)
+
+One aspect of Autograph is that you need to load a copy of the schema in order for the dry rendering process to return plausible outputs. This means that the most advanced JS feature we depend on is getters— supported in all versions of IE since 9. 
+
+However for large APIs, the schema may be quite large— which could slow down page loading. Additionally, if one opts not to include a schema this results in an annoying pause before anything can load as Autograph tries to fetch the schema with introspection. 
+
+However it may be possible to build a comparatively simpler version of Autograph that does not require a schema. Instead it could use proxies (which means it Edge 12 or later). 
+
+Instead of returning plausible values, it would return a kind of universal object which can be called as if it were a function, mapped as if it were an array, etc. 
 
 ## TODO
 
