@@ -135,11 +135,11 @@ class AutographModel {
         }
         // execute the dry render
         this.currentlyDryRendering = true
-        console.groupCollapsed('Dry Render')
+        // console.groupCollapsed('Dry Render')
         eager.explore(() => {
             _dryRender(elementFromFiber(this.mountedFiber), this.mountedFiber)
         })
-        console.groupEnd()
+        // console.groupEnd()
         lastHandleValue = null
         lastHandlePointer = null
         this.currentlyDryRendering = false
@@ -247,7 +247,6 @@ class AutographQuery {
 
     refetch() {
         let gql = accessLogToGraphQL(this.deps, this.schema)
-        console.log('fetching...', gql, this.version)
         this.version++
         this.dataPromise = this.client
             .fetchQuery(gql)
