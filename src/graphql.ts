@@ -87,7 +87,7 @@ const convertRecursive = (
 
     const encodeValue = (type: CompactGQLTypeRef, value: any): string => {
         let inline = encodeValueInline(schema, type, value)
-        if (inline !== null && inline.length < MAX_INLINE_GQL_ARG_LENGTH) {
+        if (inline !== null /*&& inline.length < MAX_INLINE_GQL_ARG_LENGTH*/) {
             return inline
         } else {
             // TODO: encode custom scalar types here
@@ -234,15 +234,27 @@ const encodeValueInline = (
     }
 }
 
-function GQLTypeToString(typeRef: CompactGQLTypeRef): string {
+function GQLTypeToString(typeRef: CompactGQLTypeRef, schema: CompactGQLSchema): string {
     if(typeRef[0] === '!'){
+        // NON_NULL
         let ofType = typeRef.slice(1)
-        return GQLTypeToString(ofType) + '!'
+        return GQLTypeToString(ofType, schema) + '!'
     }else if(typeRef[0] === '*'){
+        // LIST
         let ofType = typeRef.slice(1)
-        return '[' + GQLTypeToString(ofType) + ']'
+        return '[' + GQLTypeToString(ofType, schema) + ']'
     }else{
-        return typeRef
+        let type = schema[typeRef];
+        if(Array.isArray(type)){
+            // ENUM
+            return type[1]
+        }else if(typeof type === 'string' && type[0] === '#'){
+            // SCALAR
+            return type.slice(1)
+        }else{
+            // INPUT_OBJECT
+            return type['@']
+        }
     }
 }
 
@@ -256,11 +268,12 @@ export default function accessLogToGraphQL(log: AccessLog, schema: CompactGQLSch
     if(!schema) throw new Error('Compact GraphQL schema must be provided');
     
     let gql = convertRecursive(log, schema, varinfo, '')
+    // TODO: investigate the fact this is probably broken with the compact representation
     if (Object.keys(varinfo).length > 0) {
         gql =
             'query(' +
             Object.entries(varinfo)
-                .map(([key, val]) => '$' + key + ': ' + GQLTypeToString(val.type))
+                .map(([key, val]) => '$' + key + ': ' + GQLTypeToString(val.type, schema))
                 .join(', ') +
             ')' +
             gql
@@ -457,6 +470,7 @@ function compressGQLType(type: GQLType, indices: {[key: string]: string}): Compa
         for(let field of type.inputFields || []){
             compact[field.name] = compressGQLTypeRef(field.type, indices)
         }
+        compact['@'] = type.name;
         return compact
     }else if(type.kind === 'INTERFACE' || type.kind === 'UNION' || type.kind === 'OBJECT'){
         let compact = {}
@@ -487,7 +501,8 @@ function compressGQLType(type: GQLType, indices: {[key: string]: string}): Compa
     }else if(type.kind === 'ENUM'){
         // we only need one of the enum values in order to properly 
         // generate fake data, so we don't need the rest of the values
-        return type.enumValues!.map(k => k.name).slice(0, 1)
+        // return type.enumValues!.map(k => k.name).slice(0, 1)
+        return [ type.enumValues![0].name, type.name! ]
     }else if(type.kind === 'SCALAR'){
         return '#' + type.name
     }else{

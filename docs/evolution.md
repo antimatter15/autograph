@@ -573,6 +573,15 @@ When the query resolves, the correct data is loaded, and the code will likely ob
 
 We pass in enum arguments as string literals, but GraphQL expects them to be unquoted. To support this we have to traverse the GraphQL schema and identify the enum values so that they can be unquoted. 
 
+## Compact Schema Representation (August 18, 2019)
+
+Autograph needs access to the GraphQL schema in order to generate fake data for the dry render process. This can be problematic for certain large APIs like Github's which can be over 2MB in size. 
+
+However the GraphQL schema contains a lot of additional information that isn't really necessary for Autograph. For instance, we don't need to know all the possible values for an Enum type. We don't need to know the internal names of interfaces or unions. And in general we can encode the information that we care about in a more succinct way. Additionally Autograph doesn't need to know types
+
+
+In the future we could potentially use an even more succinct representation where we don't store the arguments to fields. We only need to keep track of ENUM and INPUT_OBJECT types of arguments— and we don't even need to store the actual INPUT_OBJECT since we can rely on variables and coercion. 
+
 
 ## TODO
 
