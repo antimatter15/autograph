@@ -1,4 +1,10 @@
 // Schemaless Autograph
+
+// Autograph needs to have access to the GraphQL schema before it can do anything.
+// For large APIs the schema can be as large as several megabytes, which can slow
+// down the initial page load. This prototype is concerned with the possibility of 
+// using ES6 Proxies to generate GraphQL queries without needing a schema. 
+
 // Advantages: 
 // - Simpler to implement as it does not require code to parse GQL schemas
 // - Faster to load because it does not use schemas
@@ -10,6 +16,13 @@
 // - Enum arguments need to be wrapped with special function (cant pass raw strings)
 // - Custom scalar arguments need to be wrapped with special function
 // - Can't have GQL fields named `map`, `sort`, `filter`, `length` or other array methods. 
+
+// Features:
+// - Enums
+// - Variables / Custom scalars
+// - Inline fragments
+// - Fields / Arguments
+// - Array values (map, forEach, filter)
 
 
 function makeHandle(log){
@@ -34,7 +47,7 @@ function makeHandle(log){
         get(target, key){
             if(key in arrayMethods) return arrayMethods[key];
             if(key === 'length'){
-                proxy.__typename;
+            //     proxy.__typename;
                 return 1
             }
             let sub = (log[key] = log[key] || {})
@@ -112,6 +125,10 @@ function generateGQL(log){
 }
 
 function Variable(type, value){
+    // currying
+    if(value === undefined) 
+        return value => Variable(type, value);
+
     return {
         __var: type,
         __val: value

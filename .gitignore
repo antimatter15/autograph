@@ -7,3 +7,5 @@ node_modules
 *.swp
 .next
 docs/api-*
+website/static/api
+api_docs
