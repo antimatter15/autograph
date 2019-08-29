@@ -13,6 +13,7 @@ import {
 import * as GQL from './github.schema'
 
 const AutographRoot = createRoot({
+    schema: GQL.schema,
     client: new AutographBasicClient({
         url: 'https://api.github.com/graphql',
         headers: {
