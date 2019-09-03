@@ -448,7 +448,7 @@ test('GQL Enums', async () => {
         export type Episode = \\"NEWHOPE\\" | \\"EMPIRE\\" | \\"JEDI\\"
 
         /** Compact representation of GraphQL schema used by Autograph */
-        export const schema = {\\"0\\":{\\"favoriteMovie\\":\\"!1\\",\\"@\\":\\"Query\\"},\\"1\\":[\\"NEWHOPE\\"],\\"5\\":\\"#String\\",\\"6\\":\\"#Boolean\\",\\"&query\\":\\"0\\"}
+        export const schema = {\\"0\\":{\\"favoriteMovie\\":\\"!1\\",\\"@\\":\\"Query\\"},\\"1\\":[\\"NEWHOPE\\",\\"Episode\\"],\\"5\\":\\"#String\\",\\"6\\":\\"#Boolean\\",\\"&query\\":\\"0\\"}
 
         "
     `)
@@ -574,7 +574,7 @@ test('GQL Interfaces', async () => {
         }
 
         /** Compact representation of GraphQL schema used by Autograph */
-        export const schema = {\\"0\\":{\\"hero\\":\\"1\\",\\"@\\":\\"Query\\"},\\"1\\":{\\"id\\":\\"!2\\",\\"name\\":\\"!3\\",\\"friends\\":\\"*1\\",\\"appearsIn\\":\\"!*4\\",\\"~Human\\":\\"f\\",\\"~Droid\\":\\"h\\"},\\"2\\":\\"#ID\\",\\"3\\":\\"#String\\",\\"4\\":[\\"NEWHOPE\\"],\\"8\\":\\"#Boolean\\",\\"e\\":{\\"name\\":\\"3\\"},\\"f\\":{\\"id\\":\\"!2\\",\\"name\\":\\"!3\\",\\"friends\\":\\"*1\\",\\"appearsIn\\":\\"!*4\\",\\"totalCredits\\":\\"g\\",\\"@\\":\\"Human\\"},\\"g\\":\\"#Int\\",\\"h\\":{\\"id\\":\\"!2\\",\\"name\\":\\"!3\\",\\"friends\\":\\"*1\\",\\"appearsIn\\":\\"!*4\\",\\"primaryFunction\\":\\"3\\",\\"@\\":\\"Droid\\"},\\"&query\\":\\"0\\"}
+        export const schema = {\\"0\\":{\\"hero\\":\\"1\\",\\"@\\":\\"Query\\"},\\"1\\":{\\"id\\":\\"!2\\",\\"name\\":\\"!3\\",\\"friends\\":\\"*1\\",\\"appearsIn\\":\\"!*4\\",\\"~Human\\":\\"f\\",\\"~Droid\\":\\"h\\"},\\"2\\":\\"#ID\\",\\"3\\":\\"#String\\",\\"4\\":[\\"NEWHOPE\\",\\"Episode\\"],\\"8\\":\\"#Boolean\\",\\"e\\":{\\"name\\":\\"3\\"},\\"f\\":{\\"id\\":\\"!2\\",\\"name\\":\\"!3\\",\\"friends\\":\\"*1\\",\\"appearsIn\\":\\"!*4\\",\\"totalCredits\\":\\"g\\",\\"@\\":\\"Human\\"},\\"g\\":\\"#Int\\",\\"h\\":{\\"id\\":\\"!2\\",\\"name\\":\\"!3\\",\\"friends\\":\\"*1\\",\\"appearsIn\\":\\"!*4\\",\\"primaryFunction\\":\\"3\\",\\"@\\":\\"Droid\\"},\\"&query\\":\\"0\\"}
 
         "
     `)
@@ -640,7 +640,7 @@ test('GQL Input Type', async () => {
         }
 
         /** Compact representation of GraphQL schema used by Autograph */
-        export const schema = {\\"0\\":{\\"hello\\":{\\"input\\":\\"!1\\",\\":\\":\\"3\\"},\\"rumor\\":{\\"input\\":\\"4\\",\\":\\":\\"3\\"},\\"@\\":\\"Query\\"},\\"1\\":{\\"id\\":\\"!2\\",\\"commentary\\":\\"3\\"},\\"2\\":\\"#ID\\",\\"3\\":\\"#String\\",\\"4\\":{\\"murmurs\\":\\"3\\"},\\"8\\":\\"#Boolean\\",\\"&query\\":\\"0\\"}
+        export const schema = {\\"0\\":{\\"hello\\":{\\"input\\":\\"!1\\",\\":\\":\\"3\\"},\\"rumor\\":{\\"input\\":\\"4\\",\\":\\":\\"3\\"},\\"@\\":\\"Query\\"},\\"1\\":{\\"id\\":\\"!2\\",\\"commentary\\":\\"3\\",\\"@\\":\\"ReviewInput\\"},\\"2\\":\\"#ID\\",\\"3\\":\\"#String\\",\\"4\\":{\\"murmurs\\":\\"3\\",\\"@\\":\\"OtherInput\\"},\\"8\\":\\"#Boolean\\",\\"&query\\":\\"0\\"}
 
         "
     `)
@@ -820,7 +820,7 @@ test('GQL Descriptions', async () => {
         export type Language = \\"EN\\" | \\"FR\\" | \\"CH\\"
 
         /** Compact representation of GraphQL schema used by Autograph */
-        export const schema = {\\"0\\":{\\"translate\\":{\\"fromLanguage\\":\\"1\\",\\"toLanguage\\":\\"1\\",\\"text\\":\\"2\\",\\":\\":\\"2\\"},\\"@\\":\\"Query\\"},\\"1\\":[\\"EN\\"],\\"2\\":\\"#String\\",\\"6\\":\\"#Boolean\\",\\"&query\\":\\"0\\"}
+        export const schema = {\\"0\\":{\\"translate\\":{\\"fromLanguage\\":\\"1\\",\\"toLanguage\\":\\"1\\",\\"text\\":\\"2\\",\\":\\":\\"2\\"},\\"@\\":\\"Query\\"},\\"1\\":[\\"EN\\",\\"Language\\"],\\"2\\":\\"#String\\",\\"6\\":\\"#Boolean\\",\\"&query\\":\\"0\\"}
 
         "
     `)
