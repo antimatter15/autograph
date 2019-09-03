@@ -1,0 +1,5 @@
+# Extends config found here: https://github.com/reporanger/default/blob/master/.github/ranger.yml
+extends: reporanger/default
+
+labels:
+  dependencies: merge
