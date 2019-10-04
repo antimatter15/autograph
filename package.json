@@ -25,7 +25,7 @@
     "parcel": "^1.12.3",
     "prettier": "^1.18.2",
     "react": "^16.10.1",
-    "react-dom": "^16.10.1",
+    "react-dom": "^16.10.2",
     "react-test-renderer": "^16.10.1",
     "ts-jest": "^24.1.0",
     "tsc": "^1.20150623.0",
