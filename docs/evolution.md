@@ -691,7 +691,7 @@ don't even need to store the actual INPUT_OBJECT since we can rely on variables 
 However experiments show that this is unlikely to net a huge efficiency gain. On the Github API it
 seems that this only goes from 124,000 bytes to 119,000 bytes, only a 4% improvement.
 
-### Experiment: Schemaless Autograph with Universal Proxy (August 19, 2019)
+## Experiment: Schemaless Autograph with Universal Proxy (August 19, 2019)
 
 One aspect of Autograph is that you need to load a copy of the schema in order for the dry rendering
 process to return plausible outputs. This means that the most advanced JS feature we depend on is
@@ -740,7 +740,7 @@ The schemaless approach is an interesting one but there are likely enough edge c
 shouldn't serve as the mainline foundation of Autograph. It also requires on ES6 proxies which
 aren't supported by about 7% of browsers.
 
-### Idea: Autograph sans GraphQL (December 2, 2019)
+## Idea: Autograph sans GraphQL (December 2, 2019)
 
 Instead of having the generator operate on datastructures derived from GraphQL schemas, we can have
 the schema directly map to function calls exposed on a backend module. We could extract type
@@ -756,7 +756,7 @@ From cursory experiments, it seems that
 [typescript-json-schema](https://github.com/YousefED/typescript-json-schema) doesn't figure out the
 types of methods.
 
-### Idea: Schemaless Autograph with Type Casting (December 2, 2019)
+## Idea: Schemaless Autograph with Type Casting (December 2, 2019)
 
 We could have an `as` function that acts as a fallback during the dry render for a generic proxy
 object which allows the user to specify what data type is expected.
@@ -771,7 +771,7 @@ as(GQL.findFriends({ name: 42 }), [Obj])
 This looks pretty clunky and ugly— it's mostly a slightly more explicit version of the schemaless
 universal proxy idea.
 
-### Autograph, React Concurrent Mode, and SSR (December 2, 2019)
+## Autograph, React Concurrent Mode, and SSR (December 2, 2019)
 
 The goal for React SSR and Concurrent Mode should be that certain components which can load quickly
 are loaded quickly, and components which take a while to load start fetching but get shipped out if
@@ -802,7 +802,7 @@ directive, it can skip the entire subtree and render the fallback.
     any timeout of a parent
 -   `number` — Attempts to fetch data, but aborts if specified timeout exceeded
 
-### Autograph, React Concurrent Mode (December 2, 2019)
+## Autograph, React Concurrent Mode (December 2, 2019)
 
 React has a new `useTransition` API
 
@@ -829,6 +829,75 @@ function App() {
         </div>
     )
 }
+```
+
+## Autograph + Suspense (December 3, 2019)
+
+There isn't anything substantively new here, if anything there's less. Autograph has gone through
+essentially dozens of different research prototypes in the past year, and there are a bunch of
+different trade-offs and capabilities that we've explored in the space. But we're trying to build a
+library that people can use, and part of that means being opinionated about what the right way to do
+things is.
+
+Autograph is probably best suited as a new-agey Suspense for Data Fetching library.
+
+So with the new documentation that's come from the React team, here's how the Autograph API should
+work.
+
+We can essentially drop all the other capabilities that we've previously developed, because it
+mostly serves to make the interface more complicated. We should spend a lot of time trying to
+explain how the `startTransition`, `suspense`, and `useDeferredValue` bits work.
+
+```js
+const Ag = createAutograph('https://my-graphql-endpoint.com/graphql', GQL)
+
+function App() {
+    let query = Ag.useQuery('stuff')
+
+    return (
+        <div>
+            {query.name}
+            <Button
+                onClick={(e) => {
+                    Ag.refetch('stuff')
+                }}
+            >
+                Reload
+            </Button>
+
+            <Button
+                onClick={async (e) => {
+                    await Ag.mutation.ChangeThis({}, 'stuff')
+                }}
+            >
+                Mutate
+            </Button>
+        </div>
+    )
+}
+
+function Button({ children, onClick }) {
+    const [startTransition, isPending] = useTransition({ timeoutMs: 1000 })
+    return (
+        <button
+            onClick={(e) => {
+                startTransition(() => {
+                    onClick()
+                })
+            }}
+        >
+            {isPending ? 'Loading...' : children}
+        </button>
+    )
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+    <Ag.Provider>
+        <Suspense fallback={<div>Loading...</div>}>
+            <App />
+        </Suspense>
+    </Ag.Provider>
+)
 ```
 
 ## TODO
