@@ -9,6 +9,7 @@ using ES6 Proxies to generate GraphQL queries without needing a schema.
 
 - Simpler to implement as it does not require code to parse GQL schemas
 - Faster to load because it does not use schemas
+- No initial global loading indicator while fetching schema
 - Less overhead as schema does not have to be shipped with the app
 
 ### Disadvantages
@@ -29,4 +30,14 @@ using ES6 Proxies to generate GraphQL queries without needing a schema.
 
 ### Conclusion
 
-The schemaless approach is an interesting one but 
+The schemaless approach is an interesting one but there are likely enough edge cases that it
+shouldn't serve as the mainline foundation of Autograph.
+
+It's also problematic not to be able to support IE8, IE9, IE10, and IE11. There's still 8% or so of the web that doesn't support ES6 Proxies. 
+
+### Addendum
+
+The main advantage of the schemaless approach is that we don't have to write/maintain the code for interpreting and enforcing the GraphQL schema. 
+
+However, it may be possible to have a hybrid approach during debugging, where the GraphQL schema is fetched asynchronously, and made to complain in the case of GQL fields named after array methods, and to provide more helpful debug information. 
+
