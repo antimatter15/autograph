@@ -872,6 +872,8 @@ function App() {
             >
                 Mutate
             </Button>
+
+            <InlineComponent>{() => {}}</InlineComponent>
         </div>
     )
 }
@@ -899,6 +901,98 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </Ag.Provider>
 )
 ```
+
+## Directives (December 3, 2019)
+
+We have the ability to specify GraphQL directives in Autograph with the `Directive` function.
+
+```js
+Directive('@skip', query.hello)
+```
+
+This corresponds to the following query:
+
+```
+query {
+    hello @skip
+}
+```
+
+For instance, let's say we have the following code:
+
+```js
+<div>
+    A: {Directive('@increment', query.one)}
+    B: {query.one}
+</div>
+```
+
+The counterintuitive result is that the page displays "A: 2, B: 2", rather than the expected "A: 2,
+B: 1", because the directive bleeds off into the plain `query.one`.
+
+This is because the system can't distinguish between the case where the directive is applied and the
+value without a directive is needed and the case where the value without a directive isn't needed.
+For certain directives, fetching both would defeat the point of having the directive in the first
+place (e.g. `@skip`), so we err on the side of the bleeding side effects.
+
+We can however detect and notify the developer in such situations. If during the dry render, a
+directive is applied on a value, we can in runtime replace that value with a message that points to
+this (or some similar) explanation. That value needs to be passed into the `Directive` function to
+retrieve the appropriate value.
+
+To access the unmasked value as well, we would use a `Directive` statement with an empty directive
+to access the raw value. In the following code, we'd see the expected "A: 2, B: 1".
+
+```js
+<div>
+    A: {Directive('@increment', query.one)}
+    B: {Directive('', query.one)}
+</div>
+```
+
+## Server Side Rendering (December 3, 2019)
+
+It might be tempting to use `react-ssr-prepass` or some other version of `renderToString` that
+supports Suspense in order to do SSR with Autograph.
+
+However this is wasteful because we'd still have to do a dry render pass upon the first Suspense
+throw. This means effectively rendering your app an extra 3 or more times instead of just one
+(lightweight) pass.
+
+We can implement a custom `Ag.Suspense` component which wraps `React.Suspense` but introduces the
+ability to define a React component inline, as well as supporting `ssr` directives (e.g. skipping
+SSR on a particular subtree).
+
+One interesting thing about `Ag.Suspense` is that it doesn't actually interact with Autograph
+internals and can be implemented as an ordinary component.
+
+## Data Fetching Approaches (December 3, 2019)
+
+The React Team has a few words to say about the differences between
+[different ways of fetching data](https://reactjs.org/docs/concurrent-mode-suspense.html#traditional-approaches-vs-suspense).
+
+Fetch-on-Render is the most common way to fetch data in existing React components. It involves
+putting your fetch logic within a component (in a `useEffect` or `componentDidMount`). It has the
+advantage of colocating your data fetching logic with the display logic that depends on the data. It
+is unfortunately susceptable to waterfalls- where certain pieces of information don't even begin to
+fetch until parent components have loaded.
+
+Fetch-then-Render is the typical solution to the waterfall problem that works by moving the data
+fetching logic out and into some centralized component. This makes the description of a component
+somewhat non-local unfortunately, which makes it harder to maintain. Additionally, it makes it so
+that the application can't render anything until all the data has been loaded.
+
+Render-as-you-Fetch is the favored approach in Relay with Suspense. It still separates some of the
+data fetching from the display logic (some of the data fetching code goes with the event handlers
+that trigger a view, which makes the user interface somewhat annoyingly path-dependent which
+diminishes one aspect that made React compelling in the first place). One of the big problems with
+traditional imperative UI frameworks was that views often became path-dependent— the specific order
+of button clicks could sometimes lead you to different views.
+
+Eager-Fetch-on-Render is what Autograph does, which uses a virtual render pass in order to determine
+all the data dependencies in one pass, so it can even fetch nested components immediately (thus
+being generally immune to waterfall issues). It also preserves the locality of data fetching and
+display logic, and thus minimizes path-dependence.
 
 ## TODO
 

@@ -6,15 +6,15 @@ function delay(ms) {
 }
 
 let cache = {}
-function get(field, data, ms=500){
-    if(field in cache){
-        if(cache[field] instanceof Promise){
+function get(field, data, ms = 500) {
+    if (field in cache) {
+        if (cache[field] instanceof Promise) {
             throw cache[field]
-        }else{
+        } else {
             return cache[field]
-        }    
-    }else{
-        cache[field] = delay(ms).then(k => {
+        }
+    } else {
+        cache[field] = delay(ms).then((k) => {
             cache[field] = data
         })
         throw cache[field]
@@ -27,88 +27,115 @@ function App() {
     // let [startTransition, isPending] = useTransition({ timeoutMs: 5000 })
     let startTransition = useGlobalTransition()
 
-    return <div>
-        <button onClick={e => {
-            startTransition(() => {
-                setState(k => k + 1)    
-            })
-
-        }}>Next page</button>
-
+    return (
         <div>
-            Page: {state}
+            <button
+                onClick={(e) => {
+                    startTransition(() => {
+                        setState((k) => k + 1)
+                    })
+                }}
+            >
+                Next page
+            </button>
 
-            <DataPage page={state} />
-
-            <Suspense2>{
-                () => {
-                    return <div>{get(state, 'hello ' + state)}</div>
-                }
-            }</Suspense2>
+            <div>
+                Page: {state}
+                <DataPage page={state} />
+                <Suspense2>
+                    {() => {
+                        return <div>{get(state, 'hello ' + state)}</div>
+                    }}
+                </Suspense2>
+            </div>
         </div>
-    </div>
+    )
 }
 
-
-function FE({ children }){ return children() }
-
-function Suspense2(props){
-    
-    return <Suspense {...props}>{
-        typeof props.children === 'function' ? 
-        <FE>{props.children}</FE> : props.children
-    }</Suspense>
+function FE({ children }) {
+    return children()
 }
 
+function Suspense2(props) {
+    return (
+        <Suspense {...props}>
+            {typeof props.children === 'function' ? <FE>{props.children}</FE> : props.children}
+        </Suspense>
+    )
+}
 
 const GlobalTransitionContext = React.createContext(null)
-function useGlobalTransition(){
+function useGlobalTransition() {
     return React.useContext(GlobalTransitionContext)
 }
-function GlobalTransition({ children }){
+function GlobalTransition({ children }) {
     let [startTransition, isPending] = useTransition({ timeoutMs: 5000 })
-    return <div style={{ opacity: isPending ? 0.5 : 1 }}>
-        <GlobalTransitionContext.Provider value={startTransition}>
-            {children} 
-        </GlobalTransitionContext.Provider>
-    </div>
+    return (
+        <div style={{ opacity: isPending ? 0.5 : 1 }}>
+            <GlobalTransitionContext.Provider value={startTransition}>
+                {children}
+            </GlobalTransitionContext.Provider>
+        </div>
+    )
 }
 
-
-function DataPage({ page }){
+function DataPage({ page }) {
     return <div>{get(page, 'hello ' + page)}</div>
 }
 
-
-
-function App2(){
-    return <SuspenseList revealOrder="forwards" tail="collapsed">
-      <div><Suspense2 fallback={<h2>Loading posts...</h2>}>
-        {() => get('blah1', 'meeple doople 1', 1500)}
-      </Suspense2></div>
-      <div><Suspense2 fallback={<h2>Loading fun facts 2 ...</h2>}>
-        {() => get('blah2', 'meeple doople 2', 100)}
-      </Suspense2></div>
-      <div><Suspense2 fallback={<h2>Loading fun facts 3...</h2>}>
-        {() => get('blah3', 'meeple doople 3', 1500)}
-      </Suspense2></div>
-      <div><Suspense2 fallback={<h2>Loading fun facts 4...</h2>}>
-        {() => get('blah4', 'meeple doople 4', 500)}
-      </Suspense2></div>
-    </SuspenseList>
+function App2() {
+    return (
+        <SuspenseList revealOrder="forwards" tail="collapsed">
+            <div>
+                <Suspense2 fallback={<h2>Loading posts...</h2>}>
+                    {() => get('blah1', 'meeple doople 1', 1500)}
+                </Suspense2>
+            </div>
+            <div>
+                <Suspense2 fallback={<h2>Loading fun facts 2 ...</h2>}>
+                    {() => get('blah2', 'meeple doople 2', 100)}
+                </Suspense2>
+            </div>
+            <div>
+                <Suspense2 fallback={<h2>Loading fun facts 3...</h2>}>
+                    {() => get('blah3', 'meeple doople 3', 1500)}
+                </Suspense2>
+            </div>
+            <div>
+                <Suspense2 fallback={<h2>Loading fun facts 4...</h2>}>
+                    {() => get('blah4', 'meeple doople 4', 500)}
+                </Suspense2>
+            </div>
+        </SuspenseList>
+    )
 }
 
-
-let root = ReactDOM.createRoot(
-  document.getElementById('root')
-)
+function App3() {
+    let [loaded, setLoaded] = React.useState(false)
+    React.useEffect(() => {
+        // setTimeout(() => setLoaded(true), 100)
+        setLoaded(true)
+    }, [])
+    if (loaded) {
+        return (
+            <Suspense fallback={<div>(Fallback)</div>}>
+                <DataPage page={42} />
+            </Suspense>
+        )
+    } else {
+        return <div>(SSR)</div>
+    }
+}
+let root = ReactDOM.createRoot(document.getElementById('root'))
 
 console.log(root)
 
-root.render(<Suspense fallback={<div>(Global fallback)</div>}>
-    <GlobalTransition><App2 /></GlobalTransition>
-</Suspense>);
-
+root.render(
+    <Suspense fallback={<div>(Global fallback)</div>}>
+        <GlobalTransition>
+            <App3 />
+        </GlobalTransition>
+    </Suspense>
+)
 
 // root.render(<App2 />);
-
