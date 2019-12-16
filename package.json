@@ -20,7 +20,7 @@
     "@types/react-dom": "^16.9.4",
     "@types/react-is": "^16.7.1",
     "@types/react-test-renderer": "^16.9.1",
-    "apollo-boost": "^0.4.4",
+    "apollo-boost": "^0.4.7",
     "jest": "^24.9.0",
     "parcel": "^1.12.4",
     "prettier": "^1.19.1",
