@@ -18,13 +18,6 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
         ts += 'export type Mutation = ' + schema.mutationType.name + '\n\n'
     }
 
-    ts += 'type GQLType = {\n'
-    ts += INDENT + '/** The name of the object type */\n'
-    ts += INDENT + '__typename: string,\n'
-    ts += '}\n\n'
-
-    
-
     const SCALAR_MAP = {
         Int: 'number',
         Float: 'number',
@@ -35,7 +28,9 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
         if (BUILTIN_TYPES.indexOf(type.name!) !== -1) continue
         if (type.kind === 'OBJECT') {
             if (type.description) ts += '/** ' + type.description + ' */\n'
-            ts += 'export type ' + type.name + ' = GQLType & {\n'
+            ts += 'export type ' + type.name + ' = {\n'
+
+            ts += INDENT + '__typename: ' + JSON.stringify(type.name) + ',\n'
 
             for (let field of type.fields!) {
                 if (field.description) ts += INDENT + '/** ' + field.description + ' */\n'
@@ -84,7 +79,15 @@ export default function convertGQLSchemaToTypescript(schema: GQLSchema) {
         } else if (type.kind === 'INTERFACE' || type.kind === 'UNION') {
             if (type.description) ts += '/** ' + type.description + ' */\n'
 
-            ts += 'export type ' + type.name + ' = GQLType & {\n'
+            ts += 'export type ' + type.name + ' = {\n'
+
+            if ((type.possibleTypes || []).length > 0) {
+                ts +=
+                    INDENT +
+                    '__typename: ' +
+                    (type.possibleTypes || []).map((k) => JSON.stringify(k.name)).join(' | ') +
+                    ',\n'
+            }
 
             // this code is only relevant for type.kind === INTERFACE
             // for unions, this section of the interface definition is always blank

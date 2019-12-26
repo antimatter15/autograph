@@ -22,12 +22,8 @@ test('GQL String', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-        "type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type Query = GQLType & {
+        "export type Query = {
+            __typename: \\"Query\\",
             echo(args?: { message?: string }): string | null,
 
             /** Check this to determine whether the query is loading */
@@ -55,12 +51,8 @@ test('GQL String (Non-nullable)', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-        "type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type Query = GQLType & {
+        "export type Query = {
+            __typename: \\"Query\\",
             echo(args: { message: string }): string,
 
             /** Check this to determine whether the query is loading */
@@ -90,12 +82,8 @@ test('Custom Scalar', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-        "type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type Query = GQLType & {
+        "export type Query = {
+            __typename: \\"Query\\",
             myNewICO?: Zombocoin,
 
             /** Check this to determine whether the query is loading */
@@ -125,12 +113,8 @@ test('GQL Int', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-        "type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type Query = GQLType & {
+        "export type Query = {
+            __typename: \\"Query\\",
             numberOfFriends?: Int,
 
             /** Check this to determine whether the query is loading */
@@ -168,12 +152,8 @@ test('GQL Types', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-        "type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type Query = GQLType & {
+        "export type Query = {
+            __typename: \\"Query\\",
             GetReview: Review,
 
             /** Check this to determine whether the query is loading */
@@ -184,7 +164,8 @@ test('GQL Types', async () => {
             _dry?: boolean,
         }
 
-        export type Review = GQLType & {
+        export type Review = {
+            __typename: \\"Review\\",
             author?: string,
             wasPositive?: boolean,
             body?: string,
@@ -207,12 +188,8 @@ test('GQL Float', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-        "type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type Query = GQLType & {
+        "export type Query = {
+            __typename: \\"Query\\",
             radiansInADegree?: Float,
 
             /** Check this to determine whether the query is loading */
@@ -242,12 +219,8 @@ test('GQL ID', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-        "type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type Query = GQLType & {
+        "export type Query = {
+            __typename: \\"Query\\",
             myUniqueIdentifier?: ID,
 
             /** Check this to determine whether the query is loading */
@@ -278,12 +251,8 @@ test('GQL Array', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-        "type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type Query = GQLType & {
+        "export type Query = {
+            __typename: \\"Query\\",
             allMyFriends?: string[],
 
             /** Check this to determine whether the query is loading */
@@ -329,12 +298,8 @@ test('GQL Union', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-        "type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type Query = GQLType & {
+        "export type Query = {
+            __typename: \\"Query\\",
             allMyFrienemies?: Frienemies[],
 
             /** Check this to determine whether the query is loading */
@@ -345,21 +310,24 @@ test('GQL Union', async () => {
             _dry?: boolean,
         }
 
-        export type Frienemies = GQLType & {
+        export type Frienemies = {
+            __typename: \\"Friend\\" | \\"Enemy\\",
             /** Use \`asFriend\` to access fields on the underlying concrete type. */
             asFriend: Friend
             /** Use \`asEnemy\` to access fields on the underlying concrete type. */
             asEnemy: Enemy
         }
 
-        export type Friend = GQLType & {
+        export type Friend = {
+            __typename: \\"Friend\\",
             friendliness?: Int,
         }
 
         /** The \`Int\` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1. */
         export type Int = number
 
-        export type Enemy = GQLType & {
+        export type Enemy = {
+            __typename: \\"Enemy\\",
             hatred?: Int,
         }
 
@@ -367,7 +335,8 @@ test('GQL Union', async () => {
         The ship has weather’d every rack, the prize we sought is won,
         The port is near, the bells I hear, the people all exulting,
         While follow eyes the steady keel, the vessel grim and daring; */
-        export type Builtins = GQLType & {
+        export type Builtins = {
+            __typename: \\"Enemy\\",
             /** Use \`asEnemy\` to access fields on the underlying concrete type. */
             asEnemy: Enemy
         }
@@ -389,12 +358,8 @@ test('GQL Boolean', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-        "type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type Query = GQLType & {
+        "export type Query = {
+            __typename: \\"Query\\",
             wasSuspendedFromSchool?: boolean,
 
             /** Check this to determine whether the query is loading */
@@ -429,12 +394,8 @@ test('GQL Enums', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-        "type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type Query = GQLType & {
+        "export type Query = {
+            __typename: \\"Query\\",
             favoriteMovie: Episode,
 
             /** Check this to determine whether the query is loading */
@@ -511,12 +472,8 @@ test('GQL Interfaces', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-        "type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type Query = GQLType & {
+        "export type Query = {
+            __typename: \\"Query\\",
             hero?: Character,
 
             /** Check this to determine whether the query is loading */
@@ -527,7 +484,8 @@ test('GQL Interfaces', async () => {
             _dry?: boolean,
         }
 
-        export type Character = GQLType & {
+        export type Character = {
+            __typename: \\"Human\\" | \\"Droid\\",
             id: ID,
             name: string,
             friends?: Character[],
@@ -549,12 +507,13 @@ test('GQL Interfaces', async () => {
         the ways in which humans interact with computers and design
         technologies that let humans interact with computers in novel
         ways. */
-        export type Winterface = GQLType & {
+        export type Winterface = {
             /** A rose by any other name would smell as sweet */
             name?: string,
         }
 
-        export type Human = GQLType & {
+        export type Human = {
+            __typename: \\"Human\\",
             id: ID,
             name: string,
             friends?: Character[],
@@ -565,7 +524,8 @@ test('GQL Interfaces', async () => {
         /** The \`Int\` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1. */
         export type Int = number
 
-        export type Droid = GQLType & {
+        export type Droid = {
+            __typename: \\"Droid\\",
             id: ID,
             name: string,
             friends?: Character[],
@@ -608,12 +568,8 @@ test('GQL Input Type', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-        "type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type Query = GQLType & {
+        "export type Query = {
+            __typename: \\"Query\\",
             hello(args: { input: ReviewInput }): string | null,
             rumor(args?: { input?: OtherInput }): string | null,
 
@@ -656,12 +612,8 @@ test('Basic query', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-        "type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type Query = GQLType & {
+        "export type Query = {
+            __typename: \\"Query\\",
             hello_world_message?: string,
 
             /** Check this to determine whether the query is loading */
@@ -691,12 +643,8 @@ test('Query with arguments', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-        "type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type Query = GQLType & {
+        "export type Query = {
+            __typename: \\"Query\\",
             allFilms(args?: { after?: string, first?: Int, before?: string, last?: Int }): string | null,
             allCharacters(args?: { after?: string, first?: Int, before?: string, last?: Int }): string,
 
@@ -732,12 +680,8 @@ test('Basic mutation', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-        "type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type Query = GQLType & {
+        "export type Query = {
+            __typename: \\"Query\\",
             hello_world_message?: string,
 
             /** Check this to determine whether the query is loading */
@@ -748,7 +692,8 @@ test('Basic mutation', async () => {
             _dry?: boolean,
         }
 
-        export type Mutation = GQLType & {
+        export type Mutation = {
+            __typename: \\"Mutation\\",
             changeName(args?: { name?: string }): string | null,
         }
 
@@ -798,13 +743,9 @@ test('GQL Descriptions', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-        "type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        /** A simple GraphQL schema which is well described. */
-        export type Query = GQLType & {
+        "/** A simple GraphQL schema which is well described. */
+        export type Query = {
+            __typename: \\"Query\\",
             /** Translates a string from a given language into a different language. */
             translate(args?: { fromLanguage?: Language, toLanguage?: Language, text?: string }): string | null,
 
@@ -843,12 +784,8 @@ test('Deprecated fields', async () => {
             `)
         )
     ).toMatchInlineSnapshot(`
-        "type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type Query = GQLType & {
+        "export type Query = {
+            __typename: \\"Query\\",
             /** @deprecated No longer supported */
             oldField?: string,
             /** @deprecated i felt like it */
@@ -862,7 +799,7 @@ test('Deprecated fields', async () => {
             _dry?: boolean,
         }
 
-        export type Wumbo = GQLType & {
+        export type Wumbo = {
             /** @deprecated No longer supported */
             oldField?: string,
             /** @deprecated i felt like it */
@@ -891,12 +828,8 @@ test('Custom query type', async () => {
     ).toMatchInlineSnapshot(`
         "export type Query = CustomQueryAPI
 
-        type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type CustomQueryAPI = GQLType & {
+        export type CustomQueryAPI = {
+            __typename: \\"CustomQueryAPI\\",
             hello_world_message?: string,
 
             /** Check this to determine whether the query is loading */
@@ -933,12 +866,8 @@ test('Custom mutation type', async () => {
     ).toMatchInlineSnapshot(`
         "export type Mutation = CustomMutationAPI
 
-        type GQLType = {
-            /** The name of the object type */
-            __typename: string,
-        }
-
-        export type Query = GQLType & {
+        export type Query = {
+            __typename: \\"Query\\",
             hello_world_message?: string,
 
             /** Check this to determine whether the query is loading */
@@ -949,7 +878,8 @@ test('Custom mutation type', async () => {
             _dry?: boolean,
         }
 
-        export type CustomMutationAPI = GQLType & {
+        export type CustomMutationAPI = {
+            __typename: \\"CustomMutationAPI\\",
             changeName(args?: { name?: string }): string,
         }
 

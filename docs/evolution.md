@@ -994,6 +994,15 @@ all the data dependencies in one pass, so it can even fetch nested components im
 being generally immune to waterfall issues). It also preserves the locality of data fetching and
 display logic, and thus minimizes path-dependence.
 
+## Iterated SSR (December 7, 2019)
+
+One problem with Autograph-style SSR solutions is that they don't actually operate on real data.
+This can potentially lead to waterfall-style behavior if display logic is truly dependent on
+content.
+
+For SSR applications, we can potentially run multiple render passes with progressively more "actual"
+data, so we can be confident in the data that is actually needed.
+
 ## TODO
 
 -   mutations api
