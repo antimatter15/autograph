@@ -5,83 +5,23 @@ import * as GQL from './pokemon.schema'
 
 const AutographRoot = createRoot({
     client: 'https://graphql-pokemon.now.sh/graphql',
-    schema: GQL.schema
+    schema: GQL.schema,
 })
-
-function AppLoadingGuard() {
-    let [text, setText] = React.useState('pikachu')
-    let query: GQL.Query = useQuery('Blah')
-
-    if (query._error) return <div>{query._error.toString()}</div>
-    return (
-        <div>
-            <input key="thang" type="text" value={text} onChange={(e) => setText(e.target.value)} />
-            <div>
-                <LoadingBoundary>
-                    {() => {
-                        let pokemon = query.pokemon({ name: text })
-                        return pokemon ? (
-                            <Pokedex pokemon={pokemon} />
-                        ) : (
-                            <div>No matching pokemon</div>
-                        )
-                    }}
-                </LoadingBoundary>
-            </div>
-        </div>
-    )
-}
-
-function AppEarlyReturn() {
-    let [text, setText] = React.useState('pikachu')
-    return (
-        <div>
-            <input key="thang" type="text" value={text} onChange={(e) => setText(e.target.value)} />
-            <PokemonSearcherEarlyReturn text={text} />
-        </div>
-    )
-}
-
-function PokemonSearcherEarlyReturn({ text }) {
-    let query: GQL.Query = useQuery('Blah')
-    if (query._error) return <div>{query._error.toString()}</div>
-    if (query._loading) return <div>searching the pokedex....</div>
-    let pokemon = query.pokemon({ name: text })
-    if (!pokemon) return <div>No matching pokemon</div>
-    return <Pokedex pokemon={pokemon} />
-}
 
 function AppSuspense() {
     let [text, setText] = React.useState('pikachu')
+    const deferredValue = React.useDeferredValue(text, {
+        timeoutMs: 5000,
+    })
+    let query: GQL.Query = useQuery('Pokemon Query')
+    let pokemon = query.pokemon({ name: deferredValue })
+
     return (
         <div>
             <input key="thang" type="text" value={text} onChange={(e) => setText(e.target.value)} />
             <React.Suspense fallback={<div>Querying pokedex</div>}>
-                <PokemonSearcherSuspense text={text} />
+                {pokemon ? <Pokedex pokemon={pokemon} /> : <div>No matching pokemon</div>}
             </React.Suspense>
-        </div>
-    )
-}
-
-function PokemonSearcherSuspense({ text }) {
-    let query: GQL.Query = useQuery('Blah')
-    if (query._error) return <div>{query._error.toString()}</div>
-    let pokemon = query.pokemon({ name: text })
-    if (!pokemon) return <div>No matching pokemon</div>
-    return <Pokedex pokemon={pokemon} />
-}
-
-function AppNoLoader() {
-    let [text, setText] = React.useState('pikachu')
-    let query: GQL.Query = useQuery('Blah')
-
-    if (query._error) return <div>{query._error.toString()}</div>
-    let pokemon = query.pokemon({ name: text })
-
-    return (
-        <div>
-            <input key="thang" type="text" value={text} onChange={(e) => setText(e.target.value)} />
-            <div>{pokemon ? <Pokedex pokemon={pokemon} /> : <div>No matching pokemon</div>}</div>
         </div>
     )
 }
@@ -89,6 +29,7 @@ function AppNoLoader() {
 function Pokedex({ pokemon }: { pokemon: GQL.Pokemon }) {
     // console.log('pokedex', pokemon)
     let [expand, setExpand] = React.useState(false)
+    const [startTransition, isPending] = React.useTransition({ timeoutMs: 1000 })
 
     return (
         <div>
@@ -126,11 +67,10 @@ function Pokedex({ pokemon }: { pokemon: GQL.Pokemon }) {
     )
 }
 
-const App = AppEarlyReturn
+const App = AppSuspense
 
-ReactDOM.render(
+ReactDOM.createRoot(document.getElementById('root')).render(
     <AutographRoot>
         <App />
-    </AutographRoot>,
-    document.getElementById('root')
+    </AutographRoot>
 )

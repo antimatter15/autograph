@@ -1003,6 +1003,60 @@ content.
 For SSR applications, we can potentially run multiple render passes with progressively more "actual"
 data, so we can be confident in the data that is actually needed.
 
+A pseudocode implementation of this is:
+
+```
+cache = {}
+misses = set()
+
+while True:
+    render(<App get={key => {
+            if(key in cache){
+                return cache[key]
+            }else{
+                misses[key] = true;
+                return []
+            }
+        }}/>)
+    if Object.keys(misses) > 0:
+        Object.assign(cache, await fetchDataBatch(misses))
+    else:
+        break
+```
+
+They key here is the batched data fetching implementation, which is somewhat similar to the idea
+behind Facebook's DataLoader. Essentially, we gather across multiple leaves of the render tree, all
+the dependencies into a single list. Then we group the dependencies into batches that perform
+similar operations, and compile them into succinct queries that return many results.
+
+This is essentially a way of solving the N+1 problem, as it typically applies to GraphQL/SQL
+systems.
+
+The advantage of this kind of iterated SSR approach, is in some ways it's considerably simpler than
+the Autograph-style approach, which requires us to have a simulated data-flow graph. Having a
+simulated data-flow graph means that conditional logic doesn't work— which can show up as somewhat
+obscure and hard to debug surprises.
+
+To a certain extent, it's equivalent to using a GraphQL system with DataLoader, but interleaves them
+together in an SSR system to avoid having a separate query language.
+
+## Lightweight Iterated SSR (January 5, 2020)
+
+In the pseudocode implementation outlined in the Iterated SSR post, we run `render` on the entire
+app until convergence. This is inefficient, as different parts of the tree may be rendered many
+times before the final result.
+
+We can instead build a special `render` implementation, which walks the tree and renders each
+component until it encounters a cache miss. Then it can wait until all the leaves of the render
+process are blocked, and then it can run a batch fetch, and retry starting from those specific
+leaves.
+
+This has the disadvantage of being slightly less eager than the full iterated SSR approach (a
+component with missing data might still yield useful children). However this isn't necessarily
+something that's an intrinsic downside to this approach, as we could also eagerly render nodes with
+some agressive memoization on the props and element types. It increases the amount of work might be
+thrown away, but ultimately that all depends on the exact application.
+
 ## TODO
 
 -   mutations api

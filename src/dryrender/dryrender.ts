@@ -306,6 +306,12 @@ const DryRenderHooksDispatcher = {
         return { current: null }
     },
     useDebugValue: <T>(value: T, format?: (value: T) => any) => {},
+    useDeferredValue: (value: T, config: any): T => {
+        return value
+    },
+    useTransition: (config: any) => {
+        return [() => {}, false]
+    },
 }
 
 function mapSiblingFibers(fiber: ReactFiber | null) {

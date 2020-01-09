@@ -42,7 +42,6 @@ export class AutographBasicClient {
         }
     }
 
-
     fetchQuery(query: GQLQuery): Promise<any> {
         return fetch(this.config.url, {
             method: 'POST',
@@ -127,7 +126,6 @@ class AutographModel {
         return this.queries[config.id]
     }
     dryRender() {
-        
         // prepare dry render
         for (let query of Object.values(this.queries)) {
             query.lastDeps = query.deps
@@ -146,11 +144,11 @@ class AutographModel {
 
         // fetch what needs to be fetched
         for (let query of Object.values(this.queries)) {
-            if (!(JSON.stringify({ type: 'FEAT', name: '_error' }) in query.deps)) {
-                console.warn(
-                    `It appears that the query "${query.config.id}" does not include an error handler.\nConsider adding an error handler by checking for query._error.`
-                )
-            }
+            // if (!(JSON.stringify({ type: 'FEAT', name: '_error' }) in query.deps)) {
+            //     console.warn(
+            //         `It appears that the query "${query.config.id}" does not include an error handler.\nConsider adding an error handler by checking for query._error.`
+            //     )
+            // }
             if (!shallowCompare(query.deps, query.lastDeps)) {
                 query.refetch()
             } else {
@@ -167,13 +165,12 @@ type AccessorInfo = {
 }
 
 type HandleOptions = {
-    error?: boolean
+    // error?: boolean
     // suspense?: boolean
-    boundary?: boolean
+    // boundary?: boolean
 
     cacheOnly?: boolean
 }
-
 
 interface AutographClient {
     schemaData: GQLSchema
@@ -277,14 +274,14 @@ class AutographQuery {
         return schema
     }
     createHandle(handleOptions: HandleOptions = {}) {
-        if (handleOptions === true) {
-            handleOptions = { boundary: true }
-        }
+        // if (handleOptions === true) {
+        //     handleOptions = { boundary: true }
+        // }
 
         // get the graphql query root
-        let queryRoot: CompactGQLTypeRef = this.schema ? 
-            (this.schema['&query'] as CompactGQLTypeRef) :
-            '__NOSCHEMA'
+        let queryRoot: CompactGQLTypeRef = this.schema
+            ? (this.schema['&query'] as CompactGQLTypeRef)
+            : '__NOSCHEMA'
 
         if (this.root.currentlyDryRendering) {
             return this._createAccessor(this.deps, {
@@ -297,7 +294,6 @@ class AutographQuery {
             if (!this.schema && !this.client.schemaPromise && !this.client.schemaError) {
                 this.version++
                 this.client.schemaPromise = new Promise((resolve) => {
-
                     this.client
                         .fetchQuery({
                             query: SUCCINCT_INTROSPECTION_QUERY,
@@ -305,7 +301,7 @@ class AutographQuery {
                         })
                         .then((data: any) => data.__schema)
                         .then((data: GQLSchema) => {
-                            (global as any).SCHEMA = data;
+                            ;(global as any).SCHEMA = data
 
                             console.groupCollapsed('TypeScript Schema')
                             console.log(convertGQLSchemaToTypescript(data))
@@ -332,10 +328,10 @@ class AutographQuery {
             if (this.client.schemaPromise) {
                 throw this.client.schemaPromise
             }
-            if (handleOptions.error && this.client.schemaError) {
+            if (this.client.schemaError) {
                 throw this.client.schemaError
             }
-            if (handleOptions.error && this.dataError) {
+            if (this.dataError) {
                 throw this.dataError
             }
             return this._createAccessor(this.data, {
@@ -372,9 +368,8 @@ class AutographQuery {
                         ensureDuringRender()
                     }
 
-                    let isQueryRoot = 
-                        state.typeRef === '__NOSCHEMA' ||
-                        config.schema['&query'] === state.typeRef;
+                    let isQueryRoot =
+                        state.typeRef === '__NOSCHEMA' || config.schema['&query'] === state.typeRef
                     // if(state.typeRef)
                     // if (handleOptions.cacheOnly) return null
 
@@ -418,9 +413,8 @@ class AutographQuery {
 
                 accessHandleHook: (handle, state, config) => {
                     let { isDry } = config
-                    let isQueryRoot = 
-                        state.typeRef === '__NOSCHEMA' ||
-                        config.schema['&query'] === state.typeRef;
+                    let isQueryRoot =
+                        state.typeRef === '__NOSCHEMA' || config.schema['&query'] === state.typeRef
 
                     if (isQueryRoot) {
                         // allow functions to distinguish between the dry run and the real execution
@@ -443,22 +437,22 @@ class AutographQuery {
 
                         // we may have to deal with either schema or data errors
 
-                        if (isDry) {
-                            Object.defineProperty(handle, '_error', {
-                                enumerable: false,
-                                get() {
-                                    state.accessLog[
-                                        JSON.stringify({ type: 'FEAT', name: '_error' })
-                                    ] = true
-                                    return null
-                                },
-                            })
-                        } else {
-                            Object.defineProperty(handle, '_error', {
-                                enumerable: false,
-                                value: this.client.schemaError || this.dataError,
-                            })
-                        }
+                        // if (isDry) {
+                        //     Object.defineProperty(handle, '_error', {
+                        //         enumerable: false,
+                        //         get() {
+                        //             // state.accessLog[
+                        //             //     JSON.stringify({ type: 'FEAT', name: '_error' })
+                        //             // ] = true
+                        //             return null
+                        //         },
+                        //     })
+                        // } else {
+                        //     Object.defineProperty(handle, '_error', {
+                        //         enumerable: false,
+                        //         value: this.client.schemaError || this.dataError,
+                        //     })
+                        // }
 
                         Object.defineProperty(handle, '_data', {
                             enumerable: false,
