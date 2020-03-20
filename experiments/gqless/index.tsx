@@ -1,10 +1,17 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 
+const DataContext = React.createContext(null)
+let dataUpdater
+
 export const App = () => {
+    const [data, setData] = React.useState(0)
+    dataUpdater = setData
     return (
         <React.Suspense fallback="loading">
-            <ChildComponent />
+            <DataContext.Provider value={data}>
+                <ChildComponent />
+            </DataContext.Provider>
         </React.Suspense>
     )
 }
@@ -88,6 +95,7 @@ function fetchCore() {
     delay(500).then(() => {
         missed_keys.forEach((k) => (cache[k] = 'loaded' + k))
         resolvePromise()
+        dataUpdater({})
         promise = null
     })
 }
@@ -111,11 +119,12 @@ function Suspender() {
 
 function gqless(component) {
     return () => {
-        let [version, setVersion] = React.useState({})
+        // let [version, setVersion] = React.useState({})
+
         let data = component()
 
         if (promise) {
-            promise.then(() => setVersion({}))
+            // promise.then(() => setVersion({}))
 
             return (
                 <React.Fragment>
@@ -134,6 +143,7 @@ const ChildComponent = gqless(() => {
     return (
         <div>
             child {fetchData('child data')}
+            child {fetchData('child data 2')}
             <GrandchildComponent />
         </div>
     )
