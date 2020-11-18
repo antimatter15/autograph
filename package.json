@@ -23,7 +23,7 @@
     "apollo-boost": "^0.4.7",
     "jest": "^25.1.0",
     "parcel": "^1.12.4",
-    "prettier": "^1.19.1",
+    "prettier": "^2.1.2",
     "react": "^0.14.0",
     "react-dom": "^0.0.0-experimental-f42431abe",
     "react-test-renderer": "^17.0.1",
