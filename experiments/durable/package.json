@@ -7,7 +7,7 @@
     "start": "parcel index.html"
   },
   "dependencies": {
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "parcel": "^1.12.3",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
