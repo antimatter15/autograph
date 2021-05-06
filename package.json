@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "graphql": "^15.5.0",
-    "react-is": "^17.0.1"
+    "react-is": "^17.0.2"
   },
   "devDependencies": {
     "@types/graphql": "^14.2.3",
